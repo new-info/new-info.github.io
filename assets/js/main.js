@@ -17,6 +17,67 @@ class NotesApp {
         this.setupNavigation();
         this.setupMobileMenu();
         this.loadNotes();
+        this.setupBackButtonScript();
+    }
+
+    // 设置返回按钮脚本
+    setupBackButtonScript() {
+        // 检查当前URL是否在分析或评分页面
+        const currentPath = window.location.pathname;
+        if (currentPath.includes('.html') && (currentPath.includes('/hjf/') || currentPath.includes('/hjm/'))) {
+            // 动态加载返回按钮脚本
+            const script = document.createElement('script');
+            script.src = '/assets/js/back-button.js';
+            document.head.appendChild(script);
+            
+            // 判断是否是iframe中的页面
+            if (window.self === window.top) {
+                // 不在iframe中，加载返回按钮
+                const scriptInline = document.createElement('script');
+                scriptInline.textContent = `
+                    // 直接加载返回按钮
+                    const buttonContainer = document.createElement('div');
+                    buttonContainer.style.position = 'fixed';
+                    buttonContainer.style.top = '20px';
+                    buttonContainer.style.left = '20px';
+                    buttonContainer.style.zIndex = '100000';
+                    
+                    const backButton = document.createElement('a');
+                    backButton.href = '/index.html';
+                    backButton.title = '返回主页';
+                    backButton.innerText = '←';
+                    
+                    backButton.style.display = 'flex';
+                    backButton.style.alignItems = 'center';
+                    backButton.style.justifyContent = 'center';
+                    backButton.style.width = '40px';
+                    backButton.style.height = '40px';
+                    backButton.style.borderRadius = '50%';
+                    backButton.style.backgroundColor = 'rgba(26, 41, 128, 0.8)';
+                    backButton.style.color = 'white';
+                    backButton.style.textDecoration = 'none';
+                    backButton.style.fontSize = '20px';
+                    backButton.style.fontWeight = 'bold';
+                    backButton.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.2)';
+                    backButton.style.transition = 'all 0.2s ease';
+                    backButton.style.cursor = 'pointer';
+                    
+                    backButton.addEventListener('mouseover', function() {
+                        this.style.backgroundColor = 'rgba(38, 208, 206, 0.9)';
+                        this.style.transform = 'translateY(-2px)';
+                    });
+                    
+                    backButton.addEventListener('mouseout', function() {
+                        this.style.backgroundColor = 'rgba(26, 41, 128, 0.8)';
+                        this.style.transform = 'translateY(0)';
+                    });
+                    
+                    buttonContainer.appendChild(backButton);
+                    setTimeout(() => document.body.appendChild(buttonContainer), 300);
+                `;
+                document.head.appendChild(scriptInline);
+            }
+        }
     }
 
     // 设置导航

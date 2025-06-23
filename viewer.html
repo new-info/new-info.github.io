@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>内容查看器 - 直播分析平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: #f5f7fa;
+        }
+        
+        .viewer-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+        }
+        
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(26, 41, 128, 0.8);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 20px;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .back-button:hover {
+            background: rgba(38, 208, 206, 0.9);
+            transform: translateY(-2px);
+        }
+        
+        .loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f5f7fa;
+            color: #1a2980;
+            font-size: 18px;
+            z-index: 10;
+            transition: opacity 0.3s ease;
+        }
+        
+        .loading.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            margin-right: 12px;
+            border: 4px solid rgba(26, 41, 128, 0.2);
+            border-left-color: rgba(38, 208, 206, 1);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="viewer-container">
+        <a href="/index.html" class="back-button" title="返回主页">←</a>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <div>加载中...</div>
+        </div>
+        
+        <iframe id="content-frame" title="内容查看"></iframe>
+    </div>
+    
+    <script>
+        // 获取查询参数
+        const urlParams = new URLSearchParams(window.location.search);
+        const pageUrl = urlParams.get('page');
+        
+        if (pageUrl) {
+            // 设置iframe的src
+            const iframe = document.getElementById('content-frame');
+            iframe.src = pageUrl;
+            
+            // 设置页面标题
+            const fileName = pageUrl.split('/').pop();
+            document.title = fileName.replace('.html', '') + ' - 直播分析平台';
+            
+            // 监听iframe加载完成
+            iframe.addEventListener('load', function() {
+                // 隐藏加载提示
+                document.getElementById('loading').classList.add('hidden');
+            });
+        } else {
+            // 没有指定页面参数时重定向到首页
+            window.location.href = '/index.html';
+        }
+    </script>
+</body>
+</html> 

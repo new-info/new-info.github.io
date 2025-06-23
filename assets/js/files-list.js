@@ -1,5 +1,5 @@
 // 自动生成的文件列表
-// 最后更新时间: 2025-06-23T14:06:37.338Z
+// 最后更新时间: 2025-06-23T14:40:16.172Z
 
 window.FILES_LIST = {
   "html": [
@@ -8,7 +8,8 @@ window.FILES_LIST = {
     "2025/hjm/2025年6月22日-review.html",
     "2025/hjm/2025年6月22日.html",
     "assets/icons/icon-generator.html",
-    "index.html"
+    "index.html",
+    "viewer.html"
   ],
   "css": [
     "2025/hjf/highlight.css",
@@ -17,11 +18,13 @@ window.FILES_LIST = {
     "assets/css/mobile.css"
   ],
   "js": [
+    "assets/js/back-button.js",
     "assets/js/file-monitor.js",
     "assets/js/files-list.js",
     "assets/js/main.js",
     "assets/js/missing-files.js",
     "assets/js/notes-data.js",
+    "assets/js/page-router.js",
     "assets/js/score-patches.js",
     "assets/js/sw-updater.js",
     "scripts/create-icons.js",
@@ -68,7 +71,7 @@ window.FILES_LIST = {
     "package.json",
     "scripts/README.md"
   ],
-  "lastUpdated": "2025-06-23T14:06:37.338Z"
+  "lastUpdated": "2025-06-23T14:40:16.172Z"
 };
 
 // 导出数据供Node.js使用
