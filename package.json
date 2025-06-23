@@ -1,0 +1,54 @@
+{
+  "name": "live-analysis-platform",
+  "version": "1.0.0",
+  "description": "直播内容分析平台 - 基于GitHub Pages的静态网站",
+  "main": "index.html",
+  "scripts": {
+    "scan": "node scripts/scan-notes.js",
+    "scan:watch": "node scripts/scan-notes.js --watch",
+    "scan:files": "node scripts/scan-files.js",
+    "scan:files:check": "node scripts/scan-files.js --check404",
+    "build": "node scripts/scan-notes.js && node scripts/scan-files.js",
+    "dev": "npm run build && npx http-server -o",
+    "dev:safe": "node scripts/dev-with-scan.js",
+    "serve": "npx http-server",
+    "icons": "node scripts/create-icons.js",
+    "patch:list": "node scripts/manage-patches.js list",
+    "patch:add": "node scripts/manage-patches.js add",
+    "patch:remove": "node scripts/manage-patches.js remove",
+    "patch:help": "node scripts/manage-patches.js help",
+    "demo:create": "node scripts/demo.js create",
+    "demo:clean": "node scripts/demo.js clean",
+    "help": "echo '可用命令: npm run dev:safe (安全开发模式), npm run build (构建项目), npm run patch:add (添加分数补丁), npm run icons (生成图标)'",
+    "test": "npm run build",
+    "deploy": "npm run build && git add . && git commit -m 'Update analysis data' && git push"
+  },
+  "keywords": [
+    "live-analysis",
+    "github-pages",
+    "static-site",
+    "pwa",
+    "rewards-system"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "canvas": "^3.1.1",
+    "chokidar": "^3.5.3"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "volta": {
+    "node": "18.19.1",
+    "npm": "10.2.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/username/GithubPage.git"
+  },
+  "homepage": "https://username.github.io/GithubPage"
+}

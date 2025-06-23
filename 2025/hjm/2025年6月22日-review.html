@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>直播问答内容评估报告</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 15px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            line-height: 1.4;
+        }
+
+        .report-summary {
+            padding: 25px 15px;
+            background: #f8f9ff;
+            border-bottom: 1px solid #eaeaea;
+        }
+
+        .score-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            width: 100%;
+            max-width: 280px;
+            margin: 0 auto;
+            border: 2px solid #1a2980;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .score-value {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: #1a2980;
+            line-height: 1;
+            margin: 10px 0;
+        }
+
+        .score-total {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 12px;
+        }
+
+        .score-label {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #26d0ce;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .report-details {
+            padding: 20px 15px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: #1a2980;
+            margin: 20px 0 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #26d0ce;
+            font-weight: 600;
+        }
+
+        .criteria-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .criteria-card {
+            background: #f8f9ff;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border-left: 3px solid #26d0ce;
+        }
+
+        .criteria-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .criteria-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1a2980;
+        }
+
+        .criteria-score {
+            font-size: 1.1rem;
+            font-weight: 700;
+            background: #26d0ce;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .criteria-total {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .criteria-analysis {
+            color: #444;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .criteria-analysis p {
+            margin-bottom: 8px;
+        }
+
+        .criteria-analysis strong {
+            color: #1a2980;
+        }
+
+        .final-comments {
+            background: #e3f7f7;
+            border-left: 4px solid #26d0ce;
+            padding: 16px;
+            margin: 25px 0;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .final-comments h3 {
+            color: #1a2980;
+            margin-bottom: 8px;
+            font-size: 1.2rem;
+        }
+
+        .final-comments p {
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+
+        .final-comments strong {
+            color: #1a2980;
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px;
+            color: #666;
+            font-size: 0.85rem;
+            border-top: 1px solid #eee;
+            background: #f8f9ff;
+        }
+
+        /* 平板及以上设备适配 */
+        @media (min-width: 768px) {
+            body {
+                padding: 25px;
+            }
+
+            .container {
+                max-width: 700px;
+            }
+
+            header {
+                padding: 30px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .subtitle {
+                font-size: 1.1rem;
+            }
+
+            .report-details {
+                padding: 25px 30px;
+            }
+
+            .criteria-grid {
+                gap: 20px;
+            }
+
+            .criteria-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>直播问答内容评估报告</h1>
+            <p class="subtitle">基于内容质量、结构、表达、深度和价值等多维度的专业评估</p>
+        </header>
+
+        <div class="report-summary">
+            <div class="score-card">
+                <div class="score-label">综合评分</div>
+                <div class="score-value">78</div>
+                <div class="score-total">满分100分</div>
+                <p>内容良好，实用性强</p>
+            </div>
+        </div>
+
+        <div class="report-details">
+            <h2 class="section-title">评估详情</h2>
+
+            <div class="criteria-grid">
+                <div class="criteria-card">
+                    <div class="criteria-header">
+                        <div class="criteria-name">内容质量</div>
+                        <div class="criteria-score">22</div>
+                    </div>
+                    <div class="criteria-total">权重30% | 总分30</div>
+                    <div class="criteria-analysis">
+                        <p><strong>优点：</strong>主题覆盖广泛，建议基于现实经验，实用性强（如旅行建议详细、健康建议有启发性）。问题真实，反映了常见生活困境。</p>
+                        <p><strong>缺点：</strong>深度不足，多数建议较浅显，缺乏数据、案例或详细论证；部分回答过于简略，未能提供具体行动步骤。</p>
+                    </div>
+                </div>
+
+                <div class="criteria-card">
+                    <div class="criteria-header">
+                        <div class="criteria-name">结构清晰度</div>
+                        <div class="criteria-score">18</div>
+                    </div>
+                    <div class="criteria-total">权重20% | 总分20</div>
+                    <div class="criteria-analysis">
+                        <p><strong>优点：</strong>结构组织良好，每个部分独立编号，使用标题区分主题，问题(Q)和回答(A)格式一致，便于阅读。HTML样式优化了可读性。</p>
+                        <p><strong>缺点：</strong>部分部分之间缺乏逻辑衔接，标题虽清晰但内容未进一步细分。</p>
+                    </div>
+                </div>
+
+                <div class="criteria-card">
+                    <div class="criteria-header">
+                        <div class="criteria-name">语言表达</div>
+                        <div class="criteria-score">17</div>
+                    </div>
+                    <div class="criteria-total">权重20% | 总分20</div>
+                    <div class="criteria-analysis">
+                        <p><strong>优点：</strong>语言通俗易懂，口语化风格符合直播记录特点；无语法或拼写错误，表达流畅；建议用词简洁。</p>
+                        <p><strong>缺点：</strong>部分语句重复或冗余，个别地方表达模糊。</p>
+                    </div>
+                </div>
+
+                <div class="criteria-card">
+                    <div class="criteria-header">
+                        <div class="criteria-name">深度和洞察力</div>
+                        <div class="criteria-score">14</div>
+                    </div>
+                    <div class="criteria-total">权重20% | 总分20</div>
+                    <div class="criteria-analysis">
+                        <p><strong>优点：</strong>部分内容有洞察力（如对"平静生活是福报"的讨论、旅行风险评估），提供情感支持。</p>
+                        <p><strong>缺点：</strong>整体深度不足，建议多为常识性，缺乏心理学、社会学等理论支撑；未触及问题根源。</p>
+                    </div>
+                </div>
+
+                <div class="criteria-card">
+                    <div class="criteria-header">
+                        <div class="criteria-name">整体价值</div>
+                        <div class="criteria-score">7</div>
+                    </div>
+                    <div class="criteria-total">权重10% | 总分10</div>
+                    <div class="criteria-analysis">
+                        <p><strong>优点：</strong>对目标受众（普通大众、面临生活问题者）有价值，提供快速、实用的建议；情感共鸣强。</p>
+                        <p><strong>缺点：</strong>价值局限于特定场景，创新性或长期影响力低；未引用权威来源，可信度一般。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="final-comments">
+                <h3>最终评语</h3>
+                <p>内容整体良好，结构清晰、语言流畅，建议实用性强，能有效解决日常问题（如旅行规划、家庭关系）。但深度不足，部分建议过于简略，缺乏数据或扩展分析，影响了更高分。适合作为快速参考，但非深度指南。</p>
+                <p><strong>改进建议：</strong>增加案例、数据支持或具体资源链接，以提升深度和可信度；对复杂问题提供更具体的行动步骤；加强不同主题之间的逻辑衔接。</p>
+            </div>
+        </div>
+
+        <footer>
+            <p>评估时间: 2025年6月23日 | 内容评估专家系统</p>
+            <p>注：本评估基于内容质量、结构、表达、深度和价值五个维度进行专业分析</p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>直播分析平台 - GitHub Pages</title>
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/mobile.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#26d0ce">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="直播分析平台">
+    <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="nav-wrapper">
+                <h1 class="logo">📊 直播分析平台</h1>
+                <button class="mobile-menu-toggle" aria-label="菜单">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+            <nav class="nav">
+                <ul class="nav-list">
+                    <li><a href="#home" class="nav-link active">首页</a></li>
+                    <li><a href="#hjf" class="nav-link">HJF 分析</a></li>
+                    <li><a href="#hjm" class="nav-link">HJM 分析</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <section id="home" class="section active">
+            <div class="container">
+                            <div class="hero">
+                <h2>直播内容分析平台</h2>
+                <p>实时追踪分析质量，智能计算绩效奖金</p>
+                <div class="reward-rules">
+                    <div class="rule-icon">💰</div>
+                    <div class="rule-content">
+                        <h3>奖金计算规则（抄袭取消资格）</h3>
+                        <p>评分对应奖金，60分以下无奖金</p>
+                    </div>
+                </div>
+            </div>
+
+                <!-- 总体统计概览 -->
+                <!--<div class="overview-stats">
+                    <div class="overview-card total-analysis">
+                        <div class="overview-icon">📊</div>
+                        <div class="overview-content">
+                            <h3>总分析数</h3>
+                            <p class="overview-number" id="home-total-analysis">0</p>
+                        </div>
+                    </div>
+                    <div class="overview-card pass-rate">
+                        <div class="overview-icon">✅</div>
+                        <div class="overview-content">
+                            <h3>总体及格率</h3>
+                            <p class="overview-number" id="home-pass-rate">0%</p>
+                        </div>
+                    </div>
+                    <div class="overview-card avg-score">
+                        <div class="overview-icon">📈</div>
+                        <div class="overview-content">
+                            <h3>平均得分</h3>
+                            <p class="overview-number" id="home-avg-score">0</p>
+                        </div>
+                    </div>
+                    <div class="overview-card total-reward">
+                        <div class="overview-icon">💰</div>
+                        <div class="overview-content">
+                            <h3>累计奖金</h3>
+                            <p class="overview-number" id="home-total-reward">¥0</p>
+                        </div>
+                    </div>
+                </div>-->
+
+                <!-- 分析员对比展示 -->
+                <div class="analyst-showcase">
+                    <h2 class="showcase-title">分析员绩效</h2>
+                    <div class="analyst-cards">
+                        <div class="analyst-card hjf-card">
+                            <div class="analyst-avatar">
+                                <div class="avatar-circle hjf">HJF</div>
+                            </div>
+                            <div class="analyst-info">
+<!--                                <h3>HJF</h3>-->
+                                <div class="analyst-stats-grid">
+                                    <div class="mini-stat">
+                                        <span class="label">分析数</span>
+                                        <span class="value" id="home-hjf-count">0</span>
+                                    </div>
+                                    <div class="mini-stat">
+                                        <span class="label">及格率</span>
+                                        <span class="value" id="home-hjf-pass">0%</span>
+                                    </div>
+                                    <div class="mini-stat">
+                                        <span class="label">平均分</span>
+                                        <span class="value" id="home-hjf-avg">0</span>
+                                    </div>
+                                    <div class="mini-stat highlight">
+                                        <span class="label">总奖金</span>
+                                        <span class="value" id="home-hjf-reward">¥0</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="analyst-card hjm-card">
+                            <div class="analyst-avatar">
+                                <div class="avatar-circle hjm">HJM</div>
+                            </div>
+                            <div class="analyst-info">
+<!--                                <h3>HJM</h3>-->
+                                <div class="analyst-stats-grid">
+                                    <div class="mini-stat">
+                                        <span class="label">分析数</span>
+                                        <span class="value" id="home-hjm-count">0</span>
+                                    </div>
+                                    <div class="mini-stat">
+                                        <span class="label">及格率</span>
+                                        <span class="value" id="home-hjm-pass">0%</span>
+                                    </div>
+                                    <div class="mini-stat">
+                                        <span class="label">平均分</span>
+                                        <span class="value" id="home-hjm-avg">0</span>
+                                    </div>
+                                    <div class="mini-stat highlight">
+                                        <span class="label">总奖金</span>
+                                        <span class="value" id="home-hjm-reward">¥0</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 最近分析展示 -->
+                <div class="recent-analysis">
+                    <h2 class="section-title">最近分析</h2>
+                    <div class="recent-list" id="recent-analysis-list">
+                        <!-- 动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="hjf" class="section">
+            <div class="container">
+                <h2>HJF 的直播内容分析</h2>
+                <div class="note-grid" id="hjf-notes">
+                    <!-- HJF 分析列表将在这里动态生成 -->
+                </div>
+            </div>
+        </section>
+
+        <section id="hjm" class="section">
+            <div class="container">
+                <h2>HJM 的直播内容分析</h2>
+                <div class="note-grid" id="hjm-notes">
+                    <!-- HJM 分析列表将在这里动态生成 -->
+                </div>
+            </div>
+        </section>
+
+
+
+
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 直播分析平台. 基于 GitHub Pages 构建</p>
+        </div>
+    </footer>
+
+    <script src="assets/js/notes-data.js"></script>
+    <script src="assets/js/score-patches.js"></script>
+    <script src="assets/js/files-list.js"></script>
+    <script src="assets/js/missing-files.js"></script>
+    <script src="assets/js/file-monitor.js"></script>
+    <script src="assets/js/sw-updater.js"></script>
+    <script src="assets/js/main.js"></script>
+</body>
+</html>
