@@ -444,13 +444,13 @@ class NotesApp {
                             ${item.score}分
                             <span class="score-icon">${scoreModified ? '🔧' : '📊'}</span>
                         </a>
-                        <span class="reward-icon">💰 ${item.reward}元</span>
-                        ${item.customReward !== undefined ? 
-                            `<span class="recent-custom-reward ${item.isRewardHigher ? 'reward-higher' : 'reward-lower'}" 
+                                  ${item.customReward !== undefined ?
+                `<span class="recent-custom-reward ${item.isRewardHigher ? 'reward-higher' : 'reward-lower'}" 
                                   title="${item.isRewardHigher ? '增加奖金' : '减少奖金'}">
                                 ${item.isRewardHigher ? '↑' : '↓'}${Math.abs(item.rewardDiff)}
-                            </span>` : 
-                            ''}
+                            </span>` :
+                ''}
+                        <span class="reward-icon">💰 ${item.reward}元</span>
                     </div>
                 </div>
                 ${item.patchApplied && item.patchNote ? `<div class="recent-patch-note">${item.patchNote}</div>` : ''}

@@ -1,5 +1,5 @@
 // 自动生成的404错误检查结果
-// 最后更新时间: 2025-06-23T13:23:24.715Z
+// 最后更新时间: 2025-06-23T14:06:37.344Z
 
 window.MISSING_FILES = {
   "missingFiles": {
@@ -8,7 +8,7 @@ window.MISSING_FILES = {
     "styles": [],
     "images": []
   },
-  "lastUpdated": "2025-06-23T13:23:24.715Z"
+  "lastUpdated": "2025-06-23T14:06:37.344Z"
 };
 
 // 导出数据供Node.js使用
