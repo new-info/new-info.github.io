@@ -4,7 +4,14 @@ const DYNAMIC_CACHE = 'dynamic-resources-v1';
 
 // 存储用户首选项
 let userPreferences = {
-    showNotifications: true // 默认显示通知
+    showNotifications: true, // 默认显示通知
+    pushNotifications: true  // 默认启用推送通知
+};
+
+// 跟踪笔记更新
+let notesCache = {
+    lastChecked: Date.now(),
+    knownPaths: new Set()
 };
 
 // 核心资源 - 这些资源始终会被缓存
@@ -16,6 +23,7 @@ const CORE_ASSETS = [
     '/assets/css/mobile.css',
     '/assets/js/main.js',
     '/assets/js/notes-data.js',
+    '/assets/js/notes-notifications.js',
     '/assets/js/score-patches.js',
     '/assets/js/files-list.js',
     '/assets/js/missing-files.js',
@@ -68,6 +76,14 @@ self.addEventListener('fetch', (event) => {
         return;
     }
     
+    // 检查是否为笔记文件 (hjf或hjm目录下的HTML文件)
+    if (url.pathname.includes('/2025/hjf/') || url.pathname.includes('/2025/hjm/')) {
+        // 记录请求，可能是新的笔记
+        if (url.pathname.endsWith('.html')) {
+            checkForNewNotes(url.pathname);
+        }
+    }
+    
     // 处理页面导航请求
     if (event.request.mode === 'navigate') {
         event.respondWith(
@@ -114,6 +130,46 @@ self.addEventListener('fetch', (event) => {
     );
 });
 
+// 检查是否有新笔记
+function checkForNewNotes(path) {
+    // 如果不是hjf或hjm文件夹下的文件，忽略
+    if (!path.includes('/2025/hjf/') && !path.includes('/2025/hjm/')) {
+        return;
+    }
+    
+    // 如果已经知道这个路径，忽略
+    if (notesCache.knownPaths.has(path)) {
+        return;
+    }
+    
+    // 添加到已知路径
+    notesCache.knownPaths.add(path);
+    
+    // 确定是哪个作者的笔记
+    let author = 'unknown';
+    if (path.includes('/hjf/')) {
+        author = 'HJF';
+    } else if (path.includes('/hjm/')) {
+        author = 'HJM';
+    }
+    
+    // 提取文件名作为标题
+    const pathParts = path.split('/');
+    const fileName = pathParts[pathParts.length - 1];
+    const title = fileName.replace('.html', '');
+    
+    // 如果启用了推送通知，通知所有客户端
+    if (userPreferences.pushNotifications) {
+        notifyClients({
+            action: 'NEW_NOTE',
+            author: author,
+            path: path,
+            title: title,
+            timestamp: Date.now()
+        });
+    }
+}
+
 // 向所有客户端发送消息（如果允许通知）
 function notifyClients(message) {
     // 仅在用户允许通知时发送
@@ -127,6 +183,65 @@ function notifyClients(message) {
         console.log('[Service Worker] 通知已禁用，不发送消息:', message);
     }
 }
+
+// 处理推送通知
+self.addEventListener('push', function(event) {
+    if (!userPreferences.pushNotifications) {
+        return;
+    }
+    
+    let data = {};
+    try {
+        data = event.data.json();
+    } catch (e) {
+        data = {
+            title: 'New Update',
+            body: event.data ? event.data.text() : 'No details available',
+        };
+    }
+    
+    const title = data.title || 'New Content Available';
+    const options = {
+        body: data.body || 'Check it out!',
+        icon: '/assets/icons/icon-192x192.png',
+        badge: '/assets/icons/icon-72x72.png',
+        data: data.data || {}
+    };
+    
+    event.waitUntil(
+        self.registration.showNotification(title, options)
+    );
+});
+
+// 处理通知点击
+self.addEventListener('notificationclick', function(event) {
+    event.notification.close();
+    
+    const data = event.notification.data;
+    let url = '/';
+    
+    if (data && data.path) {
+        url = data.path;
+    } else if (data && data.url) {
+        url = data.url;
+    }
+    
+    event.waitUntil(
+        clients.matchAll({type: 'window'}).then(function(clientList) {
+            // 如果已有窗口打开，使用它
+            for (const client of clientList) {
+                if (client.url === url && 'focus' in client) {
+                    return client.focus();
+                }
+            }
+            
+            // 如果没有窗口，打开一个新窗口
+            if (clients.openWindow) {
+                return clients.openWindow(url);
+            }
+        })
+    );
+});
 
 // 自动校准 - 从files-list.js获取文件列表并更新缓存
 self.addEventListener('message', (event) => {
@@ -196,6 +311,38 @@ self.addEventListener('message', (event) => {
             });
         }
     }
+    // 处理推送通知设置
+    else if (event.data && event.data.action === 'SET_PUSH_PREFERENCE') {
+        const { pushEnabled } = event.data;
+        userPreferences.pushNotifications = pushEnabled;
+        
+        console.log(`[Service Worker] 设置推送通知偏好: ${pushEnabled ? '启用' : '禁用'}`);
+        
+        // 响应客户端，确认收到设置
+        if (event.source) {
+            event.source.postMessage({
+                action: 'PUSH_PREFERENCE_SET',
+                success: true
+            });
+        }
+    }
+    // 处理笔记数据更新
+    else if (event.data && event.data.action === 'UPDATE_NOTES_CACHE') {
+        // 更新笔记缓存
+        if (event.data.knownPaths && Array.isArray(event.data.knownPaths)) {
+            event.data.knownPaths.forEach(path => notesCache.knownPaths.add(path));
+        }
+        
+        notesCache.lastChecked = Date.now();
+        
+        // 响应客户端，确认接收
+        if (event.source) {
+            event.source.postMessage({
+                action: 'NOTES_CACHE_UPDATED',
+                timestamp: notesCache.lastChecked
+            });
+        }
+    }
 });
 
 // 定期清理过期的动态缓存
@@ -227,5 +374,8 @@ self.addEventListener('periodicsync', (event) => {
                 });
             })
         );
+    } else if (event.tag === 'check-notes-updates') {
+        // TODO: 定期检查笔记更新
+        console.log('[Service Worker] 正在检查笔记更新...');
     }
 }); 

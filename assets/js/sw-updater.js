@@ -75,7 +75,7 @@ class ServiceWorkerUpdater {
      */
     onServiceWorkerActive() {
         console.log('Service Worker 已激活');
-        
+
         // 延迟一段时间后发送缓存请求，确保页面已完全加载
         setTimeout(() => {
             this.sendCacheAssetsRequest();
@@ -93,13 +93,13 @@ class ServiceWorkerUpdater {
 
         // 添加HTML文件
         this.filesList.html.forEach(file => assetsToCacheMap.set(file, true));
-        
+
         // 添加CSS文件
         this.filesList.css.forEach(file => assetsToCacheMap.set(file, true));
-        
+
         // 添加JS文件
         this.filesList.js.forEach(file => assetsToCacheMap.set(file, true));
-        
+
         // 添加图片文件（仅添加关键图片，如图标）
         this.filesList.images
             .filter(file => file.includes('icon-') || file.includes('logo'))
@@ -107,7 +107,7 @@ class ServiceWorkerUpdater {
 
         // 转换为数组
         const assetsToCache = Array.from(assetsToCacheMap.keys());
-        
+
         // 发送消息给Service Worker
         if (assetsToCache.length > 0) {
             console.log(`请求缓存 ${assetsToCache.length} 个资源`);
@@ -124,7 +124,7 @@ class ServiceWorkerUpdater {
      */
     handleServiceWorkerMessage(event) {
         const message = event.data;
-        
+
         if (message && message.action === 'CACHE_COMPLETE') {
             console.log('资源缓存完成，时间戳:', new Date(message.timestamp).toLocaleString());
             // 确认通知未被禁用再显示
@@ -141,11 +141,11 @@ class ServiceWorkerUpdater {
     setShowNotifications(show) {
         // 立即获取当前通知，如果存在将被隐藏或移除
         const existingNotification = document.getElementById('sw-notification');
-        
+
         // 更新状态和存储
         this.showNotifications = show;
         localStorage.setItem('swShowNotifications', show ? 'true' : 'false');
-        
+
         // 同步设置到Service Worker
         if (navigator.serviceWorker && navigator.serviceWorker.controller) {
             navigator.serviceWorker.controller.postMessage({
@@ -153,13 +153,13 @@ class ServiceWorkerUpdater {
                 showNotifications: show
             });
         }
-        
+
         // 处理现有通知
         if (existingNotification) {
             existingNotification.style.opacity = '0';
             setTimeout(() => existingNotification.remove(), 300);
         }
-        
+
         // 仅在开启通知时显示确认信息
         if (show) {
             this.showNotification('已开启通知');
@@ -169,10 +169,10 @@ class ServiceWorkerUpdater {
             // 移除所有可能存在的通知
             this.removeAllNotifications();
         }
-        
+
         return show;
     }
-    
+
     /**
      * 移除所有通知
      */
@@ -183,7 +183,7 @@ class ServiceWorkerUpdater {
             setTimeout(() => notification.remove(), 300);
         }
     }
-    
+
     /**
      * 切换通知状态
      * @returns {boolean} 切换后的状态
@@ -191,7 +191,7 @@ class ServiceWorkerUpdater {
     toggleNotifications() {
         return this.setShowNotifications(!this.showNotifications);
     }
-    
+
     /**
      * 获取当前通知状态
      * @returns {boolean} 当前是否显示通知
@@ -208,10 +208,10 @@ class ServiceWorkerUpdater {
             console.log('通知已禁用，消息:', message);
             return;
         }
-        
+
         this.showNotificationOnce(message);
     }
-    
+
     /**
      * 显示一次性通知，无论通知设置如何
      * 注意: 此方法应仅被showNotification调用，以确保通知首选项被尊重
@@ -220,11 +220,11 @@ class ServiceWorkerUpdater {
     showNotificationOnce(message) {
         // 检查是否已存在通知元素
         let notification = document.getElementById('sw-notification');
-        
+
         if (!notification) {
             // 保存this引用，解决事件处理程序中的this问题
             const self = this;
-            
+
             // 创建通知元素
             notification = document.createElement('div');
             notification.id = 'sw-notification';
@@ -244,18 +244,18 @@ class ServiceWorkerUpdater {
                 opacity: 0;
                 transition: opacity 0.3s ease;
             `;
-            
+
             // 添加图标
             const icon = document.createElement('span');
             icon.textContent = '✅';
             icon.style.marginRight = '10px';
             notification.appendChild(icon);
-            
+
             // 添加消息文本
             const text = document.createElement('span');
             text.textContent = message;
             notification.appendChild(text);
-            
+
             // 添加关闭按钮
             const closeBtn = document.createElement('span');
             closeBtn.textContent = '×';
@@ -272,9 +272,9 @@ class ServiceWorkerUpdater {
                 }, 300);
             });
             notification.appendChild(closeBtn);
-            
+
             // 不再显示提示按钮 - 仅当通知功能当前未禁用时显示此按钮
-            if (self.showNotifications) {
+            /*if (self.showNotifications) {
                 const noPromptBtn = document.createElement('span');
                 noPromptBtn.textContent = '不再提示';
                 noPromptBtn.style.cssText = `
@@ -287,25 +287,25 @@ class ServiceWorkerUpdater {
                 noPromptBtn.addEventListener('click', () => {
                     // 使用self而不是this，确保引用正确的实例
                     self.setShowNotifications(false);
-                    
+
                     // 确保页面上的通知开关也被更新
                     const toggle = document.getElementById('sw-notifications-toggle');
                     if (toggle) {
                         toggle.checked = false;
                     }
-                    
+
                     // 不需要再次处理通知隐藏，因为setShowNotifications会处理
                 });
                 notification.appendChild(noPromptBtn);
-            }
-            
+            }*/
+
             document.body.appendChild(notification);
-            
+
             // 显示通知
             setTimeout(() => {
                 notification.style.opacity = '1';
             }, 100);
-            
+
             // 5秒后自动隐藏
             setTimeout(() => {
                 notification.style.opacity = '0';
@@ -327,7 +327,7 @@ class ServiceWorkerUpdater {
      */
     async checkForUpdates() {
         if (!this.swRegistration) return;
-        
+
         try {
             await this.swRegistration.update();
             console.log('Service Worker 已检查更新');
@@ -346,4 +346,4 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // 导出实例
-window.swUpdater = swUpdater; 
+window.swUpdater = swUpdater;
