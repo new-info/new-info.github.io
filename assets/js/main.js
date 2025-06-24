@@ -2,7 +2,7 @@
 // <script src="assets/js/notes-data.js"></script>
 // <script src="assets/js/main.js"></script>
 
-// 直播分析平台 JavaScript - 主程序
+// 视频分析平台 JavaScript - 主程序
 class NotesApp {
     constructor() {
         this.notes = {
@@ -247,7 +247,7 @@ class NotesApp {
                     <div class="note-title">${note.title}</div>
                     <div class="note-meta">
                         <div class="note-flex">
-                            <span class="note-type">直播分析</span> • 
+                            <span class="note-type">视频分析</span> • 
                             <span class="note-author">${note.author.toUpperCase()}</span> • 
                             <span class="note-date">${this.formatDate(note.date)}</span>     
                         </div>
@@ -281,7 +281,7 @@ class NotesApp {
         if (note.isReview) {
             return '这是一份详细的评分报告，包含了多个维度的分析和评估...';
         } else {
-            return '包含了对直播内容的详细记录和分析...';
+            return '包含了对视频内容的详细记录和分析...';
         }
     }
 

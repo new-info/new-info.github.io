@@ -140,7 +140,7 @@ class DemoNotesCreator {
             
             <h3 style="margin-top: 20px;">生成信息</h3>
             <p>生成时间: ${new Date().toLocaleString('zh-CN')}</p>
-            <p>评估对象: ${author.toUpperCase()} 的直播分析内容</p>
+            <p>评估对象: ${author.toUpperCase()} 的视频分析内容</p>
         </div>
     </div>
 </body>
@@ -163,7 +163,7 @@ class DemoNotesCreator {
         const hjfNote = this.createSampleNote(
             'hjf',
             `${dateStr}.html`,
-            `${dateStr} 直播内容记录与分析`,
+            `${dateStr} 视频内容记录与分析`,
             `
             <h2>今天的主要收获</h2>
             <p>今天学习了很多有价值的内容，主要包括以下几个方面：</p>
@@ -192,7 +192,7 @@ class DemoNotesCreator {
         const hjfReview = this.createSampleReview(
             'hjf',
             `${dateStr}-review.html`,
-            `${dateStr} 直播内容评估报告`,
+            `${dateStr} 视频内容评估报告`,
             85
         );
 
@@ -200,7 +200,7 @@ class DemoNotesCreator {
         const hjmNote = this.createSampleNote(
             'hjm',
             `${dateStr}.html`,
-            `${dateStr} 直播内容记录与分析`,
+            `${dateStr} 视频内容记录与分析`,
             `
             <h2>实践项目总结</h2>
             <p>今天完成了一个重要的实践项目，过程中遇到了不少挑战，但也收获颇丰。</p>
@@ -227,7 +227,7 @@ class DemoNotesCreator {
         const hjmReview = this.createSampleReview(
             'hjm',
             `${dateStr}-review.html`,
-            `${dateStr} 直播内容评估报告`,
+            `${dateStr} 视频内容评估报告`,
             78
         );
 

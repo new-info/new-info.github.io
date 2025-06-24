@@ -1,7 +1,7 @@
 {
-    "name": "直播分析平台",
-    "short_name": "直播分析",
-    "description": "直播内容分析和奖金分配平台",
+    "name": "大学生活平台",
+    "short_name": "大学生活",
+    "description": "记录大学生活，助力学习成长的综合平台",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#1a2980",
