@@ -166,12 +166,74 @@ class NotesScanner {
 
     // 生成笔记数据文件
     generateNotesDataFile() {
-        const data = this.scanAllNotes();
+        // 尝试读取现有数据
+        let existingData = null;
+        try {
+            if (fs.existsSync(this.outputFile)) {
+                const existingContent = fs.readFileSync(this.outputFile, 'utf8');
+                const dataMatch = existingContent.match(/window\.NOTES_DATA\s*=\s*(\{[\s\S]*?\});/);
+                if (dataMatch) {
+                    // 解析现有的JSON数据
+                    existingData = JSON.parse(dataMatch[1]);
+                    console.log('找到现有数据文件，将保持已有数据不变');
+                }
+            }
+        } catch (error) {
+            console.error('读取现有数据失败:', error.message);
+        }
+
+        // 扫描新数据
+        const newData = this.scanAllNotes();
+        
+        // 如果存在现有数据，合并数据
+        if (existingData) {
+            // 创建映射来识别现有的笔记
+            const createPathMap = (notes) => {
+                const map = {};
+                notes.forEach(note => {
+                    map[note.path] = note;
+                });
+                return map;
+            };
+            
+            // 为每个作者处理数据合并
+            ['hjf', 'hjm'].forEach(author => {
+                // 创建新数据和现有数据的路径映射
+                const newNotesMap = createPathMap(newData[author]);
+                const existingNotesMap = createPathMap(existingData[author] || []);
+                
+                // 创建合并后的笔记列表
+                const mergedNotes = [];
+                
+                // 首先添加现有数据中的笔记（如果它们仍然存在）
+                (existingData[author] || []).forEach(existingNote => {
+                    const path = existingNote.path;
+                    // 如果这个笔记在新数据中也存在，保留现有数据
+                    if (newNotesMap[path]) {
+                        mergedNotes.push(existingNote);
+                    }
+                });
+                
+                // 添加新数据中存在但现有数据中不存在的笔记
+                newData[author].forEach(newNote => {
+                    const path = newNote.path;
+                    if (!existingNotesMap[path]) {
+                        mergedNotes.push(newNote);
+                    }
+                });
+                
+                // 按日期倒序排序
+                newData[author] = mergedNotes.sort((a, b) => b.date.localeCompare(a.date));
+            });
+        }
+
+        // 更新最后更新时间
+        newData.lastUpdated = new Date().toISOString();
 
         const jsContent = `// 自动生成的分析数据文件
-// 最后更新时间: ${data.lastUpdated}
+// 最后更新时间: ${newData.lastUpdated}
 
-window.NOTES_DATA = ${JSON.stringify(data, null, 2)};
+window.NOTES_DATA = ${JSON.stringify(newData, null, 2)};
 
 // 导出数据供Node.js使用
 if (typeof module !== 'undefined' && module.exports) {
@@ -188,7 +250,7 @@ if (typeof module !== 'undefined' && module.exports) {
         fs.writeFileSync(this.outputFile, jsContent, 'utf8');
         console.log(`分析数据已保存到: ${this.outputFile}`);
 
-        return data;
+        return newData;
     }
 
     // 更新主JS文件中的笔记数据
