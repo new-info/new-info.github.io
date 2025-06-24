@@ -2,6 +2,11 @@
 const CACHE_NAME = 'live-analysis-platform-v3';
 const DYNAMIC_CACHE = 'dynamic-resources-v1';
 
+// 存储用户首选项
+let userPreferences = {
+    showNotifications: true // 默认显示通知
+};
+
 // 核心资源 - 这些资源始终会被缓存
 const CORE_ASSETS = [
     '/',
@@ -14,7 +19,8 @@ const CORE_ASSETS = [
     '/assets/js/score-patches.js',
     '/assets/js/files-list.js',
     '/assets/js/missing-files.js',
-    '/assets/js/file-monitor.js'
+    '/assets/js/file-monitor.js',
+    '/assets/js/sw-updater.js' // 添加sw-updater.js到核心资源列表
 ];
 
 // 安装 Service Worker
@@ -108,6 +114,20 @@ self.addEventListener('fetch', (event) => {
     );
 });
 
+// 向所有客户端发送消息（如果允许通知）
+function notifyClients(message) {
+    // 仅在用户允许通知时发送
+    if (userPreferences.showNotifications) {
+        self.clients.matchAll().then(clients => {
+            clients.forEach(client => {
+                client.postMessage(message);
+            });
+        });
+    } else {
+        console.log('[Service Worker] 通知已禁用，不发送消息:', message);
+    }
+}
+
 // 自动校准 - 从files-list.js获取文件列表并更新缓存
 self.addEventListener('message', (event) => {
     if (event.data && event.data.action === 'CACHE_DYNAMIC_ASSETS') {
@@ -154,16 +174,27 @@ self.addEventListener('message', (event) => {
                 p.then(() => batch), Promise.resolve());
         }).then(() => {
             console.log('[Service Worker] 动态资源缓存完成');
-            // 通知客户端缓存完成
-            self.clients.matchAll().then(clients => {
-                clients.forEach(client => {
-                    client.postMessage({
-                        action: 'CACHE_COMPLETE',
-                        timestamp: new Date().getTime()
-                    });
-                });
+            // 通知客户端缓存完成（如果允许通知）
+            notifyClients({
+                action: 'CACHE_COMPLETE',
+                timestamp: new Date().getTime()
             });
         });
+    }
+    // 处理通知设置消息
+    else if (event.data && event.data.action === 'SET_NOTIFICATION_PREFERENCE') {
+        const { showNotifications } = event.data;
+        userPreferences.showNotifications = showNotifications;
+        
+        console.log(`[Service Worker] 设置通知偏好: ${showNotifications ? '显示' : '隐藏'}`);
+        
+        // 响应客户端，确认收到设置
+        if (event.source) {
+            event.source.postMessage({
+                action: 'NOTIFICATION_PREFERENCE_SET',
+                success: true
+            });
+        }
     }
 });
 

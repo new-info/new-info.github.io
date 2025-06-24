@@ -8,6 +8,8 @@ class ServiceWorkerUpdater {
         this.swRegistration = null;
         this.filesList = null;
         this.initialized = false;
+        // 添加通知首选项设置，从localStorage读取，如果没有则默认显示通知
+        this.showNotifications = localStorage.getItem('swShowNotifications') !== 'false';
     }
 
     /**
@@ -24,6 +26,11 @@ class ServiceWorkerUpdater {
         }
 
         try {
+            // 如果禁用了通知，移除任何可能存在的通知
+            if (!this.showNotifications) {
+                this.removeAllNotifications();
+            }
+
             // 加载文件列表
             this.filesList = window.FILES_LIST || null;
             if (!this.filesList) {
@@ -33,6 +40,14 @@ class ServiceWorkerUpdater {
             // 注册Service Worker
             this.swRegistration = await navigator.serviceWorker.register('/sw.js');
             console.log('Service Worker 注册成功:', this.swRegistration);
+
+            // 同步通知首选项到Service Worker
+            if (navigator.serviceWorker.controller) {
+                navigator.serviceWorker.controller.postMessage({
+                    action: 'SET_NOTIFICATION_PREFERENCE',
+                    showNotifications: this.showNotifications
+                });
+            }
 
             // 监听Service Worker消息
             navigator.serviceWorker.addEventListener('message', (event) => {
@@ -112,18 +127,104 @@ class ServiceWorkerUpdater {
         
         if (message && message.action === 'CACHE_COMPLETE') {
             console.log('资源缓存完成，时间戳:', new Date(message.timestamp).toLocaleString());
-            this.showNotification('资源缓存已完成，应用可以离线使用');
+            // 确认通知未被禁用再显示
+            if (this.showNotifications) {
+                this.showNotification('资源缓存已完成，应用可以离线使用');
+            }
         }
     }
 
     /**
-     * 显示通知
+     * 设置是否显示通知
+     * @param {boolean} show - true显示通知，false不显示
+     */
+    setShowNotifications(show) {
+        // 立即获取当前通知，如果存在将被隐藏或移除
+        const existingNotification = document.getElementById('sw-notification');
+        
+        // 更新状态和存储
+        this.showNotifications = show;
+        localStorage.setItem('swShowNotifications', show ? 'true' : 'false');
+        
+        // 同步设置到Service Worker
+        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+            navigator.serviceWorker.controller.postMessage({
+                action: 'SET_NOTIFICATION_PREFERENCE',
+                showNotifications: show
+            });
+        }
+        
+        // 处理现有通知
+        if (existingNotification) {
+            existingNotification.style.opacity = '0';
+            setTimeout(() => existingNotification.remove(), 300);
+        }
+        
+        // 仅在开启通知时显示确认信息
+        if (show) {
+            this.showNotification('已开启通知');
+        } else {
+            console.log('通知已禁用');
+            // 不再显示"已关闭通知"的提示
+            // 移除所有可能存在的通知
+            this.removeAllNotifications();
+        }
+        
+        return show;
+    }
+    
+    /**
+     * 移除所有通知
+     */
+    removeAllNotifications() {
+        const notification = document.getElementById('sw-notification');
+        if (notification) {
+            notification.style.opacity = '0';
+            setTimeout(() => notification.remove(), 300);
+        }
+    }
+    
+    /**
+     * 切换通知状态
+     * @returns {boolean} 切换后的状态
+     */
+    toggleNotifications() {
+        return this.setShowNotifications(!this.showNotifications);
+    }
+    
+    /**
+     * 获取当前通知状态
+     * @returns {boolean} 当前是否显示通知
+     */
+    getNotificationStatus() {
+        return this.showNotifications;
+    }
+
+    /**
+     * 显示通知（仅当 showNotifications 为 true 时显示）
      */
     showNotification(message) {
+        if (!this.showNotifications) {
+            console.log('通知已禁用，消息:', message);
+            return;
+        }
+        
+        this.showNotificationOnce(message);
+    }
+    
+    /**
+     * 显示一次性通知，无论通知设置如何
+     * 注意: 此方法应仅被showNotification调用，以确保通知首选项被尊重
+     * 或者在关闭通知前显示最后一条通知
+     */
+    showNotificationOnce(message) {
         // 检查是否已存在通知元素
         let notification = document.getElementById('sw-notification');
         
         if (!notification) {
+            // 保存this引用，解决事件处理程序中的this问题
+            const self = this;
+            
             // 创建通知元素
             notification = document.createElement('div');
             notification.id = 'sw-notification';
@@ -171,6 +272,32 @@ class ServiceWorkerUpdater {
                 }, 300);
             });
             notification.appendChild(closeBtn);
+            
+            // 不再显示提示按钮 - 仅当通知功能当前未禁用时显示此按钮
+            if (self.showNotifications) {
+                const noPromptBtn = document.createElement('span');
+                noPromptBtn.textContent = '不再提示';
+                noPromptBtn.style.cssText = `
+                    margin-left: 15px;
+                    cursor: pointer;
+                    font-size: 12px;
+                    text-decoration: underline;
+                    opacity: 0.8;
+                `;
+                noPromptBtn.addEventListener('click', () => {
+                    // 使用self而不是this，确保引用正确的实例
+                    self.setShowNotifications(false);
+                    
+                    // 确保页面上的通知开关也被更新
+                    const toggle = document.getElementById('sw-notifications-toggle');
+                    if (toggle) {
+                        toggle.checked = false;
+                    }
+                    
+                    // 不需要再次处理通知隐藏，因为setShowNotifications会处理
+                });
+                notification.appendChild(noPromptBtn);
+            }
             
             document.body.appendChild(notification);
             

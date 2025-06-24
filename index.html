@@ -177,6 +177,12 @@
     <footer class="footer">
         <div class="container">
             <p>&copy; 2025 大学生活平台. 基于 GitHub Pages 构建</p>
+            <div class="footer-settings">
+                <label class="toggle-setting">
+                    <input type="checkbox" id="sw-notifications-toggle" checked>
+                    <span class="toggle-label">显示系统通知</span>
+                </label>
+            </div>
         </div>
     </footer>
 
@@ -188,5 +194,20 @@
     <script src="assets/js/sw-updater.js"></script>
     <script src="assets/js/main.js"></script>
     <script src="assets/js/page-router.js"></script>
+    <script>
+        // 设置通知开关
+        document.addEventListener('DOMContentLoaded', () => {
+            const notificationsToggle = document.getElementById('sw-notifications-toggle');
+            if (notificationsToggle && window.swUpdater) {
+                // 初始化开关状态
+                notificationsToggle.checked = window.swUpdater.getNotificationStatus();
+                
+                // 监听开关变化
+                notificationsToggle.addEventListener('change', () => {
+                    window.swUpdater.setShowNotifications(notificationsToggle.checked);
+                });
+            }
+        });
+    </script>
 </body>
 </html>

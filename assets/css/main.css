@@ -1315,11 +1315,71 @@ body {
 
 /* 页脚 */
 .footer {
-    background: var(--primary-color);
-    color: white;
-    text-align: center;
+    background: var(--bg-primary);
+    color: var(--text-secondary);
     padding: 2rem 0;
-    margin-top: 4rem;
+    text-align: center;
+    margin-top: 2rem;
+    border-top: 1px solid var(--border-color);
+}
+
+/* 页脚设置区域 */
+.footer-settings {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+}
+
+/* 开关设置样式 */
+.toggle-setting {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+    padding: 5px;
+}
+
+.toggle-label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.toggle-setting input[type="checkbox"] {
+    position: relative;
+    width: 36px;
+    height: 18px;
+    appearance: none;
+    background: #ddd;
+    outline: none;
+    border-radius: 10px;
+    transition: var(--transition);
+    cursor: pointer;
+}
+
+.toggle-setting input[type="checkbox"]:checked {
+    background: var(--secondary-color);
+}
+
+.toggle-setting input[type="checkbox"]::before {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    background: white;
+    transition: var(--transition);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.toggle-setting input[type="checkbox"]:checked::before {
+    left: 20px;
+}
+
+.toggle-setting:hover input[type="checkbox"]::before {
+    box-shadow: 0 1px 5px rgba(0,0,0,0.3);
 }
 
 /* 加载状态 */
