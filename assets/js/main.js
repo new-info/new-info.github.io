@@ -186,14 +186,21 @@ class NotesApp {
 
     // 渲染笔记列表
     renderNotes() {
-        this.renderNoteSection('hjf-notes', this.notes.hjf);
-        this.renderNoteSection('hjm-notes', this.notes.hjm);
+        this.renderNoteSection('hjf-notes', this.notes.hjf, 'hjf');
+        this.renderNoteSection('hjm-notes', this.notes.hjm, 'hjm');
     }
 
     // 渲染特定部分的笔记
-    renderNoteSection(containerId, notes) {
+    renderNoteSection(containerId, notes, section = null) {
         const container = document.getElementById(containerId);
 
+        // 如果是HJF或HJM页面，处理分页
+        if (section === 'hjf' || section === 'hjm') {
+            this.renderSectionWithPagination(containerId, notes, section);
+            return;
+        }
+
+        // 原有的渲染逻辑（用于没有分页的页面）
         if (notes.length === 0) {
             container.innerHTML = `
                 <div class="empty-state">
@@ -205,6 +212,220 @@ class NotesApp {
         }
 
         container.innerHTML = notes.map(note => this.createNoteCard(note)).join('');
+    }
+
+    // 渲染带分页的页面
+    renderSectionWithPagination(containerId, notes, section) {
+        const container = document.getElementById(containerId);
+        const paginationContainer = document.getElementById(`${section}-pagination`);
+
+        // 初始化分页变量
+        if (!this.sectionPagination) {
+            this.sectionPagination = {};
+        }
+        
+        if (!this.sectionPagination[section]) {
+            this.sectionPagination[section] = {
+                currentPage: 1,
+                pageSize: 8,
+                totalItems: 0
+            };
+        }
+
+        this.sectionPagination[section].totalItems = notes.length;
+        const totalPages = Math.ceil(this.sectionPagination[section].totalItems / this.sectionPagination[section].pageSize);
+
+        // 确保当前页面有效
+        if (this.sectionPagination[section].currentPage > totalPages && totalPages > 0) {
+            this.sectionPagination[section].currentPage = totalPages;
+        }
+
+        if (notes.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <h3>暂无内容</h3>
+                    <p>这里还没有任何分析内容</p>
+                </div>
+            `;
+            if (paginationContainer) {
+                paginationContainer.style.display = 'none';
+            }
+            return;
+        }
+
+        // 计算当前页的数据
+        const startIndex = (this.sectionPagination[section].currentPage - 1) * this.sectionPagination[section].pageSize;
+        const endIndex = startIndex + this.sectionPagination[section].pageSize;
+        const currentNotes = notes.slice(startIndex, endIndex);
+
+        // 渲染当前页的内容
+        container.innerHTML = currentNotes.map(note => this.createNoteCard(note)).join('');
+
+        // 更新分页控件
+        this.updateSectionPagination(section, totalPages, notes);
+    }
+
+    // 更新指定section的分页控件
+    updateSectionPagination(section, totalPages, notes) {
+        const paginationContainer = document.getElementById(`${section}-pagination`);
+        if (!paginationContainer) return;
+
+        if (totalPages <= 1) {
+            paginationContainer.style.display = 'none';
+            return;
+        }
+
+        paginationContainer.style.display = 'flex';
+
+        const currentPage = this.sectionPagination[section].currentPage;
+        const pageSize = this.sectionPagination[section].pageSize;
+        const totalItems = this.sectionPagination[section].totalItems;
+
+        // 计算显示的条目范围
+        const startItem = (currentPage - 1) * pageSize + 1;
+        const endItem = Math.min(currentPage * pageSize, totalItems);
+
+        // 生成分页信息
+        const paginationInfo = `
+            <div class="pagination-info">
+                显示第 ${startItem}-${endItem} 条，共 ${totalItems} 条记录
+            </div>
+        `;
+
+        // 生成分页按钮
+        const paginationControls = this.generateSectionPaginationControls(section, currentPage, totalPages);
+
+        paginationContainer.innerHTML = paginationInfo + paginationControls;
+    }
+
+    // 生成指定section的分页控件
+    generateSectionPaginationControls(section, currentPage, totalPages) {
+        let controls = '<div class="pagination-controls">';
+
+        // 上一页按钮
+        controls += `
+            <button class="pagination-btn prev ${currentPage === 1 ? 'disabled' : ''}" 
+                    onclick="notesApp.goToSectionPage('${section}', ${currentPage - 1})" 
+                    ${currentPage === 1 ? 'disabled' : ''}>
+                上一页
+            </button>
+        `;
+
+        // 页码按钮
+        const pageButtons = this.generateSectionPageButtons(section, currentPage, totalPages);
+        controls += pageButtons;
+
+        // 下一页按钮
+        controls += `
+            <button class="pagination-btn next ${currentPage === totalPages ? 'disabled' : ''}" 
+                    onclick="notesApp.goToSectionPage('${section}', ${currentPage + 1})" 
+                    ${currentPage === totalPages ? 'disabled' : ''}>
+                下一页
+            </button>
+        `;
+
+        controls += '</div>';
+        return controls;
+    }
+
+    // 生成指定section的页码按钮
+    generateSectionPageButtons(section, currentPage, totalPages) {
+        let buttons = '';
+
+        // 如果总页数少于等于7页，显示所有页码
+        if (totalPages <= 7) {
+            for (let i = 1; i <= totalPages; i++) {
+                buttons += `
+                    <button class="pagination-btn ${i === currentPage ? 'active' : ''}" 
+                            onclick="notesApp.goToSectionPage('${section}', ${i})">
+                        ${i}
+                    </button>
+                `;
+            }
+        } else {
+            // 复杂分页逻辑：显示首页、当前页附近页码、尾页
+            
+            // 第1页
+            buttons += `
+                <button class="pagination-btn ${currentPage === 1 ? 'active' : ''}" 
+                        onclick="notesApp.goToSectionPage('${section}', 1)">
+                    1
+                </button>
+            `;
+
+            // 是否显示左侧省略号
+            if (currentPage > 4) {
+                buttons += '<span class="pagination-ellipsis">...</span>';
+            }
+
+            // 当前页及其邻近页码
+            let start, end;
+            
+            if (currentPage <= 3) {
+                // 当前页靠近开头
+                start = 2;
+                end = Math.min(4, totalPages - 1);
+            } else if (currentPage >= totalPages - 2) {
+                // 当前页靠近结尾
+                start = Math.max(2, totalPages - 3);
+                end = totalPages - 1;
+            } else {
+                // 当前页在中间
+                start = currentPage - 1;
+                end = currentPage + 1;
+            }
+
+            for (let i = start; i <= end; i++) {
+                if (i === 1 || i === totalPages) continue; // 避免重复显示首页和尾页
+                buttons += `
+                    <button class="pagination-btn ${i === currentPage ? 'active' : ''}" 
+                            onclick="notesApp.goToSectionPage('${section}', ${i})">
+                        ${i}
+                    </button>
+                `;
+            }
+
+            // 是否显示右侧省略号（当前页和尾页之间至少隔2页才显示省略号）
+            if (end < totalPages - 2) {
+                buttons += '<span class="pagination-ellipsis">...</span>';
+            }
+
+            // 最后一页（确保totalPages > 1）
+            if (totalPages > 1) {
+                buttons += `
+                    <button class="pagination-btn ${currentPage === totalPages ? 'active' : ''}" 
+                            onclick="notesApp.goToSectionPage('${section}', ${totalPages})">
+                        ${totalPages}
+                    </button>
+                `;
+            }
+        }
+
+        return buttons;
+    }
+
+    // 跳转到指定section的指定页面
+    goToSectionPage(section, page) {
+        if (!this.sectionPagination || !this.sectionPagination[section]) return;
+
+        const totalPages = Math.ceil(this.sectionPagination[section].totalItems / this.sectionPagination[section].pageSize);
+        
+        if (page < 1 || page > totalPages) return;
+
+        this.sectionPagination[section].currentPage = page;
+        
+        // 重新渲染对应section
+        const notes = section === 'hjf' ? this.notes.hjf : this.notes.hjm;
+        this.renderSectionWithPagination(`${section}-notes`, notes, section);
+
+        // 滚动到对应section的顶部
+        const sectionElement = document.querySelector(`#${section}`);
+        if (sectionElement) {
+            sectionElement.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+        }
     }
 
     // 创建笔记卡片
@@ -478,15 +699,39 @@ class NotesApp {
     // 更新最近分析列表
     updateRecentAnalysis(items) {
         const recentList = document.getElementById('recent-analysis-list');
+        const paginationContainer = document.getElementById('recent-pagination');
+        
         if (!recentList) return;
 
-        // 获取最近10条记录
-        const recentItems = items.slice(0, 10);
+        // 初始化分页变量
+        if (!this.recentPagination) {
+            this.recentPagination = {
+                currentPage: 1,
+                pageSize: 8,
+                totalItems: 0
+            };
+        }
 
-        if (recentItems.length === 0) {
+        this.recentPagination.totalItems = items.length;
+        const totalPages = Math.ceil(this.recentPagination.totalItems / this.recentPagination.pageSize);
+
+        // 确保当前页面有效
+        if (this.recentPagination.currentPage > totalPages && totalPages > 0) {
+            this.recentPagination.currentPage = totalPages;
+        }
+
+        if (items.length === 0) {
             recentList.innerHTML = '<div class="empty-state">暂无分析记录</div>';
+            if (paginationContainer) {
+                paginationContainer.style.display = 'none';
+            }
             return;
         }
+
+        // 计算当前页的数据
+        const startIndex = (this.recentPagination.currentPage - 1) * this.recentPagination.pageSize;
+        const endIndex = startIndex + this.recentPagination.pageSize;
+        const recentItems = items.slice(startIndex, endIndex);
 
         recentList.innerHTML = recentItems.map(item => {
             // 判断分数是否被修改 - 只有当patchApplied为true且存在score修改时才显示扳手
@@ -518,6 +763,172 @@ class NotesApp {
             </div>
         `;
         }).join('');
+
+        // 更新分页控件
+        this.updateRecentPagination(totalPages, items);
+    }
+
+    // 更新最近分析分页控件
+    updateRecentPagination(totalPages, items) {
+        const paginationContainer = document.getElementById('recent-pagination');
+        if (!paginationContainer) return;
+
+        if (totalPages <= 1) {
+            paginationContainer.style.display = 'none';
+            return;
+        }
+
+        paginationContainer.style.display = 'flex';
+
+        const currentPage = this.recentPagination.currentPage;
+        const pageSize = this.recentPagination.pageSize;
+        const totalItems = this.recentPagination.totalItems;
+
+        // 计算显示的条目范围
+        const startItem = (currentPage - 1) * pageSize + 1;
+        const endItem = Math.min(currentPage * pageSize, totalItems);
+
+        // 生成分页信息
+        const paginationInfo = `
+            <div class="pagination-info">
+                显示第 ${startItem}-${endItem} 条，共 ${totalItems} 条记录
+            </div>
+        `;
+
+        // 生成分页按钮
+        const paginationControls = this.generatePaginationControls(currentPage, totalPages, items);
+
+        paginationContainer.innerHTML = paginationInfo + paginationControls;
+    }
+
+    // 生成分页控件
+    generatePaginationControls(currentPage, totalPages, items) {
+        let controls = '<div class="pagination-controls">';
+
+        // 上一页按钮
+        controls += `
+            <button class="pagination-btn prev ${currentPage === 1 ? 'disabled' : ''}" 
+                    onclick="notesApp.goToRecentPage(${currentPage - 1})" 
+                    ${currentPage === 1 ? 'disabled' : ''}>
+                上一页
+            </button>
+        `;
+
+        // 页码按钮
+        const pageButtons = this.generatePageButtons(currentPage, totalPages);
+        controls += pageButtons;
+
+        // 下一页按钮
+        controls += `
+            <button class="pagination-btn next ${currentPage === totalPages ? 'disabled' : ''}" 
+                    onclick="notesApp.goToRecentPage(${currentPage + 1})" 
+                    ${currentPage === totalPages ? 'disabled' : ''}>
+                下一页
+            </button>
+        `;
+
+        controls += '</div>';
+        return controls;
+    }
+
+    // 生成页码按钮
+    generatePageButtons(currentPage, totalPages) {
+        let buttons = '';
+
+        // 如果总页数少于等于7页，显示所有页码
+        if (totalPages <= 7) {
+            for (let i = 1; i <= totalPages; i++) {
+                buttons += `
+                    <button class="pagination-btn ${i === currentPage ? 'active' : ''}" 
+                            onclick="notesApp.goToRecentPage(${i})">
+                        ${i}
+                    </button>
+                `;
+            }
+        } else {
+            // 复杂分页逻辑：显示首页、当前页附近页码、尾页
+            
+            // 第1页
+            buttons += `
+                <button class="pagination-btn ${currentPage === 1 ? 'active' : ''}" 
+                        onclick="notesApp.goToRecentPage(1)">
+                    1
+                </button>
+            `;
+
+            // 是否显示左侧省略号
+            if (currentPage > 4) {
+                buttons += '<span class="pagination-ellipsis">...</span>';
+            }
+
+            // 当前页及其邻近页码
+            let start, end;
+            
+            if (currentPage <= 3) {
+                // 当前页靠近开头
+                start = 2;
+                end = Math.min(4, totalPages - 1);
+            } else if (currentPage >= totalPages - 2) {
+                // 当前页靠近结尾
+                start = Math.max(2, totalPages - 3);
+                end = totalPages - 1;
+            } else {
+                // 当前页在中间
+                start = currentPage - 1;
+                end = currentPage + 1;
+            }
+
+            for (let i = start; i <= end; i++) {
+                if (i === 1 || i === totalPages) continue; // 避免重复显示首页和尾页
+                buttons += `
+                    <button class="pagination-btn ${i === currentPage ? 'active' : ''}" 
+                            onclick="notesApp.goToRecentPage(${i})">
+                        ${i}
+                    </button>
+                `;
+            }
+
+            // 是否显示右侧省略号（当前页和尾页之间至少隔2页才显示省略号）
+            if (end < totalPages - 2) {
+                buttons += '<span class="pagination-ellipsis">...</span>';
+            }
+
+            // 最后一页（确保totalPages > 1）
+            if (totalPages > 1) {
+                buttons += `
+                    <button class="pagination-btn ${currentPage === totalPages ? 'active' : ''}" 
+                            onclick="notesApp.goToRecentPage(${totalPages})">
+                        ${totalPages}
+                    </button>
+                `;
+            }
+        }
+
+        return buttons;
+    }
+
+    // 跳转到指定页面
+    goToRecentPage(page) {
+        if (!this.recentPagination) return;
+
+        const totalPages = Math.ceil(this.recentPagination.totalItems / this.recentPagination.pageSize);
+        
+        if (page < 1 || page > totalPages) return;
+
+        this.recentPagination.currentPage = page;
+        
+        // 重新获取数据并更新显示
+        const allItems = this.getAllAnalysisItems();
+        this.updateRecentAnalysis(allItems);
+
+        // 滚动到最近分析区域
+        const recentAnalysisElement = document.querySelector('.recent-analysis');
+        if (recentAnalysisElement) {
+            recentAnalysisElement.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+        }
     }
 
     // 格式化短日期

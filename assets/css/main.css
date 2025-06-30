@@ -492,6 +492,93 @@ body {
     box-shadow: var(--shadow);
 }
 
+/* 分页控件样式 */
+.pagination-container {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.pagination-info {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-right: 1rem;
+    padding: 0.5rem 0;
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.pagination-btn {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 0.9rem;
+    min-width: 40px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pagination-btn:hover {
+    background: var(--bg-secondary);
+    border-color: var(--accent-color);
+    transform: translateY(-1px);
+}
+
+.pagination-btn:active {
+    transform: translateY(0);
+}
+
+.pagination-btn.active {
+    background: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+}
+
+.pagination-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.pagination-btn.prev,
+.pagination-btn.next {
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+}
+
+.pagination-btn.prev::before {
+    content: '‹';
+    margin-right: 0.25rem;
+    font-weight: bold;
+}
+
+.pagination-btn.next::after {
+    content: '›';
+    margin-left: 0.25rem;
+    font-weight: bold;
+}
+
+.pagination-ellipsis {
+    padding: 0.5rem 0.25rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    user-select: none;
+}
+
 .section-title {
     font-size: 1.5rem;
     color: var(--primary-color);
@@ -1757,6 +1844,36 @@ body {
         font-size: 2rem;
     }
 
+    /* 移动端分页控件适配 */
+    .pagination-container {
+        margin-top: 1rem;
+        gap: 0.25rem;
+    }
+    
+    .pagination-info {
+        width: 100%;
+        text-align: center;
+        margin-right: 0;
+        margin-bottom: 0.5rem;
+        font-size: 0.8rem;
+    }
+    
+    .pagination-controls {
+        gap: 0.2rem;
+    }
+    
+    .pagination-btn {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.8rem;
+        min-width: 36px;
+        min-height: 36px;
+    }
+    
+    .pagination-btn.prev,
+    .pagination-btn.next {
+        padding: 0.4rem 0.8rem;
+    }
+
     /* 移动端footer设置区域适配 */
     .footer-settings {
         gap: 1.5rem;
@@ -1987,6 +2104,32 @@ body {
         box-shadow: 
             0 2px 6px rgba(0, 0, 0, 0.4),
             0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* 暗色模式下的分页样式 */
+    .pagination-btn {
+        background: var(--bg-card);
+        border-color: var(--border-color);
+        color: var(--text-primary);
+    }
+    
+    .pagination-btn:hover {
+        background: var(--bg-secondary);
+        border-color: var(--accent-color);
+    }
+    
+    .pagination-btn.active {
+        background: var(--accent-color);
+        color: white;
+        border-color: var(--accent-color);
+    }
+    
+    .pagination-info {
+        color: var(--text-secondary);
+    }
+    
+    .pagination-ellipsis {
+        color: var(--text-secondary);
     }
 }
 
