@@ -10,8 +10,8 @@ class UnifiedNotificationManager {
         this.config = {
             // 通知开关
             enabled: localStorage.getItem('unifiedNotifications') !== 'false',
-            // 浏览器原生通知
-            browserNotifications: localStorage.getItem('browserNotifications') !== 'false',
+            // 浏览器原生通知 - 默认启用
+            browserNotifications: this.initBrowserNotificationsConfig(),
             // 页面内通知
             inPageNotifications: localStorage.getItem('inPageNotifications') !== 'false',
             // SW后台通知
@@ -49,6 +49,30 @@ class UnifiedNotificationManager {
         
         // 绑定方法到实例
         this.handleSWMessage = this.handleSWMessage.bind(this);
+    }
+
+    /**
+     * 初始化浏览器通知配置
+     * 首次访问时默认启用，已有配置则使用现有配置
+     */
+    initBrowserNotificationsConfig() {
+        const stored = localStorage.getItem('browserNotifications');
+        
+        // 如果已有配置，使用现有配置
+        if (stored !== null) {
+            return stored !== 'false';
+        }
+        
+        // 首次访问且浏览器支持通知，默认启用
+        if ('Notification' in window) {
+            localStorage.setItem('browserNotifications', 'true');
+            console.log('🔔 首次访问，已默认启用浏览器通知');
+            return true;
+        }
+        
+        // 浏览器不支持，关闭功能
+        localStorage.setItem('browserNotifications', 'false');
+        return false;
     }
     
     /**
@@ -349,6 +373,133 @@ class UnifiedNotificationManager {
     }
     
     /**
+     * 显示浏览器通知
+     */
+    showBrowserNotification(notificationData) {
+        if (this.state.permission !== 'granted') return;
+        
+        const options = {
+            body: notificationData.message,
+            icon: '/assets/icons/icon-128x128.png',
+            badge: '/assets/icons/icon-72x72.png',
+            tag: notificationData.id,
+            data: notificationData.data,
+            requireInteraction: true, // 需要用户交互才会消失
+            silent: false,
+            timestamp: Date.now(),
+            actions: [
+                {
+                    action: 'view',
+                    title: '查看内容',
+                    icon: '/assets/icons/icon-72x72.png'
+                },
+                {
+                    action: 'dismiss',
+                    title: '关闭',
+                    icon: '/assets/icons/icon-72x72.png'
+                }
+            ]
+        };
+        
+        try {
+            const notification = new Notification(notificationData.title, options);
+            
+            // 点击处理
+            notification.onclick = () => {
+                this.handleNotificationClick(notificationData);
+                notification.close();
+            };
+            
+            // 错误处理
+            notification.onerror = (error) => {
+                console.error('浏览器通知显示失败:', error);
+            };
+            
+            // 自动关闭
+            setTimeout(() => {
+                notification.close();
+            }, this.config.displayDuration);
+            
+            console.log(`🔔 浏览器通知已显示: ${notificationData.message}`);
+            
+        } catch (error) {
+            console.error('创建浏览器通知失败:', error);
+        }
+    }
+    
+    /**
+     * 处理通知点击事件
+     */
+    handleNotificationClick(notificationData) {
+        // 聚焦到窗口
+        if (window.focus) {
+            window.focus();
+        }
+        
+        // 跳转到对应内容
+        if (notificationData.data && notificationData.data.path) {
+            const path = notificationData.data.path;
+            
+            // 检查是否是内部链接
+            if (path.startsWith('/') || path.startsWith('#') || path.startsWith('2025/')) {
+                // 内部链接，使用页面路由
+                if (path.startsWith('#')) {
+                    window.location.hash = path;
+                } else {
+                    // 打开新标签页或当前页面
+                    window.open(path, '_blank');
+                }
+            } else {
+                // 外部链接
+                window.open(path, '_blank');
+            }
+        }
+        
+        // 发送点击事件
+        this.emit('notificationClick', notificationData);
+    }
+    
+    /**
+     * 请求通知权限
+     */
+    async requestPermission() {
+        if (!('Notification' in window)) {
+            console.warn('浏览器不支持通知API');
+            return false;
+        }
+        
+        try {
+            const permission = await Notification.requestPermission();
+            this.state.permission = permission;
+            
+            if (permission === 'granted') {
+                console.log('✅ 通知权限已授予');
+                this.config.browserNotifications = true;
+                this.saveConfig();
+                
+                // 显示欢迎通知
+                this.showBrowserNotification({
+                    id: 'welcome-notification',
+                    type: 'success',
+                    title: '🎉 通知已启用',
+                    message: '您将收到新内容的推送通知',
+                    data: { path: '#home' }
+                });
+                
+                return true;
+            } else {
+                console.log('❌ 通知权限被拒绝');
+                this.config.browserNotifications = false;
+                this.saveConfig();
+                return false;
+            }
+        } catch (error) {
+            console.error('❌ 请求通知权限失败:', error);
+            return false;
+        }
+    }
+    
+    /**
      * 显示页面内通知
      */
     showInPageNotification(notificationData) {
@@ -512,13 +663,35 @@ class UnifiedNotificationManager {
     }
     
     /**
+     * 更新配置
+     */
+    updateConfig(newConfig) {
+        Object.keys(newConfig).forEach(key => {
+            if (key in this.config) {
+                this.config[key] = newConfig[key];
+                console.log(`⚙️ 配置已更新: ${key} = ${newConfig[key]}`);
+            }
+        });
+        
+        // 保存到localStorage
+        this.saveConfig();
+        
+        // 同步到SW
+        this.syncConfigToServiceWorker();
+    }
+
+    /**
      * 保存配置
      */
     saveConfig() {
-        Object.keys(this.config).forEach(key => {
-            localStorage.setItem(key === 'enabled' ? 'unifiedNotifications' : key, 
-                this.config[key] ? 'true' : 'false');
-        });
+        // 保存各个配置项到localStorage
+        localStorage.setItem('unifiedNotifications', this.config.enabled ? 'true' : 'false');
+        localStorage.setItem('browserNotifications', this.config.browserNotifications ? 'true' : 'false');
+        localStorage.setItem('inPageNotifications', this.config.inPageNotifications ? 'true' : 'false');
+        localStorage.setItem('swNotifications', this.config.serviceWorkerNotifications ? 'true' : 'false');
+        localStorage.setItem('notificationSilentMode', this.config.silentMode ? 'true' : 'false');
+        
+        console.log('💾 通知配置已保存');
     }
     
     /**

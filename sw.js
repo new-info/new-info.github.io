@@ -1,6 +1,6 @@
 // Service Worker for PWA functionality
-const CACHE_NAME = 'live-analysis-platform-v6';
-const DYNAMIC_CACHE = 'dynamic-resources-v4';
+const CACHE_NAME = 'live-analysis-platform-v8';
+const DYNAMIC_CACHE = 'dynamic-resources-v6';
 
 // 存储用户首选项
 let userPreferences = {
@@ -28,6 +28,7 @@ const CORE_ASSETS = [
     '/manifest.json',
     '/assets/css/main.css',
     '/assets/css/mobile.css',
+    '/assets/css/pwa-enhancements.css',
     '/assets/js/main.js',
     '/assets/js/notes-data.js',
     '/assets/js/unified-notification-manager.js',

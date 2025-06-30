@@ -1,0 +1,307 @@
+/**
+ * PWA 应用增强样式
+ * 优化全面屏手势支持、状态栏适配和应用体验
+ */
+
+/* 全面屏安全区域适配 */
+:root {
+    --safe-area-inset-top: env(safe-area-inset-top, 0px);
+    --safe-area-inset-right: env(safe-area-inset-right, 0px);
+    --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-area-inset-left: env(safe-area-inset-left, 0px);
+    
+    /* PWA专用变量 */
+    --pwa-header-height: 60px;
+    --pwa-gesture-area: 20px; /* 为手势预留的区域 */
+    --pwa-status-bar-height: var(--safe-area-inset-top);
+}
+
+/* PWA模式下的基础布局调整 */
+@media (display-mode: standalone) {
+    body {
+        /* 为安全区域预留空间 */
+        padding-top: var(--safe-area-inset-top);
+        padding-left: var(--safe-area-inset-left);
+        padding-right: var(--safe-area-inset-right);
+        padding-bottom: var(--safe-area-inset-bottom);
+        
+        /* 防止内容被状态栏遮挡 */
+        margin: 0;
+        background: var(--bg-secondary);
+    }
+    
+    /* PWA模式下的header优化 */
+    .header {
+        position: fixed;
+        top: var(--safe-area-inset-top);
+        left: var(--safe-area-inset-left);
+        right: var(--safe-area-inset-right);
+        z-index: 9999;
+        
+        /* 优化头部高度和内边距 */
+        min-height: var(--pwa-header-height);
+        padding: 0.75rem 0;
+        
+        /* 添加边框和阴影增强视觉层次 */
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        
+        /* 增强渐变效果 */
+        background: linear-gradient(135deg, 
+            var(--primary-color) 0%, 
+            var(--secondary-color) 100%
+        );
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* 主要内容区域适配 */
+    .main {
+        margin-top: calc(var(--pwa-header-height) + var(--safe-area-inset-top) + 1rem);
+        padding-bottom: calc(2rem + var(--safe-area-inset-bottom));
+        min-height: calc(100vh - var(--pwa-header-height) - var(--safe-area-inset-top) - var(--safe-area-inset-bottom));
+    }
+    
+    /* 底部区域适配 */
+    .footer {
+        padding-bottom: calc(1.5rem + var(--safe-area-inset-bottom));
+        margin-bottom: 0;
+    }
+}
+
+/* PWA退出按钮和手势支持 */
+@media (display-mode: standalone) {
+    .pwa-header-controls {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+    
+    .pwa-exit-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        
+        /* 确保足够的触摸目标 */
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    .pwa-exit-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    
+    .pwa-exit-btn:active {
+        transform: translateY(0);
+        background: rgba(255, 255, 255, 0.4);
+    }
+    
+    .pwa-exit-icon {
+        font-size: 1.1rem;
+    }
+    
+    /* 手势提示区域 */
+    .pwa-gesture-hint {
+        position: fixed;
+        top: var(--safe-area-inset-top);
+        left: 0;
+        right: 0;
+        height: var(--pwa-gesture-area);
+        background: transparent;
+        z-index: 10000;
+        pointer-events: none;
+        
+        /* 添加视觉提示 */
+        background: linear-gradient(
+            to bottom,
+            rgba(255, 255, 255, 0.1) 0%,
+            transparent 100%
+        );
+    }
+    
+    /* 导航优化 */
+    .nav-wrapper {
+        position: relative;
+        margin-bottom: 0;
+    }
+    
+    .logo {
+        margin-left: 1rem;
+    }
+}
+
+/* 全面屏手势适配增强 */
+@supports (padding: max(0px)) {
+    @media (display-mode: standalone) {
+        body {
+            padding-top: max(var(--safe-area-inset-top), 0px);
+            padding-left: max(var(--safe-area-inset-left), 0px);
+            padding-right: max(var(--safe-area-inset-right), 0px);
+            padding-bottom: max(var(--safe-area-inset-bottom), 0px);
+        }
+        
+        .header {
+            top: max(var(--safe-area-inset-top), 0px);
+            left: max(var(--safe-area-inset-left), 0px);
+            right: max(var(--safe-area-inset-right), 0px);
+        }
+    }
+}
+
+/* 移动端PWA优化 */
+@media (max-width: 768px) and (display-mode: standalone) {
+    .header {
+        padding: 0.5rem 0;
+        min-height: 56px; /* 移动端标准应用栏高度 */
+    }
+    
+    .nav-wrapper {
+        padding: 0 1rem;
+    }
+    
+    .logo {
+        font-size: 1.3rem;
+        margin-left: 0;
+    }
+    
+    .pwa-header-controls {
+        position: static;
+        transform: none;
+        gap: 0.5rem;
+    }
+    
+    .pwa-exit-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+        min-height: 40px;
+        min-width: 40px;
+    }
+    
+    .pwa-exit-btn .exit-text {
+        display: none; /* 移动端只显示图标 */
+    }
+    
+    /* 移动端手势提示增强 */
+    .pwa-gesture-hint {
+        height: calc(var(--pwa-gesture-area) + 5px);
+        background: linear-gradient(
+            to bottom,
+            rgba(38, 208, 206, 0.2) 0%,
+            rgba(38, 208, 206, 0.1) 50%,
+            transparent 100%
+        );
+    }
+    
+    /* 移动端导航菜单适配 */
+    .mobile-menu-toggle {
+        margin-right: 1rem;
+    }
+    
+    .nav {
+        top: calc(100% + var(--safe-area-inset-top));
+        background: var(--primary-color);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+    }
+}
+
+/* 横屏模式PWA适配 */
+@media (orientation: landscape) and (display-mode: standalone) {
+    .main {
+        margin-top: calc(var(--pwa-header-height) + var(--safe-area-inset-top) + 0.5rem);
+    }
+    
+    .pwa-gesture-hint {
+        height: calc(var(--pwa-gesture-area) - 5px);
+    }
+}
+
+/* PWA状态栏颜色适配 */
+@media (display-mode: standalone) {
+    /* 为不同主题提供状态栏颜色适配 */
+    body {
+        background: var(--bg-secondary);
+    }
+    
+    /* 确保状态栏区域有合适的背景 */
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: var(--safe-area-inset-top);
+        background: var(--primary-color);
+        z-index: 9998;
+        pointer-events: none;
+    }
+}
+
+/* PWA通知适配 */
+@media (display-mode: standalone) {
+    #unified-notification {
+        bottom: calc(20px + var(--safe-area-inset-bottom)) !important;
+        left: calc(20px + var(--safe-area-inset-left)) !important;
+        right: calc(20px + var(--safe-area-inset-right)) !important;
+        transform: translateX(0) !important;
+        max-width: calc(100vw - 40px - var(--safe-area-inset-left) - var(--safe-area-inset-right)) !important;
+    }
+}
+
+/* PWA暗色模式适配 */
+@media (display-mode: standalone) and (prefers-color-scheme: dark) {
+    .header {
+        background: linear-gradient(135deg, 
+            #1a1a2e 0%, 
+            #16213e 100%
+        );
+        border-bottom-color: rgba(255, 255, 255, 0.05);
+    }
+    
+    .pwa-exit-btn {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+    
+    .pwa-exit-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+    
+    body::before {
+        background: #1a1a2e;
+    }
+}
+
+/* PWA性能优化 */
+@media (display-mode: standalone) {
+    .header {
+        /* 启用硬件加速 */
+        transform: translateZ(0);
+        will-change: transform;
+    }
+    
+    .pwa-exit-btn {
+        /* 优化动画性能 */
+        transform: translateZ(0);
+        will-change: transform, background, border-color;
+    }
+} 

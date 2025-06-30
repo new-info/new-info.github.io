@@ -1,5 +1,5 @@
 // 自动生成的文件列表
-// 最后更新时间: 2025-06-30T08:49:47.482Z
+// 最后更新时间: 2025-06-30T09:16:08.221Z
 
 window.FILES_LIST = {
   "html": [
@@ -17,7 +17,8 @@ window.FILES_LIST = {
     "2025/hjf/highlight.css",
     "2025/hjf/markdown.css",
     "assets/css/main.css",
-    "assets/css/mobile.css"
+    "assets/css/mobile.css",
+    "assets/css/pwa-enhancements.css"
   ],
   "js": [
     "assets/js/auth-config.js",
@@ -75,12 +76,13 @@ window.FILES_LIST = {
     "assets/icons/README.md",
     "assets/icons/create-icons.sh",
     "docs/NOTIFICATION_OPTIMIZATION.md",
+    "docs/PWA_ENHANCEMENTS.md",
     "manifest.json",
     "package-lock.json",
     "package.json",
     "scripts/README.md"
   ],
-  "lastUpdated": "2025-06-30T08:49:47.482Z"
+  "lastUpdated": "2025-06-30T09:16:08.221Z"
 };
 
 // 导出数据供Node.js使用

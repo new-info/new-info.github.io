@@ -6,6 +6,7 @@
     <title>大学生活平台 - GitHub Pages</title>
     <link rel="stylesheet" href="assets/css/main.css">
     <link rel="stylesheet" href="assets/css/mobile.css">
+    <link rel="stylesheet" href="assets/css/pwa-enhancements.css">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#26d0ce">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -14,10 +15,22 @@
     <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
 </head>
 <body>
+    <!-- PWA手势提示区域 -->
+    <div class="pwa-gesture-hint"></div>
+
     <header class="header">
         <div class="container">
             <div class="nav-wrapper">
                 <h1 class="logo">🎓 大学生活平台</h1>
+
+                <!-- PWA控制按钮 -->
+                <div class="pwa-header-controls">
+                    <button class="pwa-exit-btn" onclick="handlePWAExit()" aria-label="退出应用">
+                        <span class="pwa-exit-icon">←</span>
+                        <span class="exit-text">退出</span>
+                    </button>
+                </div>
+
                 <button class="mobile-menu-toggle" aria-label="菜单">
                     <span></span>
                     <span></span>
@@ -182,6 +195,11 @@
                     <input type="checkbox" id="sw-notifications-toggle" checked>
                     <span class="toggle-label">显示系统通知</span>
                 </label>
+
+                <label class="toggle-setting">
+                    <input type="checkbox" id="browser-notifications-toggle" checked>
+                    <span class="toggle-label">显示浏览器通知</span>
+                </label>
             </div>
         </div>
     </footer>
@@ -201,30 +219,202 @@
     <script src="assets/js/main.js"></script>
     <script src="assets/js/page-router.js"></script>
     <script>
+        // PWA退出功能
+        function handlePWAExit() {
+            if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                // PWA模式下的退出处理
+                if (confirm('确定要退出应用吗？')) {
+                    // 尝试关闭PWA窗口
+                    if (window.close) {
+                        window.close();
+                    } else {
+                        // 如果无法直接关闭，跳转到浏览器
+                        window.location.href = 'about:blank';
+                    }
+                }
+            } else {
+                // 普通浏览器模式
+                if (confirm('确定要关闭页面吗？')) {
+                    window.close();
+                }
+            }
+        }
+
+        // PWA检测和UI适配
+        function initPWAFeatures() {
+            // 检测是否在PWA模式下运行
+            const isPWA = window.matchMedia('(display-mode: standalone)').matches ||
+                         window.navigator.standalone ||
+                         document.referrer.includes('android-app://');
+
+            if (isPWA) {
+                document.body.classList.add('pwa-mode');
+                console.log('🚀 PWA模式已启用');
+
+                // 隐藏浏览器UI相关的元素
+                const gestureHint = document.querySelector('.pwa-gesture-hint');
+                if (gestureHint) {
+                    gestureHint.style.display = 'block';
+                }
+            } else {
+                // 在普通浏览器模式下隐藏PWA相关元素
+                const pwaControls = document.querySelector('.pwa-header-controls');
+                const gestureHint = document.querySelector('.pwa-gesture-hint');
+
+                if (pwaControls) pwaControls.style.display = 'none';
+                if (gestureHint) gestureHint.style.display = 'none';
+            }
+        }
+
+        // 自动请求浏览器通知权限
+        async function initBrowserNotifications() {
+            if (!('Notification' in window)) {
+                console.warn('浏览器不支持通知API');
+                return false;
+            }
+
+            try {
+                // 如果权限未设置，自动请求
+                if (Notification.permission === 'default') {
+                    console.log('🔔 自动请求浏览器通知权限...');
+                    const permission = await Notification.requestPermission();
+
+                    if (permission === 'granted') {
+                        console.log('✅ 浏览器通知权限已自动授予');
+                        return true;
+                    } else {
+                        console.log('❌ 浏览器通知权限被拒绝');
+                        return false;
+                    }
+                } else if (Notification.permission === 'granted') {
+                    console.log('✅ 浏览器通知权限已存在');
+                    return true;
+                } else {
+                    console.log('❌ 浏览器通知权限已被拒绝');
+                    return false;
+                }
+            } catch (error) {
+                console.error('❌ 请求浏览器通知权限失败:', error);
+                return false;
+            }
+        }
+
+        // 更新浏览器通知开关状态
+        function updateBrowserNotificationToggle() {
+            const toggle = document.getElementById('browser-notifications-toggle');
+            if (!toggle) return;
+
+            const isSupported = 'Notification' in window;
+            const permission = isSupported ? Notification.permission : 'default';
+            const isEnabled = window.unifiedNotifications ?
+                              window.unifiedNotifications.getStatus().config.browserNotifications :
+                              false;
+
+            // 根据权限状态设置开关
+            if (!isSupported) {
+                toggle.disabled = true;
+                toggle.checked = false;
+                toggle.parentElement.style.opacity = '0.5';
+                console.log('❌ 浏览器不支持通知功能');
+            } else if (permission === 'denied') {
+                toggle.disabled = true;
+                toggle.checked = false;
+                toggle.parentElement.style.opacity = '0.5';
+                console.log('❌ 浏览器通知权限被拒绝');
+            } else {
+                toggle.disabled = false;
+                toggle.checked = isEnabled && permission === 'granted';
+                toggle.parentElement.style.opacity = '1';
+            }
+        }
+
         // 设置通知开关 - 使用统一通知管理器
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 初始化PWA功能
+            initPWAFeatures();
+
+            // 自动请求浏览器通知权限
+            await initBrowserNotifications();
+
             const notificationsToggle = document.getElementById('sw-notifications-toggle');
-            if (notificationsToggle) {
-                // 等待统一通知管理器初始化
-                const initToggle = () => {
-                    if (window.unifiedNotifications && window.unifiedNotifications.initialized) {
-                        // 初始化开关状态
-                        const status = window.unifiedNotifications.getStatus();
+            const browserToggle = document.getElementById('browser-notifications-toggle');
+
+            // 等待统一通知管理器初始化
+            const initToggles = () => {
+                if (window.unifiedNotifications && window.unifiedNotifications.initialized) {
+                    const status = window.unifiedNotifications.getStatus();
+
+                    // 初始化系统通知开关
+                    if (notificationsToggle) {
                         notificationsToggle.checked = status.config.enabled;
-                        
-                        // 监听开关变化
+
                         notificationsToggle.addEventListener('change', () => {
                             window.unifiedNotifications.toggleNotifications();
-                            console.log('🔔 通知开关已切换:', notificationsToggle.checked);
+                            console.log('🔔 系统通知开关已切换:', notificationsToggle.checked);
                         });
-                    } else {
-                        // 如果统一通知管理器还未初始化，稍后再试
-                        setTimeout(initToggle, 100);
                     }
-                };
-                
-                initToggle();
-            }
+
+                    // 初始化浏览器通知开关
+                    if (browserToggle) {
+                        // 默认启用浏览器通知（如果权限允许）
+                        if (Notification.permission === 'granted') {
+                            window.unifiedNotifications.updateConfig({ browserNotifications: true });
+                        }
+
+                        // 更新开关状态
+                        updateBrowserNotificationToggle();
+
+                        // 监听开关变化
+                        browserToggle.addEventListener('change', async () => {
+                            if (browserToggle.checked) {
+                                // 开启浏览器通知
+                                if (Notification.permission === 'granted') {
+                                    window.unifiedNotifications.updateConfig({ browserNotifications: true });
+                                    console.log('✅ 浏览器通知已启用');
+                                } else if (Notification.permission === 'default') {
+                                    // 重新请求权限
+                                    const granted = await initBrowserNotifications();
+                                    if (granted) {
+                                        window.unifiedNotifications.updateConfig({ browserNotifications: true });
+                                        console.log('✅ 浏览器通知权限已获取并启用');
+                                    } else {
+                                        browserToggle.checked = false;
+                                        console.log('❌ 浏览器通知权限被拒绝');
+                                    }
+                                } else {
+                                    // 权限被拒绝
+                                    browserToggle.checked = false;
+                                    console.log('❌ 浏览器通知权限已被拒绝，无法启用');
+                                }
+                            } else {
+                                // 关闭浏览器通知
+                                window.unifiedNotifications.updateConfig({ browserNotifications: false });
+                                console.log('❌ 浏览器通知已关闭');
+                            }
+
+                            // 更新开关状态
+                            updateBrowserNotificationToggle();
+                        });
+                    }
+
+                    // 监听通知权限变化
+                    if ('permissions' in navigator) {
+                        navigator.permissions.query({name: 'notifications'}).then(permission => {
+                            permission.addEventListener('change', () => {
+                                updateBrowserNotificationToggle();
+                            });
+                        }).catch(() => {
+                            // 某些浏览器可能不支持权限查询
+                            console.log('浏览器不支持权限查询API');
+                        });
+                    }
+                } else {
+                    // 如果统一通知管理器还未初始化，稍后再试
+                    setTimeout(initToggles, 100);
+                }
+            };
+
+            initToggles();
         });
     </script>
 </body>
