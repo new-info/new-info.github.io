@@ -23,7 +23,12 @@
             <div class="nav-wrapper">
                 <!-- PWA退出按钮 -->
                 <button class="pwa-exit-btn" onclick="handlePWAExit()" aria-label="退出应用">
-                    <span class="pwa-exit-icon">⏻</span>
+                    <svg class="pwa-exit-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- 电源按钮的竖线 -->
+                        <path d="M12 6V12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                        <!-- 电源按钮的圆弧 -->
+                        <path d="M8 8C5.79086 9.79086 5.79086 14.2091 8 16C10.2091 17.7909 13.7909 17.7909 16 16C18.2091 14.2091 18.2091 9.79086 16 8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                    </svg>
                 </button>
 
                 <h1 class="logo">🎓 大学生活平台</h1>
@@ -219,6 +224,10 @@
     <script src="assets/js/files-list.js"></script>
     <script src="assets/js/missing-files.js"></script>
     <script src="assets/js/file-monitor.js"></script>
+    <!-- Service Worker存储助手 -->
+    <script src="assets/js/sw-storage-helper.js"></script>
+    <!-- PWA安装提示功能 -->
+    <script src="assets/js/pwa-install-prompt.js"></script>
     <!-- 旧的通知系统已由统一通知管理器替代 -->
     <!-- <script src="assets/js/notes-notifications.js"></script> -->
     <!-- <script src="assets/js/sw-updater.js"></script> -->

@@ -124,14 +124,26 @@
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
     
+    .pwa-exit-btn:hover .pwa-exit-icon {
+        transform: scale(1.1);
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    }
+    
     .pwa-exit-btn:active {
         transform: scale(0.95);
         background: rgba(255, 255, 255, 0.4);
     }
     
+    .pwa-exit-btn:active .pwa-exit-icon {
+        transform: scale(0.9);
+    }
+    
     .pwa-exit-icon {
-        font-size: 1.2rem;
-        line-height: 1;
+        width: 18px;
+        height: 18px;
+        display: block;
+        color: currentColor;
+        transition: all 0.2s ease;
     }
     
     /* 手势提示区域 */
@@ -224,7 +236,8 @@
     }
     
     .pwa-exit-icon {
-        font-size: 1rem;
+        width: 16px;
+        height: 16px;
     }
     
     /* 移动端菜单按钮也需要调整order */
@@ -289,7 +302,8 @@
     }
     
     .pwa-exit-icon {
-        font-size: 1.3rem;
+        width: 20px;
+        height: 20px;
     }
 }
 

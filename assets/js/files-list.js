@@ -1,5 +1,5 @@
 // 自动生成的文件列表
-// 最后更新时间: 2025-06-30T10:36:43.925Z
+// 最后更新时间: 2025-06-30T11:21:14.596Z
 
 window.FILES_LIST = {
   "html": [
@@ -31,7 +31,9 @@ window.FILES_LIST = {
     "assets/js/notes-data.js",
     "assets/js/notes-notifications.js",
     "assets/js/page-router.js",
+    "assets/js/pwa-install-prompt.js",
     "assets/js/score-patches.js",
+    "assets/js/sw-storage-helper.js",
     "assets/js/sw-updater.js",
     "assets/js/unified-notification-manager.js",
     "scripts/create-icons.js",
@@ -71,6 +73,7 @@ window.FILES_LIST = {
     ".idea/workspace.xml",
     "2025/hjm/.DS_Store",
     "DEPLOYMENT.md",
+    "NOTIFICATION_FIX_TEST.md",
     "PROJECT_SUMMARY.md",
     "README.md",
     "assets/icons/README.md",
@@ -82,7 +85,7 @@ window.FILES_LIST = {
     "package.json",
     "scripts/README.md"
   ],
-  "lastUpdated": "2025-06-30T10:36:43.925Z"
+  "lastUpdated": "2025-06-30T11:21:14.596Z"
 };
 
 // 导出数据供Node.js使用

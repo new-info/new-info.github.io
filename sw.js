@@ -1,6 +1,6 @@
 // Service Worker for PWA functionality
-const CACHE_NAME = 'live-analysis-platform-v10';
-const DYNAMIC_CACHE = 'dynamic-resources-v8';
+const CACHE_NAME = 'live-analysis-platform-v1.0.0';
+const DYNAMIC_CACHE = 'dynamic-resources-v1.0.0';
 
 // 存储用户首选项
 let userPreferences = {
@@ -11,7 +11,9 @@ let userPreferences = {
 // 跟踪笔记更新
 let notesCache = {
     lastChecked: Date.now(),
-    knownPaths: new Set()
+    knownPaths: new Set(),
+    initialized: false,
+    installTime: Date.now() // 记录Service Worker安装时间
 };
 
 // 缓存通知控制
@@ -35,7 +37,9 @@ const CORE_ASSETS = [
     '/assets/js/score-patches.js',
     '/assets/js/files-list.js',
     '/assets/js/missing-files.js',
-    '/assets/js/file-monitor.js'
+    '/assets/js/file-monitor.js',
+    '/assets/js/sw-storage-helper.js',
+    '/assets/js/pwa-install-prompt.js'
 ];
 
 // 安装 Service Worker
@@ -155,6 +159,17 @@ async function initializeKnownPaths() {
     try {
         console.log('[Service Worker] 初始化已知笔记路径...');
 
+        // 首先尝试从客户端存储中恢复已知路径
+        const clients = await self.clients.matchAll();
+        if (clients.length > 0) {
+            // 请求客户端提供已知路径
+            const storageData = await requestStorageFromClient(clients[0]);
+            if (storageData && storageData.knownPaths) {
+                storageData.knownPaths.forEach(path => notesCache.knownPaths.add(path));
+                console.log(`[Service Worker] 从客户端恢复 ${notesCache.knownPaths.size} 个已知路径`);
+            }
+        }
+
         // 尝试获取notes-data.js文件
         const response = await fetch('/assets/js/notes-data.js');
         if (response && response.status === 200) {
@@ -164,6 +179,9 @@ async function initializeKnownPaths() {
             const match = text.match(/window\.NOTES_DATA\s*=\s*({[\s\S]*?});/);
             if (match) {
                 const notesData = JSON.parse(match[1]);
+
+                // 检查是否是首次安装（从安装到现在少于10秒）
+                const isFirstInstall = (Date.now() - notesCache.installTime) < 10000;
 
                 // 将所有现有路径添加到已知路径中
                 ['hjf', 'hjm'].forEach(author => {
@@ -179,11 +197,55 @@ async function initializeKnownPaths() {
                     }
                 });
 
-                console.log(`[Service Worker] 已初始化 ${notesCache.knownPaths.size} 个已知路径`);
+                // 保存已知路径到客户端存储
+                await saveKnownPathsToClient();
+
+                console.log(`[Service Worker] 已初始化 ${notesCache.knownPaths.size} 个已知路径 ${isFirstInstall ? '(首次安装)' : ''}`);
+
+                // 标记为已初始化
+                notesCache.initialized = true;
             }
         }
     } catch (error) {
         console.log('[Service Worker] 初始化已知路径失败:', error);
+        // 即使失败也标记为已初始化，避免重复尝试
+        notesCache.initialized = true;
+    }
+}
+
+// 从客户端请求存储数据
+async function requestStorageFromClient(client) {
+    return new Promise((resolve) => {
+        const channel = new MessageChannel();
+
+        channel.port1.onmessage = (event) => {
+            resolve(event.data);
+        };
+
+        client.postMessage({
+            action: 'REQUEST_KNOWN_PATHS'
+        }, [channel.port2]);
+
+        // 3秒后超时
+        setTimeout(() => resolve(null), 3000);
+    });
+}
+
+// 保存已知路径到客户端存储
+async function saveKnownPathsToClient() {
+    try {
+        const clients = await self.clients.matchAll();
+        const pathsArray = Array.from(notesCache.knownPaths);
+
+        clients.forEach(client => {
+            client.postMessage({
+                action: 'SAVE_KNOWN_PATHS',
+                knownPaths: pathsArray,
+                timestamp: Date.now()
+            });
+        });
+    } catch (error) {
+        console.log('[Service Worker] 保存已知路径失败:', error);
     }
 }
 
@@ -238,50 +300,66 @@ function checkNotesDataForUpdates(notesDataText) {
         }
 
         const notesData = JSON.parse(match[1]);
+
+        // 检查是否在静默期内（Service Worker安装后30秒内）
+        const isInSilentPeriod = (Date.now() - notesCache.installTime) < 30000;
         const newNotesFound = [];
 
         // 收集所有新笔记
         ['hjf', 'hjm'].forEach(author => {
             if (!notesData[author] || !Array.isArray(notesData[author])) return;
-            
+
             notesData[author].forEach(note => {
                 // 检查主笔记
                 if (note.path && !notesCache.knownPaths.has(note.path)) {
                     notesCache.knownPaths.add(note.path);
-                    
-                    newNotesFound.push({
-                        action: 'NEW_NOTE',
-                        author: author.toUpperCase(),
-                        path: note.path,
-                        title: note.title || note.path.split('/').pop().replace('.html', ''),
-                        date: note.date || '1970-01-01',
-                        isReview: false,
-                        timestamp: Date.now()
-                    });
-                    
-                    console.log(`[Service Worker] 发现新笔记: ${note.path}`);
+
+                    // 如果不在静默期且已完成初始化，才记录为新笔记
+                    if (!isInSilentPeriod && notesCache.initialized) {
+                        newNotesFound.push({
+                            action: 'NEW_NOTE',
+                            author: author.toUpperCase(),
+                            path: note.path,
+                            title: note.title || note.path.split('/').pop().replace('.html', ''),
+                            date: note.date || '1970-01-01',
+                            isReview: false,
+                            timestamp: Date.now()
+                        });
+
+                        console.log(`[Service Worker] 发现新笔记: ${note.path}`);
+                    } else {
+                        console.log(`[Service Worker] 静默期内，跳过通知: ${note.path}`);
+                    }
                 }
 
                 // 检查评分报告
                 if (note.reviewReport?.path && !notesCache.knownPaths.has(note.reviewReport.path)) {
                     notesCache.knownPaths.add(note.reviewReport.path);
-                    
-                    newNotesFound.push({
-                        action: 'NEW_NOTE',
-                        author: author.toUpperCase(),
-                        path: note.reviewReport.path,
-                        title: note.reviewReport.title || '评分报告',
-                        date: note.reviewReport.date || note.date || '1970-01-01',
-                        isReview: true,
-                        timestamp: Date.now()
-                    });
-                    
-                    console.log(`[Service Worker] 发现新评分报告: ${note.reviewReport.path}`);
+
+                    // 如果不在静默期且已完成初始化，才记录为新笔记
+                    if (!isInSilentPeriod && notesCache.initialized) {
+                        newNotesFound.push({
+                            action: 'NEW_NOTE',
+                            author: author.toUpperCase(),
+                            path: note.reviewReport.path,
+                            title: note.reviewReport.title || '评分报告',
+                            date: note.reviewReport.date || note.date || '1970-01-01',
+                            isReview: true,
+                            timestamp: Date.now()
+                        });
+
+                        console.log(`[Service Worker] 发现新评分报告: ${note.reviewReport.path}`);
+                    } else {
+                        console.log(`[Service Worker] 静默期内，跳过通知: ${note.reviewReport.path}`);
+                    }
                 }
             });
         });
 
-        // 如果有新笔记，按优化的方式发送通知
+        // 保存更新后的已知路径
+        saveKnownPathsToClient();
+
+        // 如果有新笔记且不在静默期，按优化的方式发送通知
         if (newNotesFound.length > 0) {
             sendOptimizedNotifications(newNotesFound);
         }
@@ -294,7 +372,7 @@ function checkNotesDataForUpdates(notesDataText) {
 // 优化的通知发送逻辑
 function sendOptimizedNotifications(newNotesFound) {
     if (!userPreferences.pushNotifications) return;
-    
+
     // 数组本身就是倒序排列（最新在前），我们需要让最新的最后显示
     // 所以按日期升序排序，让较旧的先发送，最新的最后发送
     newNotesFound.sort((a, b) => {
@@ -302,9 +380,9 @@ function sendOptimizedNotifications(newNotesFound) {
         const dateB = new Date(b.date).getTime();
         return dateA - dateB; // 升序：较旧的在前面先发送，最新的在后面最后发送
     });
-    
+
     console.log(`[Service Worker] 准备发送 ${newNotesFound.length} 个通知，确保最新内容最后显示`);
-    
+
     // 使用优化的批量发送策略
     if (newNotesFound.length <= 3) {
         // 少量通知：顺序发送，确保最新的最后显示
@@ -316,14 +394,14 @@ function sendOptimizedNotifications(newNotesFound) {
     } else {
         // 大量通知：只发送最新的几个，避免刷屏
         // 由于已经按日期降序排序，取后面3个就是最新的
-        const recentNotifications = newNotesFound.slice(-3); 
-        
+        const recentNotifications = newNotesFound.slice(-3);
+
         recentNotifications.forEach((notification, index) => {
             setTimeout(() => {
                 notifyClients(notification);
             }, index * 400);
         });
-        
+
         // 发送一个汇总通知
         setTimeout(() => {
             notifyClients({
