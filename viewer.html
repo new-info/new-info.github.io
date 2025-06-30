@@ -120,6 +120,27 @@
             return null;
         }
         
+        // 查找页面在NOTES_DATA中的索引
+        function findPageIndexInNotesData(pageUrl, author) {
+            if (!window.NOTES_DATA || !window.NOTES_DATA[author]) {
+                return -1;
+            }
+            
+            const notesArray = window.NOTES_DATA[author];
+            for (let i = 0; i < notesArray.length; i++) {
+                const note = notesArray[i];
+                // 检查主文件路径
+                if (note.path === pageUrl) {
+                    return i;
+                }
+                // 检查review文件路径
+                if (note.reviewReport && note.reviewReport.path === pageUrl) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+        
         // 获取查询参数
         const urlParams = new URLSearchParams(window.location.search);
         const pageUrl = urlParams.get('page');
@@ -130,19 +151,38 @@
             
             // 检查是否需要认证
             if (author && window.AuthHelper) {
-                // 如果已经认证过，直接加载内容
-                if (window.AuthHelper.isAuthenticated(author)) {
-                    loadContent(pageUrl);
+                // 查找页面在NOTES_DATA中的索引
+                let pageIndex = -1;
+                
+                // 先加载notes-data.js如果还没加载
+                if (!window.NOTES_DATA) {
+                    const script = document.createElement('script');
+                    script.src = 'assets/js/notes-data.js';
+                    script.onload = function() {
+                        pageIndex = findPageIndexInNotesData(pageUrl, author);
+                        checkAuthAndLoad();
+                    };
+                    document.head.appendChild(script);
                 } else {
-                    // 显示密码输入框
-                    window.AuthHelper.showPasswordPrompt(author, function(success) {
-                        if (success) {
-                            loadContent(pageUrl);
-                        } else {
-                            // 认证失败，返回首页
-                            window.location.href = '/index.html';
-                        }
-                    });
+                    pageIndex = findPageIndexInNotesData(pageUrl, author);
+                    checkAuthAndLoad();
+                }
+                
+                function checkAuthAndLoad() {
+                    // 如果已经认证过，直接加载内容
+                    if (window.AuthHelper.isAuthenticated(author, pageIndex)) {
+                        loadContent(pageUrl);
+                    } else {
+                        // 显示密码输入框，传递页面索引
+                        window.AuthHelper.showPasswordPrompt(author, pageIndex, function(success) {
+                            if (success) {
+                                loadContent(pageUrl);
+                            } else {
+                                // 认证失败，返回首页
+                                window.location.href = '/index.html';
+                            }
+                        });
+                    }
                 }
             } else {
                 // 未加载认证模块或无需认证，直接加载内容

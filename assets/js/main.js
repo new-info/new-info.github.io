@@ -221,7 +221,7 @@ class NotesApp {
 
         // 构建按钮区域
         let actionsHtml = `
-            <a href="${note.path}" class="btn btn-primary" target="_blank">
+            <a href="viewer.html?page=${encodeURIComponent(note.path)}" class="btn btn-primary">
                 📝 查看分析
             </a>`;
 
@@ -230,7 +230,7 @@ class NotesApp {
             const rewardAmount = score < 60 ? 0 : (note.reviewReport.customReward !== undefined ? note.reviewReport.customReward : score);
 
             actionsHtml += `
-            <a href="${note.reviewReport.path}" class="btn btn-review" target="_blank">
+            <a href="viewer.html?page=${encodeURIComponent(note.reviewReport.path)}" class="btn btn-review">
                 ${scoreModified ? '🔧' : '📊'} 评分: ${score}分 
 <!--                <span class="reward-badge">💰 ${rewardAmount}元</span>-->
             </a>`;
@@ -499,9 +499,9 @@ class NotesApp {
                 <div class="recent-date">${this.formatShortDate(item.date)}</div>
                 <div class="recent-content">
                     <span class="recent-analyst ${item.analyst.toLowerCase()}">${item.analyst}</span>
-                    <a href="${item.path}" class="recent-title" target="_blank">${item.title}</a>
+                    <a href="viewer.html?page=${encodeURIComponent(item.path)}" class="recent-title">${item.title}</a>
                     <div class="recent-actions">
-                        <a href="${item.reviewPath}" class="recent-score ${item.passed ? 'passed' : 'failed'} ${item.patchApplied ? 'patched' : ''}" target="_blank" title="${item.patchApplied ? '已校正分数' : '查看评分报告'}">
+                        <a href="viewer.html?page=${encodeURIComponent(item.reviewPath)}" class="recent-score ${item.passed ? 'passed' : 'failed'} ${item.patchApplied ? 'patched' : ''}" title="${item.patchApplied ? '已校正分数' : '查看评分报告'}">
                             ${item.score}分
                             <span class="score-icon">${scoreModified ? '🔧' : '📊'}</span>
                         </a>
@@ -651,12 +651,12 @@ class NotesApp {
                     <td>${this.formatDate(item.date)}</td>
                     <td>${item.analyst}</td>
                     <td>
-                        <a href="${item.path}" target="_blank" title="${item.title}">
+                        <a href="viewer.html?page=${encodeURIComponent(item.path)}" title="${item.title}">
                             ${item.title.length > 30 ? item.title.substring(0, 30) + '...' : item.title}
                         </a>
                     </td>
                     <td class="score-cell">
-                        <a href="${item.reviewPath}" target="_blank" class="score-link ${item.patchApplied ? 'patched-score' : ''}">
+                        <a href="viewer.html?page=${encodeURIComponent(item.reviewPath)}" class="score-link ${item.patchApplied ? 'patched-score' : ''}">
                             ${item.score}分
                             ${item.patchApplied && item.score !== undefined && window.SCORE_PATCHES && 
                               window.SCORE_PATCHES[this.getBaseFileName(item.reviewPath)] && 
