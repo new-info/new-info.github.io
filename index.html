@@ -187,29 +187,43 @@
     </footer>
 
     <script src="assets/js/notes-data.js"></script>
+    <script src="assets/js/unified-notification-manager.js"></script>
     <script src="assets/js/score-patches.js"></script>
     <script src="assets/js/files-list.js"></script>
     <script src="assets/js/missing-files.js"></script>
     <script src="assets/js/file-monitor.js"></script>
-    <script src="assets/js/notes-notifications.js"></script>
-    <script src="assets/js/sw-updater.js"></script>
+    <!-- 旧的通知系统已由统一通知管理器替代 -->
+    <!-- <script src="assets/js/notes-notifications.js"></script> -->
+    <!-- <script src="assets/js/sw-updater.js"></script> -->
     <!-- 密码验证相关脚本 -->
     <script src="assets/js/auth-config.js"></script>
     <script src="assets/js/auth-helper.js"></script>
     <script src="assets/js/main.js"></script>
     <script src="assets/js/page-router.js"></script>
     <script>
-        // 设置通知开关
+        // 设置通知开关 - 使用统一通知管理器
         document.addEventListener('DOMContentLoaded', () => {
             const notificationsToggle = document.getElementById('sw-notifications-toggle');
-            if (notificationsToggle && window.swUpdater) {
-                // 初始化开关状态
-                notificationsToggle.checked = window.swUpdater.getNotificationStatus();
+            if (notificationsToggle) {
+                // 等待统一通知管理器初始化
+                const initToggle = () => {
+                    if (window.unifiedNotifications && window.unifiedNotifications.initialized) {
+                        // 初始化开关状态
+                        const status = window.unifiedNotifications.getStatus();
+                        notificationsToggle.checked = status.config.enabled;
+                        
+                        // 监听开关变化
+                        notificationsToggle.addEventListener('change', () => {
+                            window.unifiedNotifications.toggleNotifications();
+                            console.log('🔔 通知开关已切换:', notificationsToggle.checked);
+                        });
+                    } else {
+                        // 如果统一通知管理器还未初始化，稍后再试
+                        setTimeout(initToggle, 100);
+                    }
+                };
                 
-                // 监听开关变化
-                notificationsToggle.addEventListener('change', () => {
-                    window.swUpdater.setShowNotifications(notificationsToggle.checked);
-                });
+                initToggle();
             }
         });
     </script>

@@ -69,9 +69,14 @@
         font-size: 1rem;
     }
     
-    /* 移动端卡片 */
+    /* 移动端卡片优化 */
     .stat-card {
         padding: 1.5rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .stat-card:active {
+        transform: scale(0.98);
     }
     
     .stat-number {
@@ -80,6 +85,11 @@
     
     .note-card {
         margin-bottom: 1rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .note-card:active {
+        transform: scale(0.98);
     }
     
     .note-header {
@@ -88,11 +98,13 @@
     
     .note-title {
         font-size: 1.1rem;
+        line-height: 1.3;
     }
     
     .note-preview {
         padding: 1rem;
         font-size: 0.9rem;
+        line-height: 1.4;
     }
     
     .note-actions {
@@ -105,6 +117,13 @@
         width: 100%;
         justify-content: center;
         padding: 0.75rem;
+        min-height: 44px; /* 保证足够的触摸目标 */
+        font-size: 14px;
+        transition: all 0.2s ease;
+    }
+    
+    .btn:active {
+        transform: scale(0.98);
     }
     
     .review-badge {
@@ -118,6 +137,47 @@
         gap: 0.25rem;
     }
     
+    /* 最近分析列表移动端优化 */
+    .recent-item {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 12px;
+        gap: 8px;
+    }
+    
+    .recent-date {
+        font-size: 12px;
+        margin-bottom: 4px;
+    }
+    
+    .recent-content {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .recent-title {
+        font-size: 14px;
+        line-height: 1.3;
+        font-weight: 500;
+    }
+    
+    .recent-actions {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+    }
+    
+    .recent-score {
+        padding: 4px 8px;
+        font-size: 12px;
+        border-radius: 4px;
+    }
+    
+    .reward-icon {
+        font-size: 12px;
+    }
+    
     /* 移动端间距调整 */
     .container {
         padding: 0 10px;
@@ -126,6 +186,38 @@
     .footer {
         padding: 1.5rem 0;
         font-size: 0.9rem;
+    }
+    
+    /* 移动端通知优化 */
+    #sw-notification {
+        bottom: 80px !important; /* 避免与底部导航冲突 */
+        left: 10px !important;
+        right: 10px !important;
+        transform: none !important;
+        max-width: none !important;
+        font-size: 13px !important;
+        padding: 10px 16px !important;
+        border-radius: 6px !important;
+    }
+    
+    /* 移动端通知关闭按钮优化 */
+    #sw-notification span:last-child {
+        width: 28px !important;
+        height: 28px !important;
+        font-size: 18px !important;
+        margin-left: 10px !important;
+    }
+    
+    /* 认证对话框移动端优化 */
+    .modal-overlay {
+        padding: 20px !important;
+    }
+    
+    .modal-content {
+        width: 100% !important;
+        max-width: 400px !important;
+        margin: auto !important;
+        transform: none !important;
     }
 }
 

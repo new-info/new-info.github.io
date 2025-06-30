@@ -10,6 +10,16 @@ class ServiceWorkerUpdater {
         this.initialized = false;
         // 添加通知首选项设置，从localStorage读取，如果没有则默认显示通知
         this.showNotifications = localStorage.getItem('swShowNotifications') !== 'false';
+        // 添加通知去重机制
+        this.lastCacheCompleteTime = 0;
+        this.cacheCompleteThreshold = 1000 * 10; // 10秒内不重复显示缓存完成通知
+        this.notificationQueue = new Set(); // 通知队列，避免重复
+        // 添加静音模式（开发时使用）
+        this.silentMode = localStorage.getItem('swSilentMode') === 'true';
+        // 检测开发环境
+        this.isDevelopment = window.location.hostname === 'localhost' ||
+                            window.location.hostname === '127.0.0.1' ||
+                            window.location.hostname.includes('localhost');
     }
 
     /**
@@ -29,6 +39,24 @@ class ServiceWorkerUpdater {
             // 如果禁用了通知，移除任何可能存在的通知
             if (!this.showNotifications) {
                 this.removeAllNotifications();
+            }
+
+            // 开发环境提示
+            if (this.isDevelopment) {
+                console.log('🔧 开发模式已检测到');
+                console.log('💡 通知控制命令:');
+                console.log('   - toggleNotifications() : 切换通知开关');
+                console.log('   - toggleSilentMode() : 切换静音模式');
+                console.log('   - getNotificationStatus() : 查看通知状态');
+                console.log('   - getSilentMode() : 查看静音状态');
+                console.log('ℹ️  开发环境下默认启用通知，如需关闭请使用 toggleSilentMode()');
+
+                // 显示当前状态
+                if (this.silentMode) {
+                    console.log('🔇 当前静音模式：已启用');
+                } else {
+                    console.log('🔊 当前静音模式：已禁用（通知将正常显示）');
+                }
             }
 
             // 加载文件列表
@@ -126,10 +154,75 @@ class ServiceWorkerUpdater {
         const message = event.data;
 
         if (message && message.action === 'CACHE_COMPLETE') {
+            const currentTime = Date.now();
             console.log('资源缓存完成，时间戳:', new Date(message.timestamp).toLocaleString());
+
+            // 检查是否在阈值时间内重复通知
+            if (currentTime - this.lastCacheCompleteTime < this.cacheCompleteThreshold) {
+                console.log('缓存完成通知被过滤（重复）');
+                return;
+            }
+
+            // 更新最后通知时间
+            this.lastCacheCompleteTime = currentTime;
+
             // 确认通知未被禁用再显示
             if (this.showNotifications) {
-                this.showNotification('资源缓存已完成，应用可以离线使用');
+                // 检查是否已在队列中
+                const notificationId = 'cache-complete';
+                if (this.notificationQueue.has(notificationId)) {
+                    console.log('缓存完成通知已在队列中，跳过');
+                    return;
+                }
+
+                // 添加到队列
+                this.notificationQueue.add(notificationId);
+
+                // 显示通知
+                this.showNotification('🚀 应用已优化，可离线使用');
+
+                // 3秒后从队列中移除
+                setTimeout(() => {
+                    this.notificationQueue.delete(notificationId);
+                }, 3000);
+            }
+        }
+        else if (message && message.action === 'NEW_NOTE') {
+            console.log('检测到新笔记:', message);
+
+            // 确认通知未被禁用再显示
+            if (this.showNotifications) {
+                // 构建通知消息
+                let notificationMessage = '📝 发现新内容';
+
+                if (message.author && message.title) {
+                    // 简化标题显示
+                    let displayTitle = message.title;
+                    if (displayTitle.length > 15) {
+                        displayTitle = displayTitle.substring(0, 12) + '...';
+                    }
+                    notificationMessage = `📝 ${message.author} 发布了新内容：${displayTitle}`;
+                } else if (message.author) {
+                    notificationMessage = `📝 ${message.author} 发布了新内容`;
+                }
+
+                // 使用路径作为唯一标识符
+                const notificationId = `new-note-${message.path}`;
+                if (this.notificationQueue.has(notificationId)) {
+                    console.log('新笔记通知已在队列中，跳过');
+                    return;
+                }
+
+                // 添加到队列
+                this.notificationQueue.add(notificationId);
+
+                // 显示通知
+                this.showNotification(notificationMessage);
+
+                // 5秒后从队列中移除
+                setTimeout(() => {
+                    this.notificationQueue.delete(notificationId);
+                }, 5000);
             }
         }
     }
@@ -204,8 +297,15 @@ class ServiceWorkerUpdater {
      * 显示通知（仅当 showNotifications 为 true 时显示）
      */
     showNotification(message) {
+        // 检查是否禁用通知
         if (!this.showNotifications) {
             console.log('通知已禁用，消息:', message);
+            return;
+        }
+
+        // 检查手动启用的静音模式
+        if (this.silentMode) {
+            console.log('静音模式已启用，消息:', message);
             return;
         }
 
@@ -222,104 +322,135 @@ class ServiceWorkerUpdater {
         let notification = document.getElementById('sw-notification');
 
         if (!notification) {
-            // 保存this引用，解决事件处理程序中的this问题
-            const self = this;
-
-            // 创建通知元素
-            notification = document.createElement('div');
-            notification.id = 'sw-notification';
-            notification.style.cssText = `
-                position: fixed;
-                bottom: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                background: var(--primary-color);
-                color: white;
-                padding: 10px 20px;
-                border-radius: 5px;
-                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-                z-index: 9999;
-                display: flex;
-                align-items: center;
-                opacity: 0;
-                transition: opacity 0.3s ease;
-            `;
-
-            // 添加图标
-            const icon = document.createElement('span');
-            icon.textContent = '✅';
-            icon.style.marginRight = '10px';
-            notification.appendChild(icon);
-
-            // 添加消息文本
-            const text = document.createElement('span');
-            text.textContent = message;
-            notification.appendChild(text);
-
-            // 添加关闭按钮
-            const closeBtn = document.createElement('span');
-            closeBtn.textContent = '×';
-            closeBtn.style.cssText = `
-                margin-left: 15px;
-                cursor: pointer;
-                font-size: 18px;
-                font-weight: bold;
-            `;
-            closeBtn.addEventListener('click', () => {
-                notification.style.opacity = '0';
-                setTimeout(() => {
-                    notification.remove();
-                }, 300);
-            });
-            notification.appendChild(closeBtn);
-
-            // 不再显示提示按钮 - 仅当通知功能当前未禁用时显示此按钮
-            /*if (self.showNotifications) {
-                const noPromptBtn = document.createElement('span');
-                noPromptBtn.textContent = '不再提示';
-                noPromptBtn.style.cssText = `
-                    margin-left: 15px;
-                    cursor: pointer;
-                    font-size: 12px;
-                    text-decoration: underline;
-                    opacity: 0.8;
-                `;
-                noPromptBtn.addEventListener('click', () => {
-                    // 使用self而不是this，确保引用正确的实例
-                    self.setShowNotifications(false);
-
-                    // 确保页面上的通知开关也被更新
-                    const toggle = document.getElementById('sw-notifications-toggle');
-                    if (toggle) {
-                        toggle.checked = false;
-                    }
-
-                    // 不需要再次处理通知隐藏，因为setShowNotifications会处理
-                });
-                notification.appendChild(noPromptBtn);
-            }*/
-
-            document.body.appendChild(notification);
-
-            // 显示通知
-            setTimeout(() => {
-                notification.style.opacity = '1';
-            }, 100);
-
-            // 5秒后自动隐藏
-            setTimeout(() => {
-                notification.style.opacity = '0';
-                setTimeout(() => {
-                    notification.remove();
-                }, 300);
-            }, 5000);
+            // 创建新通知
+            this.createNewNotification(message);
         } else {
-            // 更新现有通知
-            const textElement = notification.querySelector('span:nth-child(2)');
-            if (textElement) {
-                textElement.textContent = message;
-            }
+            // 如果已存在通知，创建新的通知元素而不是覆盖
+            // 先隐藏现有通知
+            notification.style.opacity = '0';
+            notification.style.transform = 'translateX(-50%) translateY(20px)';
+            
+            // 延迟创建新通知，避免重叠
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+                this.createNewNotification(message);
+            }, 300);
         }
+    }
+
+    /**
+     * 创建新的通知元素
+     */
+    createNewNotification(message) {
+        // 保存this引用，解决事件处理程序中的this问题
+        const self = this;
+
+        // 创建通知元素
+        const notification = document.createElement('div');
+        notification.id = 'sw-notification';
+        notification.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary-color);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            max-width: calc(100vw - 40px);
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+        `;
+
+        // 添加图标
+        const icon = document.createElement('span');
+        icon.textContent = '';
+        icon.style.cssText = `
+            margin-right: 10px;
+            font-size: 16px;
+            flex-shrink: 0;
+        `;
+        notification.appendChild(icon);
+
+        // 添加消息文本
+        const text = document.createElement('span');
+        text.textContent = message;
+        text.style.cssText = `
+            flex: 1;
+            line-height: 1.4;
+            word-break: break-word;
+        `;
+        notification.appendChild(text);
+
+        // 添加关闭按钮
+        const closeBtn = document.createElement('span');
+        closeBtn.textContent = '×';
+        closeBtn.style.cssText = `
+            margin-left: 15px;
+            cursor: pointer;
+            font-size: 20px;
+            font-weight: bold;
+            opacity: 0.8;
+            transition: opacity 0.2s ease;
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+        `;
+        closeBtn.addEventListener('click', () => {
+            notification.style.opacity = '0';
+            notification.style.transform = 'translateX(-50%) translateY(20px)';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 300);
+        });
+
+        // 鼠标悬停效果
+        closeBtn.addEventListener('mouseenter', () => {
+            closeBtn.style.opacity = '1';
+            closeBtn.style.background = 'rgba(255, 255, 255, 0.2)';
+        });
+        closeBtn.addEventListener('mouseleave', () => {
+            closeBtn.style.opacity = '0.8';
+            closeBtn.style.background = 'rgba(255, 255, 255, 0.1)';
+        });
+
+        notification.appendChild(closeBtn);
+
+        document.body.appendChild(notification);
+
+        // 显示通知动画
+        setTimeout(() => {
+            notification.style.opacity = '1';
+            notification.style.transform = 'translateX(-50%) translateY(0)';
+        }, 100);
+
+        // 6秒后自动隐藏（延长时间让用户有足够时间看到）
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(-50%) translateY(20px)';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.remove();
+                    }
+                }, 300);
+            }
+        }, 6000);
     }
 
     /**
@@ -335,6 +466,41 @@ class ServiceWorkerUpdater {
             console.error('检查更新失败:', error);
         }
     }
+
+    /**
+     * 设置静音模式
+     * @param {boolean} silent - true启用静音，false禁用静音
+     */
+    setSilentMode(silent) {
+        this.silentMode = silent;
+        localStorage.setItem('swSilentMode', silent ? 'true' : 'false');
+
+        if (this.isDevelopment) {
+            if (silent) {
+                console.log('🔇 静音模式已启用 - 缓存通知将被隐藏');
+            } else {
+                console.log('🔊 静音模式已禁用 - 缓存通知将正常显示');
+            }
+        } else {
+            console.log(`静音模式${silent ? '已启用' : '已禁用'}`);
+        }
+
+        return silent;
+    }
+
+    /**
+     * 切换静音模式
+     */
+    toggleSilentMode() {
+        return this.setSilentMode(!this.silentMode);
+    }
+
+    /**
+     * 获取静音模式状态
+     */
+    getSilentMode() {
+        return this.silentMode;
+    }
 }
 
 // 创建实例
@@ -345,5 +511,11 @@ document.addEventListener('DOMContentLoaded', () => {
     swUpdater.init();
 });
 
-// 导出实例
+// 导出实例和便捷方法
 window.swUpdater = swUpdater;
+
+// 提供便捷的全局方法
+window.toggleNotifications = () => swUpdater.toggleNotifications();
+window.toggleSilentMode = () => swUpdater.toggleSilentMode();
+window.getNotificationStatus = () => swUpdater.getNotificationStatus();
+window.getSilentMode = () => swUpdater.getSilentMode();
