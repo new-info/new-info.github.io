@@ -42,17 +42,35 @@
         min-height: var(--pwa-header-height);
         padding: 0.75rem 0;
         
-        /* 添加边框和阴影增强视觉层次 */
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
+        /* PWA合并背景渐变和纹理 */
+        background-image: 
+            radial-gradient(circle at 25% 30%, rgba(255,255,255,0.06) 0%, transparent 50%),
+            radial-gradient(circle at 75% 70%, rgba(255,255,255,0.04) 0%, transparent 50%),
+            linear-gradient(45deg, transparent 45%, rgba(255,255,255,0.02) 50%, transparent 55%),
+            linear-gradient(
+                135deg, 
+                var(--primary-color) 0%,
+                #2a3f96 20%,
+                var(--accent-color) 40%,
+                #4cd0d0 70%,
+                var(--secondary-color) 100%
+            );
         
-        /* 增强渐变效果 */
-        background: linear-gradient(135deg, 
-            var(--primary-color) 0%, 
-            var(--secondary-color) 100%
-        );
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        /* 确保基础属性保持一致 */
+        color: white;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        
+        /* PWA专用阴影效果 */
+        box-shadow: 
+            0 8px 32px rgba(26, 41, 128, 0.4),
+            0 4px 16px rgba(38, 208, 206, 0.25),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        
+        /* 性能优化 */
+        will-change: transform;
+        transform: translateZ(0);
     }
     
     /* 主要内容区域适配 */
@@ -71,23 +89,13 @@
 
 /* PWA退出按钮和手势支持 */
 @media (display-mode: standalone) {
-    .pwa-header-controls {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        position: absolute;
-        right: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-    }
-    
     .pwa-exit-btn {
         background: rgba(255, 255, 255, 0.2);
         border: 1px solid rgba(255, 255, 255, 0.3);
         color: white;
-        border-radius: 8px;
-        padding: 0.5rem 1rem;
-        font-size: 0.9rem;
+        border-radius: 50%; /* 改为圆形按钮 */
+        padding: 0;
+        font-size: 1.2rem;
         cursor: pointer;
         transition: all 0.3s ease;
         backdrop-filter: blur(10px);
@@ -95,27 +103,35 @@
         
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        justify-content: center;
         
-        /* 确保足够的触摸目标 */
-        min-height: 44px;
+        /* 圆形按钮尺寸 */
+        width: 44px;
+        height: 44px;
         min-width: 44px;
+        min-height: 44px;
+        
+        /* 默认右边距，在移动端会被覆盖 */
+        margin-right: 0;
+        margin-left: 1rem;
+        flex-shrink: 0;
     }
     
     .pwa-exit-btn:hover {
         background: rgba(255, 255, 255, 0.3);
         border-color: rgba(255, 255, 255, 0.5);
-        transform: translateY(-1px);
+        transform: scale(1.05);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
     
     .pwa-exit-btn:active {
-        transform: translateY(0);
+        transform: scale(0.95);
         background: rgba(255, 255, 255, 0.4);
     }
     
     .pwa-exit-icon {
-        font-size: 1.1rem;
+        font-size: 1.2rem;
+        line-height: 1;
     }
     
     /* 手势提示区域 */
@@ -141,9 +157,21 @@
     .nav-wrapper {
         position: relative;
         margin-bottom: 0;
+        display: flex;
+        align-items: center;
     }
     
+    /* 桌面端：退出按钮在右边 */
     .logo {
+        flex: 1;
+        text-align: left;
+        margin: 0;
+        order: 1;
+    }
+    
+    .pwa-exit-btn {
+        order: 3;
+        margin-right: 0;
         margin-left: 1rem;
     }
 }
@@ -177,26 +205,32 @@
         padding: 0 1rem;
     }
     
+    /* 移动端：退出按钮在左边，logo居中 */
     .logo {
         font-size: 1.3rem;
-        margin-left: 0;
-    }
-    
-    .pwa-header-controls {
-        position: static;
-        transform: none;
-        gap: 0.5rem;
+        text-align: center;
+        order: 2;
     }
     
     .pwa-exit-btn {
-        padding: 0.4rem 0.8rem;
-        font-size: 0.8rem;
-        min-height: 40px;
+        width: 40px;
+        height: 40px;
         min-width: 40px;
+        min-height: 40px;
+        font-size: 1rem;
+        order: 1;
+        margin-left: 0;
+        margin-right: 0.75rem;
     }
     
-    .pwa-exit-btn .exit-text {
-        display: none; /* 移动端只显示图标 */
+    .pwa-exit-icon {
+        font-size: 1rem;
+    }
+    
+    /* 移动端菜单按钮也需要调整order */
+    .mobile-menu-toggle {
+        order: 3;
+        margin-left: auto;
     }
     
     /* 移动端手势提示增强 */
@@ -210,16 +244,52 @@
         );
     }
     
-    /* 移动端导航菜单适配 */
-    .mobile-menu-toggle {
-        margin-right: 1rem;
-    }
+    /* 这行已合并到上面的移动端菜单按钮样式中 */
     
     .nav {
         top: calc(100% + var(--safe-area-inset-top));
         background: var(--primary-color);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
+    }
+}
+
+/* 平板设备PWA适配 */
+@media (min-width: 769px) and (max-width: 1024px) and (display-mode: standalone) {
+    /* 平板设备：退出按钮在右边，logo左对齐 */
+    .logo {
+        text-align: left;
+        order: 1;
+    }
+    
+    .pwa-exit-btn {
+        order: 3;
+        margin-left: 1rem;
+        margin-right: 0;
+    }
+}
+
+/* 大屏设备PWA适配 */
+@media (min-width: 1025px) and (display-mode: standalone) {
+    /* 大屏设备：退出按钮在右边，logo左对齐 */
+    .logo {
+        text-align: left;
+        order: 1;
+    }
+    
+    .pwa-exit-btn {
+        order: 3;
+        margin-left: 1.5rem;
+        margin-right: 0;
+        width: 48px;
+        height: 48px;
+        min-width: 48px;
+        min-height: 48px;
+        font-size: 1.3rem;
+    }
+    
+    .pwa-exit-icon {
+        font-size: 1.3rem;
     }
 }
 
@@ -269,11 +339,27 @@
 /* PWA暗色模式适配 */
 @media (display-mode: standalone) and (prefers-color-scheme: dark) {
     .header {
-        background: linear-gradient(135deg, 
-            #1a1a2e 0%, 
-            #16213e 100%
-        );
-        border-bottom-color: rgba(255, 255, 255, 0.05);
+        /* PWA暗色模式合并渐变和纹理 */
+        background-image: 
+            radial-gradient(circle at 25% 30%, rgba(255,255,255,0.04) 0%, transparent 50%),
+            radial-gradient(circle at 75% 70%, rgba(255,255,255,0.02) 0%, transparent 50%),
+            linear-gradient(45deg, transparent 45%, rgba(255,255,255,0.015) 50%, transparent 55%),
+            linear-gradient(
+                135deg, 
+                var(--primary-color) 0%,
+                #1e40af 20%,
+                var(--accent-color) 40%,
+                #0284c7 70%,
+                var(--secondary-color) 100%
+            );
+        
+        border-bottom-color: rgba(255, 255, 255, 0.08);
+        
+        /* PWA暗色模式阴影 */
+        box-shadow: 
+            0 8px 32px rgba(0, 0, 0, 0.6),
+            0 4px 16px rgba(8, 145, 178, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.05);
     }
     
     .pwa-exit-btn {
@@ -287,7 +373,7 @@
     }
     
     body::before {
-        background: #1a1a2e;
+        background: var(--primary-color);
     }
 }
 

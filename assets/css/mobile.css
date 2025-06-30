@@ -1,8 +1,60 @@
-/* 移动端专用样式 */
+/* 移动端专用样式 - 增强版 */
 @media (max-width: 768px) {
+    /* Header移动端优化 */
+    .header {
+        /* 移动端合并背景渐变和纹理 */
+        background-image: 
+            radial-gradient(circle at 30% 40%, rgba(255,255,255,0.03) 0%, transparent 60%),
+            linear-gradient(
+                135deg, 
+                var(--primary-color) 0%,
+                var(--accent-color) 60%,
+                var(--secondary-color) 100%
+            );
+        
+        padding: 0.5rem 0;
+        
+        /* 确保基础属性 */
+        color: white;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        will-change: transform;
+        
+        /* 优化移动端阴影 */
+        box-shadow: 
+            0 2px 12px rgba(26, 41, 128, 0.25),
+            0 1px 6px rgba(38, 208, 206, 0.15);
+    }
+    
+    .nav-wrapper {
+        margin-bottom: 0.5rem;
+        padding: 0.25rem 0;
+        /* 移动端间距调整 */
+        gap: 0.5rem;
+    }
+    
+    .logo {
+        font-size: 1.3rem;
+        /* 移动端文字阴影减少 */
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    }
+    
     /* 移动端导航 */
     .mobile-menu-toggle {
         display: flex !important;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+    
+    .mobile-menu-toggle:active {
+        transform: scale(0.95);
+        background: rgba(255, 255, 255, 0.2);
     }
     
     .nav {
@@ -10,45 +62,90 @@
         top: 100%;
         left: 0;
         right: 0;
-        background: var(--primary-color);
+        background: linear-gradient(
+            180deg,
+            var(--primary-color) 0%,
+            #2340a0 100%
+        );
         max-height: 0;
         overflow: hidden;
-        transition: max-height 0.3s ease;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        
+        /* 增强移动端导航视觉效果 */
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: 0 0 12px 12px;
     }
     
     .nav.active {
-        max-height: 300px;
-        box-shadow: var(--shadow-lg);
+        max-height: 320px;
+        box-shadow: 
+            0 8px 32px rgba(26, 41, 128, 0.4),
+            0 4px 16px rgba(38, 208, 206, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-top: none;
     }
     
     .nav-list {
         flex-direction: column;
         gap: 0;
-        padding: 1rem 0;
+        padding: 1.25rem 0 1.5rem 0;
+        margin: 0;
     }
     
     .nav-link {
-        display: block;
+        display: flex;
+        align-items: center;
         padding: 1rem 2rem;
         border-radius: 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        background: transparent;
+        backdrop-filter: none;
+        min-height: 56px;
+        
+        /* 移动端链接优化 */
+        font-size: 1rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .nav-link::before {
+        background: linear-gradient(90deg, rgba(255,255,255,0.1), transparent);
+    }
+    
+    .nav-link:hover,
+    .nav-link:active {
+        background: rgba(255, 255, 255, 0.1);
+        transform: none;
+        box-shadow: none;
+        padding-left: 2.5rem;
+    }
+    
+    .nav-link.active {
+        background: linear-gradient(90deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
+        border-left: 4px solid var(--secondary-color);
+        box-shadow: inset 0 0 20px rgba(38, 208, 206, 0.1);
     }
     
     .nav-link:last-child {
         border-bottom: none;
+        border-radius: 0 0 12px 12px;
     }
     
-    /* 移动端菜单动画 */
+    /* 移动端菜单动画增强 */
     .mobile-menu-toggle.active span:nth-child(1) {
-        transform: rotate(45deg) translate(5px, 5px);
+        transform: rotate(45deg) translate(6px, 6px);
     }
     
     .mobile-menu-toggle.active span:nth-child(2) {
         opacity: 0;
+        transform: scale(0);
     }
     
     .mobile-menu-toggle.active span:nth-child(3) {
-        transform: rotate(-45deg) translate(7px, -6px);
+        transform: rotate(-45deg) translate(6px, -6px);
     }
     
     /* 移动端内容适配 */
@@ -221,10 +318,119 @@
     }
 }
 
+/* 平板设备适配 */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .header {
+        /* 平板设备背景优化 */
+        background-image: 
+            linear-gradient(
+                135deg, 
+                var(--primary-color) 0%,
+                #2a3f96 30%,
+                var(--accent-color) 70%,
+                var(--secondary-color) 100%
+            );
+        
+        padding: 0.875rem 0;
+        
+        /* 确保基础属性 */
+        color: white;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        will-change: transform;
+        box-shadow: 
+            0 4px 20px rgba(26, 41, 128, 0.3),
+            0 2px 10px rgba(38, 208, 206, 0.2);
+    }
+    
+    .container {
+        padding: 0 30px;
+    }
+    
+    .nav-wrapper {
+        padding: 0.375rem 0;
+    }
+    
+    .logo {
+        font-size: 1.4rem;
+    }
+    
+    .nav-list {
+        gap: 1.75rem;
+    }
+    
+    .nav-link {
+        padding: 0.625rem 1.125rem;
+        font-size: 0.95rem;
+    }
+}
+
 /* 超小屏幕适配 */
 @media (max-width: 480px) {
+    .header {
+        /* 超小屏幕简化背景 */
+        background-image: 
+            linear-gradient(
+                135deg, 
+                var(--primary-color) 0%,
+                var(--accent-color) 70%,
+                var(--secondary-color) 100%
+            );
+        
+        padding: 0.375rem 0;
+        
+        /* 确保基础属性 */
+        color: white;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        will-change: transform;
+        
+        /* 简化阴影 */
+        box-shadow: 0 2px 8px rgba(26, 41, 128, 0.2);
+    }
+    
+    .container {
+        padding: 0 8px;
+    }
+    
+    .nav-wrapper {
+        padding: 0.125rem 0;
+        margin-bottom: 0.25rem;
+    }
+    
     .logo {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+    
+    .mobile-menu-toggle {
+        min-width: 40px;
+        min-height: 40px;
+        padding: 6px;
+    }
+    
+    .mobile-menu-toggle span {
+        width: 20px;
+        height: 2.5px;
+    }
+    
+    .nav.active {
+        max-height: 280px;
+        border-radius: 0 0 8px 8px;
+    }
+    
+    .nav-link {
+        padding: 0.875rem 1.5rem;
+        min-height: 52px;
+        font-size: 0.95rem;
     }
     
     .hero h2 {
@@ -241,6 +447,47 @@
     
     .stats {
         gap: 0.5rem;
+    }
+    
+    /* 超小屏幕footer设置优化 */
+    .footer-settings {
+        gap: 1rem;
+        padding: 0.6rem 0.75rem;
+        margin: 0.75rem auto;
+        max-width: 320px;
+        flex-wrap: wrap;
+    }
+    
+    .toggle-setting {
+        padding: 0.3rem 0.4rem;
+        gap: 0.5rem;
+        flex: 1;
+        min-width: 140px;
+    }
+    
+    .toggle-label {
+        font-size: 0.8rem;
+        padding-left: 1rem;
+    }
+    
+    .toggle-label::before {
+        font-size: 11px;
+    }
+    
+    .toggle-setting input[type="checkbox"] {
+        width: 36px;
+        height: 20px;
+    }
+    
+    .toggle-setting input[type="checkbox"]::before {
+        width: 14px;
+        height: 14px;
+        top: 1px;
+        left: 1px;
+    }
+    
+    .toggle-setting input[type="checkbox"]:checked::before {
+        left: 19px;
     }
 }
 

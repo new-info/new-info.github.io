@@ -1,6 +1,6 @@
 // Service Worker for PWA functionality
-const CACHE_NAME = 'live-analysis-platform-v8';
-const DYNAMIC_CACHE = 'dynamic-resources-v6';
+const CACHE_NAME = 'live-analysis-platform-v10';
+const DYNAMIC_CACHE = 'dynamic-resources-v8';
 
 // 存储用户首选项
 let userPreferences = {

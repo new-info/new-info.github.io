@@ -19,17 +19,14 @@
     <div class="pwa-gesture-hint"></div>
 
     <header class="header">
-        <div class="container">
+                <div class="container">
             <div class="nav-wrapper">
-                <h1 class="logo">🎓 大学生活平台</h1>
+                <!-- PWA退出按钮 -->
+                <button class="pwa-exit-btn" onclick="handlePWAExit()" aria-label="退出应用">
+                    <span class="pwa-exit-icon">⏻</span>
+                </button>
 
-                <!-- PWA控制按钮 -->
-                <div class="pwa-header-controls">
-                    <button class="pwa-exit-btn" onclick="handlePWAExit()" aria-label="退出应用">
-                        <span class="pwa-exit-icon">←</span>
-                        <span class="exit-text">退出</span>
-                    </button>
-                </div>
+                <h1 class="logo">🎓 大学生活平台</h1>
 
                 <button class="mobile-menu-toggle" aria-label="菜单">
                     <span></span>
@@ -189,16 +186,16 @@
 
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2025 大学生活平台. 基于 GitHub Pages 构建</p>
+            <p>&copy; 2025 大学生活平台</p>
             <div class="footer-settings">
                 <label class="toggle-setting">
                     <input type="checkbox" id="sw-notifications-toggle" checked>
-                    <span class="toggle-label">显示系统通知</span>
+                    <span class="toggle-label">系统通知</span>
                 </label>
 
                 <label class="toggle-setting">
                     <input type="checkbox" id="browser-notifications-toggle" checked>
-                    <span class="toggle-label">显示浏览器通知</span>
+                    <span class="toggle-label">浏览器通知</span>
                 </label>
             </div>
         </div>
@@ -256,12 +253,12 @@
                 if (gestureHint) {
                     gestureHint.style.display = 'block';
                 }
-            } else {
+                        } else {
                 // 在普通浏览器模式下隐藏PWA相关元素
-                const pwaControls = document.querySelector('.pwa-header-controls');
+                const pwaExitBtn = document.querySelector('.pwa-exit-btn');
                 const gestureHint = document.querySelector('.pwa-gesture-hint');
 
-                if (pwaControls) pwaControls.style.display = 'none';
+                if (pwaExitBtn) pwaExitBtn.style.display = 'none';
                 if (gestureHint) gestureHint.style.display = 'none';
             }
         }
