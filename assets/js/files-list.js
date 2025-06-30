@@ -1,5 +1,5 @@
 // 自动生成的文件列表
-// 最后更新时间: 2025-06-30T12:35:44.919Z
+// 最后更新时间: 2025-06-30T18:16:18.475Z
 
 window.FILES_LIST = {
   "html": [
@@ -25,6 +25,7 @@ window.FILES_LIST = {
     "assets/js/auth-config.js",
     "assets/js/auth-helper.js",
     "assets/js/back-button.js",
+    "assets/js/crypto-config.js",
     "assets/js/file-monitor.js",
     "assets/js/files-list.js",
     "assets/js/main.js",
@@ -37,6 +38,7 @@ window.FILES_LIST = {
     "assets/js/sw-storage-helper.js",
     "assets/js/sw-updater.js",
     "assets/js/unified-notification-manager.js",
+    "assets/wasm/xor_crypto.js",
     "scripts/create-icons.js",
     "scripts/demo.js",
     "scripts/dev-with-scan.js",
@@ -65,30 +67,10 @@ window.FILES_LIST = {
     "assets/icons/icon-96x96.png"
   ],
   "other": [
-    ".DS_Store",
-    ".gitignore",
-    ".gitlab-ci.yml",
-    ".idea/.gitignore",
-    ".idea/GithubPage.iml",
-    ".idea/modules.xml",
-    ".idea/vcs.xml",
-    ".idea/workspace.xml",
-    "2025/hjm/.DS_Store",
-    "COMMANDS.md",
-    "DEPLOYMENT.md",
-    "NOTIFICATION_FIX_TEST.md",
-    "PROJECT_SUMMARY.md",
-    "README.md",
-    "assets/icons/README.md",
-    "assets/icons/create-icons.sh",
-    "docs/NOTIFICATION_OPTIMIZATION.md",
-    "docs/PWA_ENHANCEMENTS.md",
-    "manifest.json",
-    "package-lock.json",
-    "package.json",
-    "scripts/README.md"
+    "assets/wasm/xor_crypto_bg.wasm",
+    "manifest.json"
   ],
-  "lastUpdated": "2025-06-30T12:35:44.919Z"
+  "lastUpdated": "2025-06-30T18:16:18.475Z"
 };
 
 // 导出数据供Node.js使用

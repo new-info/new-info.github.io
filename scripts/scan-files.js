@@ -17,7 +17,30 @@ class FileScanner {
             '.git',
             '.github',
             '.vscode',
-            'dist'
+            'dist',
+            '.idea'
+        ];
+
+        // 忽略的文件名和扩展名
+        this.ignoreFiles = [
+            '.gitignore',
+            '.gitattributes',
+            '.env',
+            '.DS_Store',
+            '.gitlab-ci.yml',
+            '.env.local',
+            '.env.example',
+            'package.json',
+            'package-lock.json',
+            '.env.example',
+        ];
+
+        this.ignoreExtensions = [
+            '.md',
+            '.rs',
+            '.lock',
+            '.toml',
+            '.sh'
         ];
         this.filesByType = {
             html: [],
@@ -33,11 +56,11 @@ class FileScanner {
     scanDirectory(dir) {
         try {
             const entries = fs.readdirSync(dir, { withFileTypes: true });
-            
+
             for (const entry of entries) {
                 const fullPath = path.join(dir, entry.name);
                 const relativePath = path.relative(this.rootDir, fullPath).replace(/\\/g, '/');
-                
+
                 // 忽略特定目录
                 if (entry.isDirectory()) {
                     if (!this.ignoreDirs.includes(entry.name)) {
@@ -45,11 +68,23 @@ class FileScanner {
                     }
                     continue;
                 }
-                
+
+                // 检查是否需要忽略此文件
+                const ext = path.extname(entry.name).toLowerCase();
+
+                // 忽略特定文件名
+                if (this.ignoreFiles.includes(entry.name)) {
+                    continue;
+                }
+
+                // 忽略特定扩展名
+                if (this.ignoreExtensions.includes(ext)) {
+                    continue;
+                }
+
                 // 处理文件
                 this.fileCount++;
-                const ext = path.extname(entry.name).toLowerCase();
-                
+
                 // 按文件类型分类
                 if (['.html', '.htm'].includes(ext)) {
                     this.filesByType.html.push(relativePath);
@@ -72,12 +107,12 @@ class FileScanner {
     generateFilesList() {
         console.log('开始扫描项目文件...');
         this.scanDirectory(this.rootDir);
-        
+
         // 按路径排序
         Object.keys(this.filesByType).forEach(type => {
             this.filesByType[type].sort();
         });
-        
+
         const data = {
             html: this.filesByType.html,
             css: this.filesByType.css,
@@ -86,7 +121,7 @@ class FileScanner {
             other: this.filesByType.other,
             lastUpdated: new Date().toISOString()
         };
-        
+
         const jsContent = `// 自动生成的文件列表
 // 最后更新时间: ${data.lastUpdated}
 
@@ -113,24 +148,24 @@ if (typeof module !== 'undefined' && module.exports) {
         console.log(`- 其他文件: ${this.filesByType.other.length} 个`);
         console.log(`- 总计: ${this.fileCount} 个文件`);
         console.log(`文件列表已保存到: ${this.outputFile}`);
-        
+
         return data;
     }
 
     // 检查404错误
     check404Errors() {
         console.log('\n检查潜在的404错误...');
-        
+
         // 读取HTML文件并查找链接
         const links = new Set();
         const scripts = new Set();
         const styles = new Set();
         const images = new Set();
-        
+
         this.filesByType.html.forEach(htmlFile => {
             try {
                 const content = fs.readFileSync(path.join(this.rootDir, htmlFile), 'utf8');
-                
+
                 // 提取链接
                 const hrefMatches = content.match(/href=["']([^"']+)["']/g) || [];
                 hrefMatches.forEach(match => {
@@ -139,7 +174,7 @@ if (typeof module !== 'undefined' && module.exports) {
                         links.add(href);
                     }
                 });
-                
+
                 // 提取脚本
                 const scriptMatches = content.match(/src=["']([^"']+\.js)["']/g) || [];
                 scriptMatches.forEach(match => {
@@ -148,7 +183,7 @@ if (typeof module !== 'undefined' && module.exports) {
                         scripts.add(src);
                     }
                 });
-                
+
                 // 提取样式表
                 const styleMatches = content.match(/href=["']([^"']+\.css)["']/g) || [];
                 styleMatches.forEach(match => {
@@ -157,7 +192,7 @@ if (typeof module !== 'undefined' && module.exports) {
                         styles.add(href);
                     }
                 });
-                
+
                 // 提取图片
                 const imgMatches = content.match(/src=["']([^"']+\.(png|jpg|jpeg|gif|svg|ico))["']/g) || [];
                 imgMatches.forEach(match => {
@@ -166,17 +201,17 @@ if (typeof module !== 'undefined' && module.exports) {
                         images.add(src);
                     }
                 });
-                
+
             } catch (error) {
                 console.error(`读取文件失败: ${htmlFile}`, error.message);
             }
         });
-        
+
         // 检查JS文件中的引用
         this.filesByType.js.forEach(jsFile => {
             try {
                 const content = fs.readFileSync(path.join(this.rootDir, jsFile), 'utf8');
-                
+
                 // 提取可能的文件引用
                 const importMatches = content.match(/import\s+.*?from\s+["']([^"']+)["']/g) || [];
                 importMatches.forEach(match => {
@@ -185,17 +220,17 @@ if (typeof module !== 'undefined' && module.exports) {
                         scripts.add(src);
                     }
                 });
-                
+
             } catch (error) {
                 console.error(`读取文件失败: ${jsFile}`, error.message);
             }
         });
-        
+
         // 检查CSS文件中的引用
         this.filesByType.css.forEach(cssFile => {
             try {
                 const content = fs.readFileSync(path.join(this.rootDir, cssFile), 'utf8');
-                
+
                 // 提取图片引用
                 const urlMatches = content.match(/url\(["']?([^"')]+)["']?\)/g) || [];
                 urlMatches.forEach(match => {
@@ -204,12 +239,12 @@ if (typeof module !== 'undefined' && module.exports) {
                         images.add(url);
                     }
                 });
-                
+
             } catch (error) {
                 console.error(`读取文件失败: ${cssFile}`, error.message);
             }
         });
-        
+
         // 检查文件是否存在
         const allFiles = [...this.filesByType.html, ...this.filesByType.css, ...this.filesByType.js, ...this.filesByType.images, ...this.filesByType.other];
         const missingFiles = {
@@ -218,44 +253,44 @@ if (typeof module !== 'undefined' && module.exports) {
             styles: [...styles].filter(style => !this.fileExists(style, allFiles)),
             images: [...images].filter(image => !this.fileExists(image, allFiles))
         };
-        
+
         // 输出结果
         let hasMissingFiles = false;
-        
+
         if (missingFiles.links.length > 0) {
             hasMissingFiles = true;
             console.log('\n可能缺失的链接:');
             missingFiles.links.forEach(link => console.log(`- ${link}`));
         }
-        
+
         if (missingFiles.scripts.length > 0) {
             hasMissingFiles = true;
             console.log('\n可能缺失的脚本:');
             missingFiles.scripts.forEach(script => console.log(`- ${script}`));
         }
-        
+
         if (missingFiles.styles.length > 0) {
             hasMissingFiles = true;
             console.log('\n可能缺失的样式表:');
             missingFiles.styles.forEach(style => console.log(`- ${style}`));
         }
-        
+
         if (missingFiles.images.length > 0) {
             hasMissingFiles = true;
             console.log('\n可能缺失的图片:');
             missingFiles.images.forEach(image => console.log(`- ${image}`));
         }
-        
+
         if (!hasMissingFiles) {
             console.log('未发现潜在的404错误，所有引用的文件都存在。');
         }
-        
+
         // 将404错误信息保存到文件
         const errorData = {
             missingFiles,
             lastUpdated: new Date().toISOString()
         };
-        
+
         const errorJsContent = `// 自动生成的404错误检查结果
 // 最后更新时间: ${errorData.lastUpdated}
 
@@ -270,20 +305,20 @@ if (typeof module !== 'undefined' && module.exports) {
         const errorFile = path.join(this.rootDir, 'assets/js/missing-files.js');
         fs.writeFileSync(errorFile, errorJsContent, 'utf8');
         console.log(`\n404错误检查结果已保存到: ${errorFile}`);
-        
+
         return errorData;
     }
-    
+
     // 检查文件是否存在
     fileExists(filePath, allFiles) {
         // 规范化路径
         filePath = filePath.replace(/^\//, '');
-        
+
         // 直接检查
         if (allFiles.includes(filePath)) {
             return true;
         }
-        
+
         // 检查相对路径
         for (const existingFile of allFiles) {
             const existingDir = path.dirname(existingFile);
@@ -292,14 +327,14 @@ if (typeof module !== 'undefined' && module.exports) {
                 return true;
             }
         }
-        
+
         // 检查带索引的路径
         if (filePath.endsWith('/')) {
             if (allFiles.includes(filePath + 'index.html')) {
                 return true;
             }
         }
-        
+
         return false;
     }
 
@@ -307,7 +342,7 @@ if (typeof module !== 'undefined' && module.exports) {
     init(check404 = false) {
         // 生成文件列表
         this.generateFilesList();
-        
+
         // 检查404错误
         if (check404) {
             this.check404Errors();
@@ -344,4 +379,4 @@ if (require.main === module) {
     scanner.init(check404);
 }
 
-module.exports = FileScanner; 
+module.exports = FileScanner;
