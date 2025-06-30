@@ -1,5 +1,5 @@
 // 自动生成的文件列表
-// 最后更新时间: 2025-06-30T18:16:18.475Z
+// 最后更新时间: 2025-06-30T18:48:00.772Z
 
 window.FILES_LIST = {
   "html": [
@@ -25,7 +25,6 @@ window.FILES_LIST = {
     "assets/js/auth-config.js",
     "assets/js/auth-helper.js",
     "assets/js/back-button.js",
-    "assets/js/crypto-config.js",
     "assets/js/file-monitor.js",
     "assets/js/files-list.js",
     "assets/js/main.js",
@@ -38,14 +37,6 @@ window.FILES_LIST = {
     "assets/js/sw-storage-helper.js",
     "assets/js/sw-updater.js",
     "assets/js/unified-notification-manager.js",
-    "assets/wasm/xor_crypto.js",
-    "scripts/create-icons.js",
-    "scripts/demo.js",
-    "scripts/dev-with-scan.js",
-    "scripts/encrypt-html.js",
-    "scripts/manage-patches.js",
-    "scripts/scan-files.js",
-    "scripts/scan-notes.js",
     "sw.js"
   ],
   "images": [
@@ -67,10 +58,9 @@ window.FILES_LIST = {
     "assets/icons/icon-96x96.png"
   ],
   "other": [
-    "assets/wasm/xor_crypto_bg.wasm",
     "manifest.json"
   ],
-  "lastUpdated": "2025-06-30T18:16:18.475Z"
+  "lastUpdated": "2025-06-30T18:48:00.772Z"
 };
 
 // 导出数据供Node.js使用

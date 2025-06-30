@@ -18,7 +18,9 @@ class FileScanner {
             '.github',
             '.vscode',
             'dist',
-            '.idea'
+            '.idea',
+            'wasm',
+            'scripts'
         ];
 
         // 忽略的文件名和扩展名
