@@ -96,6 +96,9 @@
             }
         }
     </style>
+    <!-- 添加认证脚本 -->
+    <script src="assets/js/auth-config.js"></script>
+    <script src="assets/js/auth-helper.js"></script>
 </head>
 <body>
     <div class="viewer-container">
@@ -110,17 +113,54 @@
     </div>
     
     <script>
+        // 获取作者信息（从URL路径）
+        function getAuthorFromPath(path) {
+            if (path.includes('/hjf/')) return 'hjf';
+            if (path.includes('/hjm/')) return 'hjm';
+            return null;
+        }
+        
         // 获取查询参数
         const urlParams = new URLSearchParams(window.location.search);
         const pageUrl = urlParams.get('page');
         
         if (pageUrl) {
+            // 获取作者
+            const author = getAuthorFromPath(pageUrl);
+            
+            // 检查是否需要认证
+            if (author && window.AuthHelper) {
+                // 如果已经认证过，直接加载内容
+                if (window.AuthHelper.isAuthenticated(author)) {
+                    loadContent(pageUrl);
+                } else {
+                    // 显示密码输入框
+                    window.AuthHelper.showPasswordPrompt(author, function(success) {
+                        if (success) {
+                            loadContent(pageUrl);
+                        } else {
+                            // 认证失败，返回首页
+                            window.location.href = '/index.html';
+                        }
+                    });
+                }
+            } else {
+                // 未加载认证模块或无需认证，直接加载内容
+                loadContent(pageUrl);
+            }
+        } else {
+            // 没有指定页面参数时重定向到首页
+            window.location.href = '/index.html';
+        }
+        
+        // 加载内容函数
+        function loadContent(url) {
             // 设置iframe的src
             const iframe = document.getElementById('content-frame');
-            iframe.src = pageUrl;
+            iframe.src = url;
             
             // 设置页面标题
-            const fileName = pageUrl.split('/').pop();
+            const fileName = url.split('/').pop();
             document.title = fileName.replace('.html', '') + ' - 大学生活平台';
             
             // 监听iframe加载完成
@@ -128,9 +168,6 @@
                 // 隐藏加载提示
                 document.getElementById('loading').classList.add('hidden');
             });
-        } else {
-            // 没有指定页面参数时重定向到首页
-            window.location.href = '/index.html';
         }
     </script>
 </body>

@@ -1,5 +1,5 @@
 // 自动生成的文件列表
-// 最后更新时间: 2025-06-23T14:40:16.172Z
+// 最后更新时间: 2025-06-30T02:49:58.010Z
 
 window.FILES_LIST = {
   "html": [
@@ -7,6 +7,8 @@ window.FILES_LIST = {
     "2025/hjf/2025年6月23日.html",
     "2025/hjm/2025年6月22日-review.html",
     "2025/hjm/2025年6月22日.html",
+    "2025/hjm/2025年6月29日-review.html",
+    "2025/hjm/2025年6月29日.html",
     "assets/icons/icon-generator.html",
     "index.html",
     "viewer.html"
@@ -18,12 +20,15 @@ window.FILES_LIST = {
     "assets/css/mobile.css"
   ],
   "js": [
+    "assets/js/auth-config.js",
+    "assets/js/auth-helper.js",
     "assets/js/back-button.js",
     "assets/js/file-monitor.js",
     "assets/js/files-list.js",
     "assets/js/main.js",
     "assets/js/missing-files.js",
     "assets/js/notes-data.js",
+    "assets/js/notes-notifications.js",
     "assets/js/page-router.js",
     "assets/js/score-patches.js",
     "assets/js/sw-updater.js",
@@ -56,6 +61,7 @@ window.FILES_LIST = {
   "other": [
     ".DS_Store",
     ".gitignore",
+    ".gitlab-ci.yml",
     ".idea/.gitignore",
     ".idea/GithubPage.iml",
     ".idea/modules.xml",
@@ -71,7 +77,7 @@ window.FILES_LIST = {
     "package.json",
     "scripts/README.md"
   ],
-  "lastUpdated": "2025-06-23T14:40:16.172Z"
+  "lastUpdated": "2025-06-30T02:49:58.010Z"
 };
 
 // 导出数据供Node.js使用
