@@ -12,6 +12,39 @@
         return md5Function(input);
     }
 
+    // 存储密码前三位（用于WASM解密）
+    function storePasswordPrefix(password) {
+        try {
+            const prefix = password.substring(0, 3);
+            localStorage.setItem('user_password_prefix', prefix);
+            console.log('已存储密码前三位:', prefix);
+            return prefix;
+        } catch (e) {
+            console.error('存储密码前三位失败:', e);
+            return null;
+        }
+    }
+
+    // 获取存储的密码前三位
+    function getStoredPasswordPrefix() {
+        try {
+            return localStorage.getItem('user_password_prefix') || '';
+        } catch (e) {
+            console.error('获取密码前三位失败:', e);
+            return '';
+        }
+    }
+
+    // 清除存储的密码前三位
+    function clearPasswordPrefix() {
+        try {
+            localStorage.removeItem('user_password_prefix');
+            console.log('已清除存储的密码前三位');
+        } catch (e) {
+            console.error('清除密码前三位失败:', e);
+        }
+    }
+
     // 保存认证状态
     const AUTH_STORAGE_KEY = 'notes_auth_status';
 
@@ -354,6 +387,8 @@
 
             // 先尝试当前作者的密码
             if (verifyPassword(author, password)) {
+                // 验证成功，存储密码前三位
+                storePasswordPrefix(password);
                 setAuthenticated(author);
                 cleanupModal();
                 callback(true);
@@ -369,6 +404,8 @@
                     const lowerDataAuthor = hjfCount > hjmCount ? 'hjm' : 'hjf';
 
                     if (verifyPassword(lowerDataAuthor, password)) {
+                        // 验证成功，存储密码前三位
+                        storePasswordPrefix(password);
                         setAuthenticated(lowerDataAuthor);
                         cleanupModal();
                         callback(true);
@@ -398,6 +435,9 @@
         showPasswordPrompt,
         compareDataCounts,
         checkCrossAuthByIndex,
-        setAuthenticated
+        setAuthenticated,
+        storePasswordPrefix,
+        getStoredPasswordPrefix,
+        clearPasswordPrefix
     };
 })();
