@@ -58,8 +58,17 @@
         return inputHash === correctHash;
     }
     
+    // 检测是否为移动设备
+    function isMobileDevice() {
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    }
+    
     // 显示密码输入对话框
     function showPasswordPrompt(author, callback) {
+        // 保存页面原始滚动位置
+        const scrollPosition = window.scrollY || window.pageYOffset;
+        const isMobile = isMobileDevice();
+        
         // 创建模态对话框
         const modalOverlay = document.createElement('div');
         modalOverlay.style.position = 'fixed';
@@ -69,18 +78,34 @@
         modalOverlay.style.height = '100%';
         modalOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
         modalOverlay.style.zIndex = '9999';
-        modalOverlay.style.display = 'flex';
-        modalOverlay.style.alignItems = 'center';
-        modalOverlay.style.justifyContent = 'center';
+        modalOverlay.style.overflow = 'hidden';
+        
+        // 对移动设备使用不同的布局
+        if (isMobile) {
+            modalOverlay.style.display = 'block';
+        } else {
+            modalOverlay.style.display = 'flex';
+            modalOverlay.style.alignItems = 'center';
+            modalOverlay.style.justifyContent = 'center';
+        }
         
         // 创建对话框内容
         const modalContent = document.createElement('div');
         modalContent.style.backgroundColor = '#fff';
         modalContent.style.borderRadius = '8px';
         modalContent.style.padding = '20px';
-        modalContent.style.width = '300px';
-        modalContent.style.maxWidth = '90%';
         modalContent.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+        
+        // 移动设备上的特殊处理
+        if (isMobile) {
+            modalContent.style.width = '90%'; 
+            modalContent.style.maxWidth = '400px';
+            modalContent.style.margin = '30% auto 0'; // 从顶部开始，避免键盘弹出时的跳动
+            modalContent.style.position = 'relative';
+        } else {
+            modalContent.style.width = '300px';
+            modalContent.style.maxWidth = '90%';
+        }
         
         // 标题
         const title = document.createElement('h3');
@@ -151,9 +176,41 @@
         
         modalOverlay.appendChild(modalContent);
         
+        // 在移动设备上防止页面滚动
+        if (isMobile) {
+            document.body.style.overflow = 'hidden';
+            document.body.style.position = 'fixed';
+            document.body.style.width = '100%';
+            document.body.style.top = `-${scrollPosition}px`;
+        }
+        
+        // 添加到页面
+        document.body.appendChild(modalOverlay);
+        
+        // 聚焦到输入框，但在移动设备上稍微延迟，防止立即弹出键盘导致跳动
+        if (isMobile) {
+            setTimeout(() => {
+                passwordInput.focus();
+            }, 300);
+        } else {
+            passwordInput.focus();
+        }
+        
+        // 清理函数
+        function cleanupModal() {
+            document.body.removeChild(modalOverlay);
+            if (isMobile) {
+                document.body.style.overflow = '';
+                document.body.style.position = '';
+                document.body.style.width = '';
+                document.body.style.top = '';
+                window.scrollTo(0, scrollPosition);
+            }
+        }
+        
         // 添加事件监听
         cancelButton.addEventListener('click', () => {
-            document.body.removeChild(modalOverlay);
+            cleanupModal();
             callback(false);
         });
         
@@ -167,7 +224,7 @@
             
             if (verifyPassword(author, password)) {
                 setAuthenticated(author);
-                document.body.removeChild(modalOverlay);
+                cleanupModal();
                 callback(true);
             } else {
                 errorText.textContent = '密码错误，请重试';
@@ -182,14 +239,6 @@
                 confirmButton.click();
             }
         });
-        
-        // 添加到页面
-        document.body.appendChild(modalOverlay);
-        
-        // 聚焦到输入框
-        setTimeout(() => {
-            passwordInput.focus();
-        }, 100);
     }
     
     // 导出到全局
