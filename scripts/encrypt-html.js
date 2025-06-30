@@ -3,79 +3,21 @@
 const fs = require('fs');
 const path = require('path');
 
-// 加载环境变量
-require('dotenv').config() || {};
-
 class HtmlEncryptor {
     constructor() {
         this.rootDir = path.join(__dirname, '..');
         this.authorsDir = path.join(this.rootDir, '2025');
         this.authors = ['hjf', 'hjm'];
-        
-        // 从环境变量读取加密key
-        this.encryptKey = parseInt(process.env.ENCRYPT_KEY);
-        if (!this.encryptKey) {
-            throw new Error('ENCRYPT_KEY 环境变量未设置，请在.env文件中配置加密密钥');
-        }
-        console.log(`使用加密KEY: ${this.encryptKey}`);
     }
 
     // 检查文件是否已加密
     isEncrypted(filePath) {
         try {
             const content = fs.readFileSync(filePath, 'utf8');
-            return content.includes('id="encrypted-content"') && content.includes('function wasmDecryptContent()');
+            return content.includes('id="encrypted-content"') && content.includes('function decryptContent()');
         } catch (error) {
             return false;
         }
-    }
-
-    // 使用WASM XOR加密
-    wasmEncrypt(data, key = null) {
-        if (key === null) {
-            key = this.encryptKey;
-        }
-        
-        // 简单的XOR加密实现（与WASM中的逻辑保持一致）
-        const utf8Bytes = Buffer.from(data, 'utf8');
-        const encryptedBytes = utf8Bytes.map(byte => byte ^ key);
-        
-        // 转换为base64
-        return Buffer.from(encryptedBytes).toString('base64');
-    }
-
-    // 使用WASM XOR解密
-    wasmDecrypt(encryptedData, key = null) {
-        try {
-            if (key === null) {
-                key = this.encryptKey;
-            }
-            
-            // 从base64解码
-            const encryptedBytes = Buffer.from(encryptedData, 'base64');
-            
-            // XOR解密
-            const decryptedBytes = encryptedBytes.map(byte => byte ^ key);
-            
-            // 转换为UTF-8字符串
-            return Buffer.from(decryptedBytes).toString('utf8');
-        } catch (error) {
-            console.error('WASM解密失败:', error.message);
-            return null;
-        }
-    }
-
-    // 从密码获取前三位用作密钥
-    getKeyFromPassword(password) {
-        const firstThree = password.substring(0, 3);
-        let hash = 0;
-        
-        for (let i = 0; i < firstThree.length; i++) {
-            hash = ((hash * 31) + firstThree.charCodeAt(i)) >>> 0;
-        }
-        
-        // 确保返回值不为0，并且在合理范围内
-        return ((hash % 255) + 1);
     }
 
     // 解密已加密的文件内容（用于扫描时读取）
@@ -86,7 +28,7 @@ class HtmlEncryptor {
                 return encryptedHtml; // 不是加密格式，直接返回
             }
 
-            // 提取加密内容
+            // 提取base64内容
             const match = encryptedHtml.match(/<div id="encrypted-content"[^>]*>([\s\S]*?)<\/div>/);
             if (!match) {
                 return encryptedHtml; // 无法找到加密内容，返回原内容
@@ -94,10 +36,9 @@ class HtmlEncryptor {
 
             const encodedContent = match[1].trim();
             
-            // 创建临时实例进行解密
-            const tempInstance = new HtmlEncryptor();
-            const decodedContent = tempInstance.wasmDecrypt(encodedContent);
-            return decodedContent || encryptedHtml;
+            // 使用UTF-8安全的方式解码base64
+            const decodedContent = Buffer.from(encodedContent, 'base64').toString('utf8');
+            return decodedContent;
         } catch (error) {
             console.error('解密失败:', error.message);
             return encryptedHtml; // 解密失败，返回原内容
@@ -118,8 +59,8 @@ class HtmlEncryptor {
             // 读取原始HTML内容
             const originalContent = fs.readFileSync(filePath, 'utf8');
             
-            // 使用WASM方式进行加密
-            const encodedContent = this.wasmEncrypt(originalContent);
+            // 使用UTF-8安全的方式进行base64编码
+            const encodedContent = Buffer.from(originalContent, 'utf8').toString('base64');
             
             // 创建加密的HTML包装器
             const encryptedHtml = `<!DOCTYPE html>
@@ -138,15 +79,6 @@ class HtmlEncryptor {
         .loading {
             font-size: 18px;
             color: #666;
-            margin: 20px 0;
-        }
-        .error {
-            color: #dc3545;
-            margin: 20px 0;
-            padding: 10px;
-            border: 1px solid #dc3545;
-            border-radius: 5px;
-            background-color: #f8d7da;
         }
         .spinner {
             border: 4px solid #f3f3f3;
@@ -169,62 +101,44 @@ class HtmlEncryptor {
         }
     </style>
     <script>
-        // 获取存储的密码前三位（由认证系统存储）
-        function getStoredPasswordPrefix() {
+        // UTF-8安全的base64解码函数
+        function utf8DecodeBase64(base64) {
             try {
-                return localStorage.getItem('user_password_prefix') || '';
-            } catch (e) {
-                console.error('获取密码前三位失败:', e);
-                return '';
-            }
-        }
-        
-        // 简单的XOR解密实现（与服务端保持一致）
-        function wasmXorDecrypt(encryptedData, key) {
-            try {
-                // 从base64解码
-                const binaryString = atob(encryptedData);
+                // 首先解码base64
+                const binaryString = atob(base64);
+                // 然后处理UTF-8字符
                 const bytes = new Uint8Array(binaryString.length);
                 for (let i = 0; i < binaryString.length; i++) {
                     bytes[i] = binaryString.charCodeAt(i);
                 }
-                
-                // XOR解密
-                const decryptedBytes = bytes.map(byte => byte ^ key);
-                
-                // 转换为UTF-8字符串
+                // 使用TextDecoder正确解码UTF-8
                 const decoder = new TextDecoder('utf-8');
-                return decoder.decode(decryptedBytes);
+                return decoder.decode(bytes);
             } catch (error) {
-                console.error('XOR解密失败:', error);
-                return null;
+                console.error('UTF-8解码失败:', error);
+                // 降级到普通atob
+                return atob(base64);
             }
         }
         
-        // 解密并显示内容
-        function decryptAndShowContent() {
-            const loadingElement = document.getElementById('loading');
-            const errorElement = document.getElementById('error');
-            const encryptedElement = document.getElementById('encrypted-content');
-            
+        // 解密函数
+        function decryptContent() {
             try {
+                const encryptedElement = document.getElementById('encrypted-content');
+                const loadingElement = document.getElementById('loading');
+                const contentContainer = document.getElementById('content-container');
+                
                 if (!encryptedElement) {
-                    throw new Error('找不到加密内容');
+                    loadingElement.innerHTML = '<div class="loading">解密失败：找不到加密内容</div>';
+                    return;
                 }
                 
                 const encoded = encryptedElement.textContent.trim();
-                
-                // 使用服务端相同的key进行解密（从环境变量读取）
-                const serverKey = ${this.encryptKey};
-                const decoded = wasmXorDecrypt(encoded, serverKey);
-                
-                if (!decoded) {
-                    throw new Error('解密失败');
-                }
+                // 使用UTF-8安全的解码方式
+                const decoded = utf8DecodeBase64(encoded);
                 
                 // 隐藏加载界面
-                if (loadingElement) loadingElement.style.display = 'none';
-                if (errorElement) errorElement.style.display = 'none';
+                loadingElement.style.display = 'none';
                 
                 // 解析解密后的HTML内容
                 const parser = new DOMParser();
@@ -323,59 +237,23 @@ class HtmlEncryptor {
                 
             } catch (error) {
                 console.error('解密失败:', error);
-                
-                // 隐藏加载界面
-                if (loadingElement) loadingElement.style.display = 'none';
-                
-                // 显示错误信息
-                if (errorElement) {
-                    errorElement.style.display = 'block';
-                    errorElement.innerHTML = \`
-                        <h3>解密失败</h3>
-                        <p>错误信息: \${error.message}</p>
-                        <p>请确保您已通过认证系统正确验证身份。</p>
-                        <p>如果问题持续存在，请返回主页重新进行身份验证。</p>
-                        <a href="/index.html" style="color: #1a2980; text-decoration: none;">返回主页</a>
-                    \`;
+                const loadingElement = document.getElementById('loading');
+                if (loadingElement) {
+                    loadingElement.innerHTML = '<div class="loading">解密失败：' + error.message + '</div>';
                 }
             }
         }
         
-        // 页面加载完成后检查认证状态并解密
+        // 页面加载完成后自动解密
         window.addEventListener('load', function() {
-            const loadingElement = document.getElementById('loading');
-            const errorElement = document.getElementById('error');
-            
-            // 检查是否已有存储的密码前三位（由认证系统存储）
-            const storedPrefix = getStoredPasswordPrefix();
-            
-            if (storedPrefix) {
-                // 已有密码前三位，直接解密
-                console.log('检测到已存储的密码前三位，开始自动解密...');
-                decryptAndShowContent();
-            } else {
-                // 未找到密码前三位，显示错误信息
-                if (loadingElement) loadingElement.style.display = 'none';
-                if (errorElement) {
-                    errorElement.style.display = 'block';
-                    errorElement.innerHTML = \`
-                        <h3>需要身份验证</h3>
-                        <p>此内容需要通过身份验证才能访问。</p>
-                        <p>请返回主页，通过认证系统验证您的身份后再访问此页面。</p>
-                        <a href="/index.html" style="color: #1a2980; text-decoration: none;">返回主页进行身份验证</a>
-                    \`;
-                }
-            }
+            setTimeout(decryptContent, 100); // 稍微延迟以显示加载动画
         });
     </script>
 </head>
 <body>
     <div id="loading">
-        <div class="loading">正在检查认证状态...</div>
+        <div class="loading">正在解密内容...</div>
         <div class="spinner"></div>
-    </div>
-    <div id="error" class="error" style="display: none;">
-        <!-- 错误信息将在此显示 -->
     </div>
     <div id="content-container" class="content-container">
         <!-- 解密后的内容将显示在这里 -->
@@ -443,25 +321,25 @@ class HtmlEncryptor {
 
     // 加密所有HTML文件
     encryptAll() {
-        console.log('开始使用WASM加密HTML文件...');
+        console.log('开始加密HTML文件...');
         this.authors.forEach(author => {
             this.processAuthorFiles(author, true);
         });
-        console.log('\nWASM加密完成！');
+        console.log('\n加密完成！');
     }
 
     // 解密所有HTML文件
     decryptAll() {
-        console.log('开始使用WASM解密HTML文件...');
+        console.log('开始解密HTML文件...');
         this.authors.forEach(author => {
             this.processAuthorFiles(author, false);
         });
-        console.log('\nWASM解密完成！');
+        console.log('\n解密完成！');
     }
 
     // 检查所有文件的加密状态
     checkStatus() {
-        console.log('检查文件WASM加密状态...\n');
+        console.log('检查文件加密状态...\n');
         
         this.authors.forEach(author => {
             const authorDir = path.join(this.authorsDir, author);
@@ -478,7 +356,7 @@ class HtmlEncryptor {
             htmlFiles.forEach(file => {
                 const filePath = path.join(authorDir, file);
                 const encrypted = this.isEncrypted(filePath);
-                console.log(`  ${file}: ${encrypted ? '已WASM加密' : '未加密'}`);
+                console.log(`  ${file}: ${encrypted ? '已加密' : '未加密'}`);
             });
             console.log('');
         });
@@ -491,24 +369,21 @@ const command = args[0];
 
 if (!command || command === '--help' || command === '-h') {
     console.log(`
-HTML文件WASM加密工具使用说明:
+HTML文件加密工具使用说明:
 
 用法:
   node scripts/encrypt-html.js <命令>
 
 命令:
-  encrypt     使用WASM加密所有HTML文件
-  decrypt     使用WASM解密所有HTML文件  
-  status      检查所有文件的WASM加密状态
+  encrypt     加密所有HTML文件
+  decrypt     解密所有HTML文件  
+  status      检查所有文件的加密状态
   --help, -h  显示此帮助信息
 
-环境变量:
-  ENCRYPT_KEY 服务端加密密钥（必须设置）
-
 示例:
-  node scripts/encrypt-html.js encrypt   # WASM加密所有HTML文件
-  node scripts/encrypt-html.js decrypt   # WASM解密所有HTML文件
-  node scripts/encrypt-html.js status    # 查看WASM加密状态
+  node scripts/encrypt-html.js encrypt   # 加密所有HTML文件
+  node scripts/encrypt-html.js decrypt   # 解密所有HTML文件
+  node scripts/encrypt-html.js status    # 查看加密状态
     `);
     process.exit(0);
 }
