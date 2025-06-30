@@ -1,5 +1,5 @@
 // 自动生成的文件列表
-// 最后更新时间: 2025-06-30T11:21:14.596Z
+// 最后更新时间: 2025-06-30T12:35:44.919Z
 
 window.FILES_LIST = {
   "html": [
@@ -10,6 +10,7 @@ window.FILES_LIST = {
     "2025/hjm/2025年6月29日-review.html",
     "2025/hjm/2025年6月29日.html",
     "assets/icons/icon-generator.html",
+    "assets/template/review.html",
     "index.html",
     "viewer.html"
   ],
@@ -39,6 +40,7 @@ window.FILES_LIST = {
     "scripts/create-icons.js",
     "scripts/demo.js",
     "scripts/dev-with-scan.js",
+    "scripts/encrypt-html.js",
     "scripts/manage-patches.js",
     "scripts/scan-files.js",
     "scripts/scan-notes.js",
@@ -72,6 +74,7 @@ window.FILES_LIST = {
     ".idea/vcs.xml",
     ".idea/workspace.xml",
     "2025/hjm/.DS_Store",
+    "COMMANDS.md",
     "DEPLOYMENT.md",
     "NOTIFICATION_FIX_TEST.md",
     "PROJECT_SUMMARY.md",
@@ -85,7 +88,7 @@ window.FILES_LIST = {
     "package.json",
     "scripts/README.md"
   ],
-  "lastUpdated": "2025-06-30T11:21:14.596Z"
+  "lastUpdated": "2025-06-30T12:35:44.919Z"
 };
 
 // 导出数据供Node.js使用

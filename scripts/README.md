@@ -11,6 +11,7 @@
 - `demo.js` - 演示和测试脚本
 - `manage-patches.js` - 分数补丁管理脚本
 - `dev-with-scan.js` - 集成开发环境启动脚本
+- `encrypt-html.js` - HTML文件加密脚本，对敏感内容进行base64加密保护
 - `README.md` - 本说明文档
 
 ## 🚀 快速开始
@@ -242,12 +243,113 @@ DEBUG=notes-scanner node scripts/scan-notes.js --watch
 - 缓存解析结果
 - 异步处理文件操作
 
+## 🔒 HTML文件加密功能
+
+为了保护敏感内容，项目提供了HTML文件加密功能，支持对hjf和hjm文件夹下的HTML文件进行base64加密。
+
+### 加密特性
+
+- **透明加密**：加密后的文件在浏览器中正常显示
+- **自动解密**：扫描时自动检测并解密内容
+- **功能保持**：不影响预览生成、标题提取等功能
+- **安全保护**：文件内容以base64编码存储，避免直接泄露
+
+### 使用方法
+
+#### 加密所有HTML文件
+```bash
+node scripts/encrypt-html.js encrypt
+```
+
+#### 解密所有HTML文件
+```bash
+node scripts/encrypt-html.js decrypt
+```
+
+#### 检查加密状态
+```bash
+node scripts/encrypt-html.js status
+```
+
+#### 显示帮助信息
+```bash
+node scripts/encrypt-html.js --help
+```
+
+### 加密原理
+
+1. **原始文件**：正常的HTML文件
+2. **加密处理**：将整个HTML内容进行base64编码
+3. **包装存储**：创建包含解密逻辑的HTML包装器
+4. **自动解密**：浏览器打开时自动解密并显示原始内容
+
+### 加密后的文件格式
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Encrypted Content</title>
+    <script>
+        function decryptContent() {
+            // 自动解密逻辑
+        }
+    </script>
+</head>
+<body onload="decryptContent()">
+    <div>正在解密内容...</div>
+    <div id="encrypted-content" style="display:none;">
+        [BASE64_ENCODED_CONTENT]
+    </div>
+</body>
+</html>
+```
+
+### 扫描兼容性
+
+`scan-notes.js` 已经集成了自动解密功能：
+
+- **自动检测**：扫描时自动识别加密文件
+- **透明解密**：无需额外配置，自动解码内容
+- **功能完整**：预览生成、标题提取、分数解析等功能正常工作
+
+### 工作流程
+
+1. **开发阶段**：
+   ```bash
+   # 解密文件以便编辑
+   node scripts/encrypt-html.js decrypt
+   
+   # 编辑HTML文件
+   # ...
+   
+   # 重新加密
+   node scripts/encrypt-html.js encrypt
+   ```
+
+2. **生产部署**：
+   ```bash
+   # 确保文件已加密
+   node scripts/encrypt-html.js status
+   
+   # 部署到生产环境
+   git add . && git commit -m "deploy encrypted content"
+   ```
+
+### 注意事项
+
+- 加密后的文件仍可在浏览器中正常访问
+- 扫描功能会自动处理加密文件，无需手动解密
+- 建议在提交代码前确认文件已加密
+- 加密主要防止源码泄露，非军用级安全保护
+
 ## 🔒 安全注意事项
 
 - 不要扫描敏感文件
 - 检查文件路径安全性
 - 限制文件大小
 - 验证HTML内容
+- 定期检查文件加密状态
 
 ---
 

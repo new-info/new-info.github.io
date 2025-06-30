@@ -21,12 +21,19 @@ class NotesScanner {
     // 从HTML文件中提取标题
     extractTitleFromHtml(filePath) {
         try {
-            /*const content = fs.readFileSync(filePath, 'utf8');
+            let content = fs.readFileSync(filePath, 'utf8');
+
+            // 如果是加密文件，先解密
+            content = this.decryptHtmlContent(content);
 
             // 尝试从<title>标签提取
             const titleMatch = content.match(/<title[^>]*>([^<]+)<\/title>/i);
             if (titleMatch) {
-                return titleMatch[1].trim();
+                const title = titleMatch[1].trim();
+                // 跳过加密文件的默认标题
+                if (title !== 'Encrypted Content') {
+                    return title;
+                }
             }
 
             // 尝试从第一个<h1>标签提取
@@ -34,7 +41,7 @@ class NotesScanner {
             if (h1Match) {
                 return h1Match[1].trim();
             }
-            */
+            
             // 尝试从文件名生成标题
             const fileName = path.basename(filePath, '.html');
             return fileName.replace(/-/g, ' ').replace(/^\w/, c => c.toUpperCase());
@@ -45,10 +52,38 @@ class NotesScanner {
         }
     }
 
+    // 解密已加密的HTML文件内容
+    decryptHtmlContent(htmlContent) {
+        try {
+            // 检查是否是加密格式
+            if (!htmlContent.includes('id="encrypted-content"')) {
+                return htmlContent; // 不是加密格式，直接返回
+            }
+
+            // 提取base64内容
+            const match = htmlContent.match(/<div id="encrypted-content"[^>]*>([\s\S]*?)<\/div>/);
+            if (!match) {
+                return htmlContent; // 无法找到加密内容，返回原内容
+            }
+
+            const encodedContent = match[1].trim();
+            
+            // 解码base64
+            const decodedContent = Buffer.from(encodedContent, 'base64').toString('utf8');
+            return decodedContent;
+        } catch (error) {
+            console.error('解密失败:', error.message);
+            return htmlContent; // 解密失败，返回原内容
+        }
+    }
+
     // 从HTML文件中提取预览内容
     extractPreviewFromHtml(filePath) {
         try {
-            const content = fs.readFileSync(filePath, 'utf8');
+            let content = fs.readFileSync(filePath, 'utf8');
+
+            // 如果是加密文件，先解密
+            content = this.decryptHtmlContent(content);
 
             // 移除HTML标签，提取纯文本
             const textContent = content
@@ -123,7 +158,11 @@ class NotesScanner {
                 // 从评分报告中提取分数
                 let score = 0;
                 try {
-                    const reviewContent = fs.readFileSync(reviewPath, 'utf8');
+                    let reviewContent = fs.readFileSync(reviewPath, 'utf8');
+                    
+                    // 如果是加密文件，先解密
+                    reviewContent = this.decryptHtmlContent(reviewContent);
+                    
                     const scoreMatch = reviewContent.match(/<div class="score-value">(\d+)<\/div>/);
                     if (scoreMatch) {
                         score = parseInt(scoreMatch[1]);
