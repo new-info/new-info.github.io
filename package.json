@@ -15,6 +15,10 @@
     "decrypt": "node scripts/encrypt-html.js decrypt",
     "encrypt:status": "node scripts/encrypt-html.js status",
     "icons": "node scripts/create-icons.js",
+    "vouchers:encrypt": "node scripts/encrypt-vouchers.js",
+    "vouchers:setup": "node scripts/encrypt-vouchers.js --setup-only",
+    "vouchers:status": "node scripts/encrypt-vouchers.js --status",
+    "vouchers:help": "echo \"凭证加密系统命令帮助:\\n  npm run vouchers:setup  - 初始化凭证文件夹结构\\n  npm run vouchers:encrypt - 加密所有凭证图片\\n  npm run vouchers:status  - 查看加密状态\\n  npm run vouchers:help    - 显示此帮助信息\\n\\n详细文档请查看: VOUCHER_SYSTEM_GUIDE.md\"",
     "deploy": "npm run build && git add . && git commit -m 'Update analysis data and encrypt files' && git push"
   },
   "keywords": [
@@ -22,7 +26,8 @@
     "github-pages",
     "static-site",
     "pwa",
-    "rewards-system"
+    "rewards-system",
+    "voucher-encryption"
   ],
   "author": "",
   "license": "MIT",

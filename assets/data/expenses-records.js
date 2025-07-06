@@ -4,10 +4,10 @@
 window.EXPENSES_RECORDS = {
     // 数据最后更新时间
     lastUpdated: '2025-01-15T10:30:00.000Z',
-    
+
     // 数据版本号
     version: '1.2.0', // 版本升级，使用加密凭证文件
-    
+
     // 借款记录列表
     records: [
         {
@@ -21,7 +21,7 @@ window.EXPENSES_RECORDS = {
             actualReturnDate: '2025-01-25',
             notes: '按时归还',
             pinned: false, // 是否置顶
-            voucher: 'voucher_20250115_1200.jpg' // 本地凭证文件名
+            voucher: 'xiazai.jpeg' // 本地凭证文件名
         },
         {
             id: 2,
@@ -34,7 +34,7 @@ window.EXPENSES_RECORDS = {
             actualReturnDate: '2025-01-30',
             notes: '提前归还',
             pinned: false,
-            voucher: 'voucher_20250120_800.png'
+            voucher: 'xiazai.jpeg'
         },
         {
             id: 3,
@@ -47,7 +47,7 @@ window.EXPENSES_RECORDS = {
             actualReturnDate: null,
             notes: '按月生活费',
             pinned: true, // 置顶显示
-            voucher: 'voucher_20250201_1500.jpg'
+            voucher: 'xiazai.jpeg'
         },
         {
             id: 4,
@@ -73,7 +73,7 @@ window.EXPENSES_RECORDS = {
             actualReturnDate: null,
             notes: '学费不足补充',
             pinned: true, // 置顶显示
-            voucher: 'voucher_20250210_2000.jpg'
+            voucher: 'xiazai.jpeg'
         },
         {
             id: 6,
@@ -141,7 +141,7 @@ window.EXPENSES_RECORDS = {
             voucher: 'voucher_20250216_400.png'
         }
     ],
-    
+
     // 借款规则配置
     rules: {
         monthlyLimit: 1500, // 每月生活费限额
@@ -155,8 +155,8 @@ window.EXPENSES_RECORDS = {
             { name: '其他', limit: 500, monthly: false }
         ]
     }
-    
+
     // 注意：已移除 summary 对象，统计数据现在完全由借款记录自动计算生成
     // 这样可以确保统计数据始终与实际记录保持一致，无需手动维护
     // v1.2.0: 凭证文件名现在使用本地加密文件，格式：voucher_YYYYMMDD_amount.ext
-}; 
+};

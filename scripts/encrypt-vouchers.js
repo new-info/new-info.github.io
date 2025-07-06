@@ -25,8 +25,8 @@ function encryptData(data, key) {
         // 生成随机IV
         const iv = crypto.randomBytes(16);
         
-        // 创建加密器
-        const cipher = crypto.createCipher('aes-256-cbc', encryptKey);
+        // 创建加密器（使用正确的createCipheriv方法）
+        const cipher = crypto.createCipheriv('aes-256-cbc', encryptKey, iv);
         
         // 加密数据
         let encrypted = cipher.update(data);
@@ -84,7 +84,7 @@ function encryptImageFile(inputPath, outputPath, key) {
  */
 function processAuthorVouchers(author) {
     const sourceDir = path.join(__dirname, '..', 'vouchers', author);
-    const encryptedDir = path.join(__dirname, '..', 'vouchers', 'encrypted', author);
+    const encryptedDir = path.join(__dirname, '..', 'assets', 'vouchers', author);
     
     console.log(`\n🔄 处理 ${author.toUpperCase()} 的凭证文件...`);
     console.log(`📂 源目录: ${sourceDir}`);
@@ -149,7 +149,7 @@ function processAuthorVouchers(author) {
  * 创建占位图片
  */
 function createPlaceholderImage() {
-    const placeholderDir = path.join(__dirname, '..', 'vouchers');
+    const placeholderDir = path.join(__dirname, '..', 'assets', 'vouchers');
     const placeholderPath = path.join(placeholderDir, 'placeholder.svg');
     
     // SVG占位图片内容
@@ -283,12 +283,30 @@ hjm/
  * 主函数
  */
 function main() {
+    // 解析命令行参数
+    const args = process.argv.slice(2);
+    const setupOnly = args.includes('--setup-only');
+    const statusOnly = args.includes('--status');
+
+    if (statusOnly) {
+        showStatus();
+        return;
+    }
+
     console.log('🚀 开始处理凭证文件加密...\n');
     
     try {
         // 创建基础结构和占位图片
         createExampleStructure();
         createPlaceholderImage();
+        
+        if (setupOnly) {
+            console.log('\n✅ 凭证文件夹结构初始化完成！');
+            console.log('\n📖 下一步操作：');
+            console.log('1. 将凭证图片放入对应的用户文件夹 (vouchers/hjf/, vouchers/hjm/)');
+            console.log('2. 运行 npm run vouchers:encrypt 进行加密');
+            return;
+        }
         
         // 处理各用户的凭证文件
         processAuthorVouchers('hjf');
@@ -307,6 +325,74 @@ function main() {
     }
 }
 
+/**
+ * 显示当前状态
+ */
+function showStatus() {
+    console.log('📊 凭证加密系统状态\n');
+    
+    const vouchersDir = path.join(__dirname, '..', 'vouchers');
+    const hjfDir = path.join(vouchersDir, 'hjf');
+    const hjmDir = path.join(vouchersDir, 'hjm');
+    const assetsVouchersDir = path.join(__dirname, '..', 'assets', 'vouchers');
+    const placeholderPath = path.join(assetsVouchersDir, 'placeholder.svg');
+    
+    // 检查基础结构
+    console.log('📁 文件夹结构:');
+    console.log(`   vouchers/           ${fs.existsSync(vouchersDir) ? '✅' : '❌'}`);
+    console.log(`   vouchers/hjf/       ${fs.existsSync(hjfDir) ? '✅' : '❌'}`);
+    console.log(`   vouchers/hjm/       ${fs.existsSync(hjmDir) ? '✅' : '❌'}`);
+    console.log(`   assets/vouchers/    ${fs.existsSync(assetsVouchersDir) ? '✅' : '❌'}`);
+    console.log(`   placeholder.svg     ${fs.existsSync(placeholderPath) ? '✅' : '❌'}`);
+    
+    // 统计原始图片
+    console.log('\n📷 原始图片统计:');
+    ['hjf', 'hjm'].forEach(author => {
+        const authorDir = path.join(vouchersDir, author);
+        if (fs.existsSync(authorDir)) {
+            const files = fs.readdirSync(authorDir);
+            const imageFiles = files.filter(file => {
+                const ext = path.extname(file).toLowerCase();
+                return SUPPORTED_FORMATS.includes(ext);
+            });
+            console.log(`   ${author.toUpperCase()}: ${imageFiles.length} 个图片文件`);
+            if (imageFiles.length > 0) {
+                imageFiles.forEach(file => {
+                    console.log(`     - ${file}`);
+                });
+            }
+        } else {
+            console.log(`   ${author.toUpperCase()}: 文件夹不存在`);
+        }
+    });
+    
+    // 统计加密文件
+    console.log('\n🔐 加密文件统计:');
+    ['hjf', 'hjm'].forEach(author => {
+        const encryptedAuthorDir = path.join(__dirname, '..', 'assets', 'vouchers', author);
+        if (fs.existsSync(encryptedAuthorDir)) {
+            const files = fs.readdirSync(encryptedAuthorDir);
+            const encFiles = files.filter(file => file.endsWith('.enc'));
+            console.log(`   ${author.toUpperCase()}: ${encFiles.length} 个加密文件`);
+            if (encFiles.length > 0) {
+                encFiles.forEach(file => {
+                    const filePath = path.join(encryptedAuthorDir, file);
+                    const stats = fs.statSync(filePath);
+                    const sizeKB = Math.round(stats.size / 1024);
+                    console.log(`     - ${file} (${sizeKB}KB)`);
+                });
+            }
+        } else {
+            console.log(`   ${author.toUpperCase()}: 加密文件夹不存在`);
+        }
+    });
+    
+    console.log('\n💡 快速命令:');
+    console.log('   npm run vouchers:setup   - 初始化文件夹结构');
+    console.log('   npm run vouchers:encrypt - 加密所有图片');
+    console.log('   npm run vouchers:help    - 显示帮助信息');
+}
+
 // 如果直接运行此脚本
 if (require.main === module) {
     main();
@@ -317,6 +403,8 @@ module.exports = {
     encryptImageFile,
     processAuthorVouchers,
     createPlaceholderImage,
+    createExampleStructure,
+    showStatus,
     ENCRYPT_KEYS,
     SUPPORTED_FORMATS
 }; 

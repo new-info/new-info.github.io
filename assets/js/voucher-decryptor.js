@@ -198,8 +198,23 @@
         
         // 检查缓存
         if (imageCache.has(cacheKey)) {
+            const cachedUrl = imageCache.get(cacheKey);
             console.log('✅ 使用缓存的解密图片');
-            return imageCache.get(cacheKey);
+            
+            // 验证缓存的URL是否仍然有效
+            try {
+                // 创建一个测试请求来验证URL是否有效
+                const testResponse = await fetch(cachedUrl, { method: 'HEAD' });
+                if (testResponse.ok) {
+                    return cachedUrl;
+                } else {
+                    console.log('⚠️ 缓存的URL已失效，重新解密');
+                    imageCache.delete(cacheKey);
+                }
+            } catch (error) {
+                console.log('⚠️ 缓存的URL已失效，重新解密');
+                imageCache.delete(cacheKey);
+            }
         }
 
         try {
@@ -208,6 +223,7 @@
             
             // 存入缓存
             imageCache.set(cacheKey, dataUrl);
+            console.log('💾 图片已缓存');
             
             return dataUrl;
         } catch (error) {
@@ -230,6 +246,33 @@
     }
 
     /**
+     * 清理特定图片的缓存
+     * @param {string} encryptedUrl - 加密文件URL
+     * @param {string} author - 作者
+     */
+    function clearSpecificCache(encryptedUrl, author) {
+        const cacheKey = `${author}_${encryptedUrl}`;
+        if (imageCache.has(cacheKey)) {
+            const dataUrl = imageCache.get(cacheKey);
+            if (dataUrl.startsWith('blob:')) {
+                URL.revokeObjectURL(dataUrl);
+            }
+            imageCache.delete(cacheKey);
+            console.log('🗑️ 已清理特定图片缓存:', cacheKey);
+        }
+    }
+
+    /**
+     * 获取缓存状态
+     */
+    function getCacheStatus() {
+        return {
+            size: imageCache.size,
+            keys: Array.from(imageCache.keys())
+        };
+    }
+
+    /**
      * 检查是否支持WebCrypto API
      */
     function isWebCryptoSupported() {
@@ -241,7 +284,7 @@
      * 获取占位图片URL
      */
     function getPlaceholderImageUrl() {
-        return 'vouchers/placeholder.svg';
+        return 'assets/vouchers/placeholder.svg';
     }
 
     /**
@@ -251,7 +294,7 @@
      * @returns {string} 加密文件URL
      */
     function buildEncryptedUrl(filename, author) {
-        return `vouchers/encrypted/${author}/${filename}.enc`;
+        return `assets/vouchers/${author}/${filename}.enc`;
     }
 
     // 页面卸载时清理缓存
@@ -261,6 +304,8 @@
     window.VoucherDecryptor = {
         decryptVoucherImage: decryptVoucherImageWithCache,
         clearImageCache,
+        clearSpecificCache,
+        getCacheStatus,
         isWebCryptoSupported,
         getPlaceholderImageUrl,
         buildEncryptedUrl,

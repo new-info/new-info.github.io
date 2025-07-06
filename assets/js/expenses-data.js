@@ -55,11 +55,11 @@ class ExpensesManager {
                 // 更新tab状态
                 tabs.forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
-                
+
                 // 更新当前tab
                 this.currentTab = tab.dataset.tab;
                 this.currentPage = 1;
-                
+
                 // 重新渲染表格
                 this.renderExpensesTable();
             });
@@ -120,7 +120,7 @@ class ExpensesManager {
             // 首先按置顶状态排序
             if (a.pinned && !b.pinned) return -1;
             if (!a.pinned && b.pinned) return 1;
-            
+
             // 如果置顶状态相同，则按日期排序（最新的在前）
             return new Date(b.date) - new Date(a.date);
         });
@@ -132,14 +132,14 @@ class ExpensesManager {
     renderExpensesTable() {
         const filteredLoans = this.getFilteredLoans();
         const totalPages = Math.ceil(filteredLoans.length / this.pageSize);
-        
+
         // 计算当前页的数据
         const startIndex = (this.currentPage - 1) * this.pageSize;
         const endIndex = startIndex + this.pageSize;
         const currentLoans = filteredLoans.slice(startIndex, endIndex);
 
         const tbody = document.getElementById('expenses-table-body');
-        
+
         if (currentLoans.length === 0) {
             tbody.innerHTML = `
                 <tr>
@@ -164,16 +164,16 @@ class ExpensesManager {
 
     // 创建借款记录行
     createLoanRow(loan) {
-        const statusClass = loan.status === 'returned' ? 'returned' : 
+        const statusClass = loan.status === 'returned' ? 'returned' :
                            loan.status === 'overdue' ? 'overdue' : 'pending';
-        const statusText = loan.status === 'returned' ? '已归还' : 
+        const statusText = loan.status === 'returned' ? '已归还' :
                           loan.status === 'overdue' ? '逾期' : '待归还';
-        const statusIcon = loan.status === 'returned' ? '✅' : 
+        const statusIcon = loan.status === 'returned' ? '✅' :
                           loan.status === 'overdue' ? '⚠️' : '⏳';
 
         // 置顶标识
         const pinnedIndicator = loan.pinned ? '<span class="pinned-indicator">置顶</span>' : '';
-        
+
         // 凭证显示
         const voucherCell = this.createVoucherCell(loan);
 
@@ -204,7 +204,7 @@ class ExpensesManager {
         if (loan.voucher) {
             // 检查用户是否已认证
             const isAuthenticated = window.VoucherDecryptor && window.VoucherDecryptor.isAuthenticated(loan.borrower);
-            
+
             if (isAuthenticated) {
                 // 已认证，显示可点击的占位图片
                 return `
@@ -262,19 +262,19 @@ class ExpensesManager {
         try {
             // 显示加载提示
             this.showImageViewer('vouchers/placeholder.svg', '正在解密...', '请稍候，正在解密凭证图片');
-
+            console.log(voucherFilename,'voucherFilename')
             // 构建加密文件URL
             const encryptedUrl = window.VoucherDecryptor.buildEncryptedUrl(voucherFilename, author);
-            
+
             // 解密图片
             const decryptedImageUrl = await window.VoucherDecryptor.decryptVoucherImage(encryptedUrl, author);
-            
+
             // 显示解密后的图片
             this.showImageViewer(decryptedImageUrl, title || '凭证详情', description || '借款凭证');
-            
+
         } catch (error) {
             console.error('凭证解密失败:', error);
-            
+
             // 根据错误类型显示不同的提示
             if (error.message.includes('404') || error.message.includes('下载失败')) {
                 this.showImageViewer('vouchers/placeholder.svg', '凭证不存在', '该借款记录的凭证文件不存在或已被删除');
@@ -297,7 +297,7 @@ class ExpensesManager {
             img.src = imageUrl;
             titleEl.textContent = title || '凭证详情';
             descEl.textContent = description || '借款凭证';
-            
+
             modal.classList.add('active');
             document.body.style.overflow = 'hidden'; // 防止背景滚动
         }
@@ -309,12 +309,9 @@ class ExpensesManager {
         if (modal) {
             modal.classList.remove('active');
             document.body.style.overflow = ''; // 恢复滚动
-            
-            // 如果显示的是解密后的blob URL，释放它
-            const img = document.getElementById('image-viewer-img');
-            if (img && img.src && img.src.startsWith('blob:')) {
-                URL.revokeObjectURL(img.src);
-            }
+
+            // 注意：不在这里释放blob URL，因为VoucherDecryptor会管理缓存
+            // 只有在页面卸载时才会清理所有缓存
         }
     }
 
@@ -322,7 +319,7 @@ class ExpensesManager {
     initImageViewer() {
         // 避免重复初始化
         if (this.imageViewerInitialized) return;
-        
+
         const modal = document.getElementById('image-viewer-modal');
         const closeBtn = document.querySelector('.image-viewer-close');
         const backdrop = document.querySelector('.image-viewer-backdrop');
@@ -352,7 +349,7 @@ class ExpensesManager {
     // 更新分页控件
     updateExpensesPagination(totalPages, totalItems) {
         const paginationContainer = document.getElementById('expenses-pagination');
-        
+
         if (totalPages <= 1) {
             paginationContainer.style.display = 'none';
             return;
@@ -423,7 +420,7 @@ class ExpensesManager {
             }
         } else {
             // 复杂分页逻辑：显示首页、当前页附近页码、尾页
-            
+
             // 第1页
             buttons += `
                 <button class="pagination-btn ${currentPage === 1 ? 'active' : ''}" 
@@ -439,7 +436,7 @@ class ExpensesManager {
 
             // 当前页及其邻近页码
             let start, end;
-            
+
             if (currentPage <= 3) {
                 // 当前页靠近开头
                 start = 2;
@@ -486,7 +483,7 @@ class ExpensesManager {
     // 跳转到指定页面
     goToPage(page) {
         const totalPages = Math.ceil(this.getFilteredLoans().length / this.pageSize);
-        
+
         if (page < 1 || page > totalPages) return;
 
         this.currentPage = page;
@@ -495,9 +492,9 @@ class ExpensesManager {
         // 滚动到表格顶部
         const tableSection = document.querySelector('.expenses-table-section');
         if (tableSection) {
-            tableSection.scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'start' 
+            tableSection.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
             });
         }
     }
@@ -524,4 +521,4 @@ document.addEventListener('DOMContentLoaded', () => {
             expensesManager = new ExpensesManager();
         }
     }, 100);
-}); 
+});
