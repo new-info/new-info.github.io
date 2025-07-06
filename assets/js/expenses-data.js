@@ -103,7 +103,7 @@ class ExpensesManager {
         document.getElementById('expenses-hjf-count').textContent = hjfStats.count;
         document.getElementById('expenses-hjf-total').textContent = `¥${hjfStats.total}`;
         document.getElementById('expenses-hjf-returned').textContent = `¥${hjfAmounts.returnedAmount}`;
-        document.getElementById('expenses-hjf-pending').textContent = `¥${hjfStats.pending}`;
+        document.getElementById('expenses-hjf-pending').textContent = `¥${hjfAmounts.pendingAmount}`;
 
         // 计算HJM统计 - 完全基于借款记录数据自动计算
         const hjmStats = this.calculateStats(hjmLoans);
@@ -111,7 +111,7 @@ class ExpensesManager {
         document.getElementById('expenses-hjm-count').textContent = hjmStats.count;
         document.getElementById('expenses-hjm-total').textContent = `¥${hjmStats.total}`;
         document.getElementById('expenses-hjm-returned').textContent = `¥${hjmAmounts.returnedAmount}`;
-        document.getElementById('expenses-hjm-pending').textContent = `¥${hjmStats.pending}`;
+        document.getElementById('expenses-hjm-pending').textContent = `¥${hjmAmounts.pendingAmount}`;
 
         // 更新智能删除线提示信息
         this.updateStrikethroughHint();
@@ -124,18 +124,46 @@ class ExpensesManager {
         
         const hintContainer = document.getElementById('strikethrough-hint');
         if (hintContainer) {
-            const hjfStatus = hjfAmounts.returnedAmount >= hjfAmounts.pendingAmount ? '✅' : '⏳';
-            const hjmStatus = hjmAmounts.returnedAmount >= hjmAmounts.pendingAmount ? '✅' : '⏳';
+            // 计算按时间顺序的删除线覆盖情况
+            const hjfCoverage = this.calculateStrikethroughCoverage('hjf');
+            const hjmCoverage = this.calculateStrikethroughCoverage('hjm');
             
             hintContainer.innerHTML = `
                 <div class="strikethrough-hint-content">
                     <h4>智能删除线说明</h4>
-                    <p><strong>HJF:</strong> 归还 ¥${hjfAmounts.returnedAmount} / 未还 ¥${hjfAmounts.pendingAmount} ${hjfStatus}</p>
-                    <p><strong>HJM:</strong> 归还 ¥${hjmAmounts.returnedAmount} / 未还 ¥${hjmAmounts.pendingAmount} ${hjmStatus}</p>
-                    <p class="hint-note">💰 标记表示归还金额已覆盖未还借款</p>
+                    <p><strong>HJF:</strong> 归还 ¥${hjfAmounts.returnedAmount} / 总借款 ¥${hjfAmounts.totalLoanAmount}</p>
+                    <p><strong>HJM:</strong> 归还 ¥${hjmAmounts.returnedAmount} / 总借款 ¥${hjmAmounts.totalLoanAmount}</p>
+                    <p class="hint-note">💰 按借款时间顺序，从最早的借款开始累加，还款金额覆盖的借款显示删除线</p>
+                    <p class="hint-note">📊 HJF覆盖: ${hjfCoverage.coveredCount}/${hjfCoverage.totalCount} 条借款</p>
+                    <p class="hint-note">📊 HJM覆盖: ${hjmCoverage.coveredCount}/${hjmCoverage.totalCount} 条借款</p>
                 </div>
             `;
         }
+    }
+
+    // 计算删除线覆盖情况
+    calculateStrikethroughCoverage(borrower) {
+        // 获取该借款人的所有还款记录
+        const borrowerRepayments = this.repayments.filter(repayment => repayment.borrower === borrower);
+        
+        // 获取该借款人的所有借款记录
+        const borrowerLoans = this.loans.filter(l => l.borrower === borrower);
+        
+        // 计算还款分配后的借款状态
+        const loanStatus = this.calculateLoanRepaymentStatus(borrowerLoans, borrowerRepayments);
+        
+        // 统计已还清的借款数量
+        const coveredCount = loanStatus.filter(status => status.isRepaid).length;
+        const coveredAmount = loanStatus
+            .filter(status => status.isRepaid)
+            .reduce((sum, status) => sum + status.amount, 0);
+        
+        return {
+            totalCount: borrowerLoans.length,
+            coveredCount: coveredCount,
+            totalAmount: borrowerLoans.reduce((sum, loan) => sum + loan.amount, 0),
+            coveredAmount: coveredAmount
+        };
     }
 
     // 计算统计数据 - 这是核心的自动计算方法
@@ -157,21 +185,109 @@ class ExpensesManager {
             .filter(repayment => repayment.borrower === borrower)
             .reduce((sum, repayment) => sum + repayment.amount, 0);
         
-        // 计算未归还借款金额（不包括归还记录）
-        const pendingAmount = borrowerLoans
-            .filter(loan => loan.status === 'pending' || loan.status === 'overdue')
-            .reduce((sum, loan) => sum + loan.amount, 0);
+        // 计算所有借款记录的总金额（不管状态）
+        const totalLoanAmount = borrowerLoans.reduce((sum, loan) => sum + loan.amount, 0);
         
-        return { returnedAmount, pendingAmount };
+        // 计算未归还借款金额（总借款金额 - 已还款金额）
+        const pendingAmount = totalLoanAmount - returnedAmount;
+        
+        return { returnedAmount, pendingAmount, totalLoanAmount };
     }
 
-    // 检查是否应该显示删除线（基于归还金额与未归还借款的比较）
+    // 检查是否应该显示删除线（基于借款时间顺序和累加还款金额）
     shouldShowStrikethrough(loan) {
-        // 对于所有借款记录，检查归还金额是否大于未归还借款总和
-        const { returnedAmount, pendingAmount } = this.calculateBorrowerAmounts(loan.borrower);
+        const borrower = loan.borrower;
         
-        // 如果归还金额大于等于未归还借款总和，则显示删除线
-        return returnedAmount >= pendingAmount;
+        // 获取该借款人的所有还款记录
+        const borrowerRepayments = this.repayments.filter(repayment => repayment.borrower === borrower);
+        
+        // 计算该借款人的总还款金额
+        const totalReturnedAmount = borrowerRepayments.reduce((sum, repayment) => sum + repayment.amount, 0);
+        
+        // 获取该借款人的所有借款记录
+        const borrowerLoans = this.loans.filter(l => l.borrower === borrower);
+        
+        // 计算还款分配后的借款状态
+        const loanStatus = this.calculateLoanRepaymentStatus(borrowerLoans, borrowerRepayments);
+        
+        // 查找当前借款的状态
+        const currentLoanStatus = loanStatus.find(status => status.loanId === loan.id);
+        
+        // 如果找到了状态且已还清，则显示删除线
+        return currentLoanStatus ? currentLoanStatus.isRepaid : false;
+    }
+
+    // 计算借款还款状态（支持指定ID优先匹配）
+    calculateLoanRepaymentStatus(borrowerLoans, borrowerRepayments) {
+        const loanStatus = borrowerLoans.map(loan => ({
+            loanId: loan.id,
+            amount: loan.amount,
+            date: loan.date,
+            isRepaid: false,
+            repaidAmount: 0
+        }));
+        
+        let remainingRepaymentAmount = borrowerRepayments.reduce((sum, repayment) => sum + repayment.amount, 0);
+        
+        // 处理每个还款记录
+        for (const repayment of borrowerRepayments) {
+            if (remainingRepaymentAmount <= 0) break;
+            
+            let currentRepaymentAmount = repayment.amount;
+            
+            // 如果指定了目标借款ID，按指定顺序还款
+            if (repayment.targetLoanIds && repayment.targetLoanIds.length > 0) {
+                // 按指定ID顺序还款
+                for (const targetId of repayment.targetLoanIds) {
+                    if (currentRepaymentAmount <= 0) break;
+                    
+                    const loanStatusItem = loanStatus.find(status => status.loanId === targetId);
+                    if (loanStatusItem && !loanStatusItem.isRepaid) {
+                        const needToRepay = loanStatusItem.amount - loanStatusItem.repaidAmount;
+                        const canRepay = Math.min(currentRepaymentAmount, needToRepay);
+                        
+                        loanStatusItem.repaidAmount += canRepay;
+                        currentRepaymentAmount -= canRepay;
+                        remainingRepaymentAmount -= canRepay;
+                        
+                        // 如果已还清，标记为已还款
+                        if (loanStatusItem.repaidAmount >= loanStatusItem.amount) {
+                            loanStatusItem.isRepaid = true;
+                        }
+                    }
+                }
+            }
+            
+            // 如果还有剩余还款金额，按时间顺序还款其他借款
+            if (currentRepaymentAmount > 0) {
+                // 按时间排序（最早的在前）
+                const sortedLoanStatus = loanStatus
+                    .filter(status => !status.isRepaid)
+                    .sort((a, b) => {
+                        const dateA = a.date === '-' ? '1900-01-01' : a.date;
+                        const dateB = b.date === '-' ? '1900-01-01' : b.date;
+                        return new Date(dateA) - new Date(dateB);
+                    });
+                
+                for (const loanStatusItem of sortedLoanStatus) {
+                    if (currentRepaymentAmount <= 0) break;
+                    
+                    const needToRepay = loanStatusItem.amount - loanStatusItem.repaidAmount;
+                    const canRepay = Math.min(currentRepaymentAmount, needToRepay);
+                    
+                    loanStatusItem.repaidAmount += canRepay;
+                    currentRepaymentAmount -= canRepay;
+                    remainingRepaymentAmount -= canRepay;
+                    
+                    // 如果已还清，标记为已还款
+                    if (loanStatusItem.repaidAmount >= loanStatusItem.amount) {
+                        loanStatusItem.isRepaid = true;
+                    }
+                }
+            }
+        }
+        
+        return loanStatus;
     }
 
     // 获取过滤后的借款记录
@@ -327,6 +443,9 @@ class ExpensesManager {
         // 凭证显示
         const voucherCell = this.createVoucherCell(repayment);
 
+        // 计算还款状态和进度
+        const repaymentStatus = this.calculateRepaymentStatus(repayment);
+        
         return `
             <tr class="repayment-row">
                 <td>${this.formatDate(repayment.date)}</td>
@@ -337,13 +456,120 @@ class ExpensesManager {
                 <td>${repayment.purpose}</td>
                 <td>-</td>
                 <td>
-                    <span class="status-badge returned">
-                        ✅ 已还款
-                    </span>
+                    <div class="repayment-status-container">
+                        <span class="status-badge returned">
+                            ${repaymentStatus.icon} ${repaymentStatus.text}
+                        </span>
+                        ${repaymentStatus.progress ? `
+                            <div class="repayment-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: ${repaymentStatus.progress}%"></div>
+                                </div>
+                                <span class="progress-text">${repaymentStatus.progress}%</span>
+                            </div>
+                        ` : ''}
+                        ${repaymentStatus.type ? `
+                            <span class="repayment-type-badge ${repaymentStatus.type}">
+                                ${repaymentStatus.typeIcon} ${repaymentStatus.typeText}
+                            </span>
+                        ` : ''}
+                        ${repaymentStatus.targetInfo ? `
+                            <span class="repayment-target-badge">
+                                🎯 指定还款 ${repaymentStatus.targetInfo.count} 笔借款 (¥${repaymentStatus.targetInfo.amount})
+                            </span>
+                        ` : ''}
+                    </div>
                 </td>
                 <td class="voucher-cell">${voucherCell}</td>
             </tr>
         `;
+    }
+
+    // 计算还款状态和进度
+    calculateRepaymentStatus(repayment) {
+        // 基础状态
+        const baseStatus = {
+            icon: '✅',
+            text: '已还款',
+            progress: null,
+            type: null,
+            typeIcon: '',
+            typeText: '',
+            targetInfo: null // 新增：指定借款信息
+        };
+
+        // 计算该借款人的总借款金额
+        const totalLoanAmount = this.loans
+            .filter(loan => loan.borrower === repayment.borrower)
+            .reduce((sum, loan) => sum + loan.amount, 0);
+
+        // 计算该借款人的累计还款金额（包括当前还款）
+        const totalRepaymentAmount = this.repayments
+            .filter(r => r.borrower === repayment.borrower)
+            .reduce((sum, r) => sum + r.amount, 0);
+
+        // 计算还款进度
+        if (totalLoanAmount > 0) {
+            const progress = Math.min(100, Math.round((totalRepaymentAmount / totalLoanAmount) * 100));
+            baseStatus.progress = progress;
+        }
+
+        // 处理指定借款ID信息
+        if (repayment.targetLoanIds && repayment.targetLoanIds.length > 0) {
+            const targetLoans = repayment.targetLoanIds
+                .map(id => this.loans.find(loan => loan.id === id))
+                .filter(loan => loan && loan.borrower === repayment.borrower);
+            
+            if (targetLoans.length > 0) {
+                const targetAmount = targetLoans.reduce((sum, loan) => sum + loan.amount, 0);
+                baseStatus.targetInfo = {
+                    count: targetLoans.length,
+                    amount: targetAmount,
+                    loans: targetLoans
+                };
+            }
+        }
+
+        // 判断还款类型
+        if (repayment.amount >= totalLoanAmount) {
+            // 一次性还清
+            baseStatus.type = 'full';
+            baseStatus.typeIcon = '🎯';
+            baseStatus.typeText = '全额还款';
+        } else if (totalRepaymentAmount >= totalLoanAmount) {
+            // 累计还清
+            baseStatus.type = 'complete';
+            baseStatus.typeIcon = '🎉';
+            baseStatus.typeText = '累计还清';
+        } else if (repayment.amount >= totalLoanAmount * 0.5) {
+            // 大额还款
+            baseStatus.type = 'large';
+            baseStatus.typeIcon = '💰';
+            baseStatus.typeText = '大额还款';
+        } else if (repayment.amount >= totalLoanAmount * 0.2) {
+            // 中额还款
+            baseStatus.type = 'medium';
+            baseStatus.typeIcon = '💳';
+            baseStatus.typeText = '中额还款';
+        } else {
+            // 小额还款
+            baseStatus.type = 'small';
+            baseStatus.typeIcon = '💸';
+            baseStatus.typeText = '小额还款';
+        }
+
+        // 特殊状态：首笔还款
+        const isFirstRepayment = this.repayments
+            .filter(r => r.borrower === repayment.borrower)
+            .sort((a, b) => new Date(a.date) - new Date(b.date))[0]?.id === repayment.id;
+        
+        if (isFirstRepayment) {
+            baseStatus.type = 'first';
+            baseStatus.typeIcon = '🎊';
+            baseStatus.typeText = '首笔还款';
+        }
+
+        return baseStatus;
     }
 
     // 创建凭证单元格
@@ -461,8 +687,6 @@ class ExpensesManager {
             // 认证失败或取消，不需要额外处理
         });
     }
-
-
 
     // 解密并显示凭证
     async decryptAndShowVoucher(voucherFilename, author, title, description) {
@@ -726,7 +950,7 @@ class ExpensesManager {
         });
     }
 
-        // 刷新数据
+    // 刷新数据
     refreshData() {
         // 重新获取数据
         window.EXPENSES_DATA = getExpensesData();

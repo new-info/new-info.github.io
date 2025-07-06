@@ -2681,6 +2681,139 @@ body {
     font-weight: 600;
 }
 
+/* 还款状态容器 */
+.repayment-status-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+}
+
+/* 还款进度条 */
+.repayment-progress {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    max-width: 120px;
+}
+
+.progress-bar {
+    flex: 1;
+    height: 6px;
+    background: rgba(40, 167, 69, 0.2);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--reward-green), #34d058);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+    position: relative;
+}
+
+.progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.progress-text {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--reward-green);
+    min-width: 30px;
+    text-align: right;
+}
+
+/* 还款类型徽章 */
+.repayment-type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+
+.repayment-type-badge.first {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+    color: white;
+    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+}
+
+.repayment-type-badge.full {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+.repayment-type-badge.complete {
+    background: linear-gradient(135deg, #17a2b8, #20c997);
+    color: white;
+    box-shadow: 0 2px 8px rgba(23, 162, 184, 0.3);
+}
+
+.repayment-type-badge.large {
+    background: linear-gradient(135deg, #fd7e14, #ffc107);
+    color: white;
+    box-shadow: 0 2px 8px rgba(253, 126, 20, 0.3);
+}
+
+.repayment-type-badge.medium {
+    background: linear-gradient(135deg, #6f42c1, #e83e8c);
+    color: white;
+    box-shadow: 0 2px 8px rgba(111, 66, 193, 0.3);
+}
+
+.repayment-type-badge.small {
+    background: linear-gradient(135deg, #6c757d, #adb5bd);
+    color: white;
+    box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
+}
+
+.repayment-type-badge:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* 指定还款徽章 */
+.repayment-target-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    background: linear-gradient(135deg, #17a2b8, #20c997);
+    color: white;
+    box-shadow: 0 2px 8px rgba(23, 162, 184, 0.3);
+    transition: all 0.3s ease;
+}
+
+.repayment-target-badge:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(23, 162, 184, 0.4);
+}
+
 /* 凭证相关样式 */
 .voucher-preview {
     width: 40px;
@@ -2771,6 +2904,37 @@ body {
         height: 35px;
         font-size: 0.7rem;
     }
+
+    /* 移动端还款状态样式 */
+    .repayment-status-container {
+        gap: 6px;
+    }
+
+    .repayment-progress {
+        max-width: 100px;
+        gap: 6px;
+    }
+
+    .progress-bar {
+        height: 5px;
+    }
+
+    .progress-text {
+        font-size: 10px;
+        min-width: 25px;
+    }
+
+    .repayment-type-badge {
+        padding: 3px 6px;
+        font-size: 10px;
+        border-radius: 10px;
+    }
+
+    .repayment-target-badge {
+        padding: 3px 6px;
+        font-size: 10px;
+        border-radius: 10px;
+    }
 }
 
 /* 暗色主题适配 */
@@ -2816,5 +2980,57 @@ body {
 
     .repayment-row .amount {
         color: #4caf50;
+    }
+
+    /* 暗色模式下的还款状态样式 */
+    .repayment-status-container {
+        gap: 6px;
+    }
+
+    .progress-bar {
+        background: rgba(40, 167, 69, 0.3);
+    }
+
+    .progress-text {
+        color: #4caf50;
+    }
+
+    .repayment-type-badge.first {
+        background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+        box-shadow: 0 2px 8px rgba(255, 107, 107, 0.4);
+    }
+
+    .repayment-type-badge.full {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        box-shadow: 0 2px 8px rgba(40, 167, 69, 0.4);
+    }
+
+    .repayment-type-badge.complete {
+        background: linear-gradient(135deg, #17a2b8, #20c997);
+        box-shadow: 0 2px 8px rgba(23, 162, 184, 0.4);
+    }
+
+    .repayment-type-badge.large {
+        background: linear-gradient(135deg, #fd7e14, #ffc107);
+        box-shadow: 0 2px 8px rgba(253, 126, 20, 0.4);
+    }
+
+    .repayment-type-badge.medium {
+        background: linear-gradient(135deg, #6f42c1, #e83e8c);
+        box-shadow: 0 2px 8px rgba(111, 66, 193, 0.4);
+    }
+
+    .repayment-type-badge.small {
+        background: linear-gradient(135deg, #6c757d, #adb5bd);
+        box-shadow: 0 2px 8px rgba(108, 117, 125, 0.4);
+    }
+
+    .repayment-target-badge {
+        background: linear-gradient(135deg, #17a2b8, #20c997);
+        box-shadow: 0 2px 8px rgba(23, 162, 184, 0.4);
+    }
+
+    .repayment-target-badge:hover {
+        box-shadow: 0 4px 12px rgba(23, 162, 184, 0.5);
     }
 }
