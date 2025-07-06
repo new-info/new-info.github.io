@@ -1,5 +1,5 @@
 // 自动生成的文件列表
-// 最后更新时间: 2025-07-06T14:42:39.323Z
+// 最后更新时间: 2025-07-07T06:20:51.033Z
 
 window.FILES_LIST = {
   "html": [
@@ -10,9 +10,10 @@ window.FILES_LIST = {
     "2025/hjm/2025年6月29日-review.html",
     "2025/hjm/2025年6月29日.html",
     "assets/icons/icon-generator.html",
+    "assets/template/2025年7月6日-review.html",
+    "assets/template/2025年7月6日.html",
     "assets/template/review.html",
     "index.html",
-    "test-image-viewer.html",
     "viewer.html"
   ],
   "css": [
@@ -20,10 +21,12 @@ window.FILES_LIST = {
     "2025/hjf/markdown.css",
     "assets/css/main.css",
     "assets/css/mobile.css",
-    "assets/css/pwa-enhancements.css"
+    "assets/css/pwa-enhancements.css",
+    "assets/css/task-rewards.css"
   ],
   "js": [
     "assets/data/expenses-records.js",
+    "assets/data/task-rewards.js",
     "assets/js/auth-config.js",
     "assets/js/auth-helper.js",
     "assets/js/back-button.js",
@@ -39,6 +42,7 @@ window.FILES_LIST = {
     "assets/js/score-patches.js",
     "assets/js/sw-storage-helper.js",
     "assets/js/sw-updater.js",
+    "assets/js/task-rewards.js",
     "assets/js/unified-notification-manager.js",
     "assets/js/voucher-decryptor.js",
     "sw.js"
@@ -64,7 +68,7 @@ window.FILES_LIST = {
   "other": [
     "manifest.json"
   ],
-  "lastUpdated": "2025-07-06T14:42:39.323Z"
+  "lastUpdated": "2025-07-07T06:20:51.033Z"
 };
 
 // 导出数据供Node.js使用

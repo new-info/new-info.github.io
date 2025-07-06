@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="assets/css/main.css">
     <link rel="stylesheet" href="assets/css/mobile.css">
     <link rel="stylesheet" href="assets/css/pwa-enhancements.css">
+    <link rel="stylesheet" href="assets/css/task-rewards.css">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#26d0ce">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -45,6 +46,7 @@
                     <li><a href="#hjf" class="nav-link">HJF 视频分析</a></li>
                     <li><a href="#hjm" class="nav-link">HJM 视频分析</a></li>
                     <li><a href="#expenses" class="nav-link">生活费用</a></li>
+                    <li><a href="#task-rewards" class="nav-link">任务奖励</a></li>
                 </ul>
             </nav>
         </div>
@@ -315,8 +317,124 @@
             </div>
         </section>
 
+        <section id="task-rewards" class="section">
+            <div class="container">
+                <div class="task-rewards-hero">
+                    <h2>🎯 大学任务奖励系统</h2>
+                    <p>设定目标，完成挑战，获得奖励</p>
+                    <div class="task-rewards-rules">
+                        <span class="rule-icon">💰</span>
+                        <span>完成任务获得奖金（截止日期前有效）</span>
+                    </div>
+                    <div class="task-rewards-rules critical-rules">
+                        <span class="rule-icon">🚨</span>
+                        <span>截止日期前必须完成的任务，完不成将中断“生活费用”和“任务奖励”</span>
+                    </div>
+                </div>
 
+                <!-- 人员统计 -->
+                <div class="analyst-showcase">
+                    <h2 class="showcase-title">任务奖励人员统计</h2>
+                    <div class="analyst-cards">
+                        <div class="analyst-card hjf-card">
+                            <div class="analyst-avatar">
+                                <div class="avatar-circle hjf">HJF</div>
+                            </div>
+                            <div class="analyst-info">
+                                <div class="analyst-stats-grid">
+                                    <div class="mini-stat">
+                                        <span class="label">总任务</span>
+                                        <span class="value" id="task-hjf-total">0</span>
+                                    </div>
+                                    <div class="mini-stat">
+                                        <span class="label">总奖励</span>
+                                        <span class="value" id="task-hjf-total-reward">¥0</span>
+                                    </div>
+                                    <div class="mini-stat">
+                                        <span class="label">已完成</span>
+                                        <span class="value" id="task-hjf-count">0</span>
+                                    </div>
+                                    <div class="mini-stat highlight">
+                                        <span class="label">已领取</span>
+                                        <span class="value" id="task-hjf-reward">¥0</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
+                        <div class="analyst-card hjm-card">
+                            <div class="analyst-avatar">
+                                <div class="avatar-circle hjm">HJM</div>
+                            </div>
+                            <div class="analyst-info">
+                                <div class="analyst-stats-grid">
+                                    <div class="mini-stat">
+                                        <span class="label">总任务</span>
+                                        <span class="value" id="task-hjm-total">0</span>
+                                    </div>
+                                    <div class="mini-stat">
+                                        <span class="label">总奖励</span>
+                                        <span class="value" id="task-hjm-total-reward">¥0</span>
+                                    </div>
+                                    <div class="mini-stat">
+                                        <span class="label">已完成</span>
+                                        <span class="value" id="task-hjm-count">0</span>
+                                    </div>
+                                    <div class="mini-stat highlight">
+                                        <span class="label">已领取</span>
+                                        <span class="value" id="task-hjm-reward">¥0</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 分类统计 -->
+                <div class="category-stats" id="category-stats">
+                    <!-- 分类统计将在这里动态生成 -->
+                </div>
+
+                <!-- 组合奖励已移除 -->
+
+                <!-- 任务过滤和排序 -->
+                <div class="task-controls">
+                    <div class="category-filters" id="category-filters">
+                        <!-- 分类过滤器按钮将在这里动态生成 -->
+                    </div>
+
+                    <div class="task-controls-right">
+                        <div class="priority-filter">
+                            <select id="priority-filter" class="priority-select">
+                                <option value="all">全部优先级</option>
+                                <option value="critical">🚨 必须完成</option>
+                                <option value="high">🔥 高优先级</option>
+                                <option value="medium">⭐ 中优先级</option>
+                                <option value="low">📌 低优先级</option>
+                            </select>
+                        </div>
+
+                        <div class="task-display-controls">
+                            <div class="task-count-badge">
+                                <span id="task-count-number">0</span>
+                                <span class="count-separator">/</span>
+                                <span id="task-count-total">0</span>
+                            </div>
+                            <label class="toggle-switch compact">
+                                <input type="checkbox" id="show-completed-tasks" />
+                                <span class="toggle-slider"></span>
+                                <span class="toggle-label">已完成</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 任务列表 -->
+                <div class="task-rewards-list" id="task-rewards-list">
+                    <!-- 任务卡片将在这里动态生成 -->
+                </div>
+            </div>
+        </section>
 
     </main>
 
@@ -352,8 +470,10 @@
 
     <script src="assets/js/notes-data.js"></script>
     <script src="assets/data/expenses-records.js"></script>
+    <script src="assets/data/task-rewards.js"></script>
     <script src="assets/js/voucher-decryptor.js"></script>
     <script src="assets/js/expenses-data.js"></script>
+    <script src="assets/js/task-rewards.js"></script>
     <script src="assets/js/unified-notification-manager.js"></script>
     <script src="assets/js/score-patches.js"></script>
     <script src="assets/js/files-list.js"></script>
