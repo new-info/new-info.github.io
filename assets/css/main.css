@@ -2550,6 +2550,29 @@ body {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
+/* 锁定状态的凭证样式 */
+.voucher-preview.voucher-locked {
+    opacity: 0.6;
+    border-color: #ff9800;
+    position: relative;
+}
+
+.voucher-preview.voucher-locked::after {
+    content: "🔒";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 14px;
+    color: #ff9800;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.voucher-preview.voucher-locked:hover {
+    border-color: #f57c00;
+    box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+}
+
 .voucher-placeholder {
     width: 40px;
     height: 40px;

@@ -6,7 +6,7 @@ window.EXPENSES_RECORDS = {
     lastUpdated: '2025-01-15T10:30:00.000Z',
     
     // 数据版本号
-    version: '1.1.0', // 版本升级，添加了置顶和凭证功能
+    version: '1.2.0', // 版本升级，使用加密凭证文件
     
     // 借款记录列表
     records: [
@@ -21,7 +21,7 @@ window.EXPENSES_RECORDS = {
             actualReturnDate: '2025-01-25',
             notes: '按时归还',
             pinned: false, // 是否置顶
-            voucher: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80' // 凭证图片URL
+            voucher: 'voucher_20250115_1200.jpg' // 本地凭证文件名
         },
         {
             id: 2,
@@ -34,7 +34,7 @@ window.EXPENSES_RECORDS = {
             actualReturnDate: '2025-01-30',
             notes: '提前归还',
             pinned: false,
-            voucher: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'
+            voucher: 'voucher_20250120_800.png'
         },
         {
             id: 3,
@@ -47,7 +47,7 @@ window.EXPENSES_RECORDS = {
             actualReturnDate: null,
             notes: '按月生活费',
             pinned: true, // 置顶显示
-            voucher: 'https://images.unsplash.com/photo-1556740758-90de374c12ad?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'
+            voucher: 'voucher_20250201_1500.jpg'
         },
         {
             id: 4,
@@ -73,7 +73,7 @@ window.EXPENSES_RECORDS = {
             actualReturnDate: null,
             notes: '学费不足补充',
             pinned: true, // 置顶显示
-            voucher: 'https://images.unsplash.com/photo-1554224154-26032fbed8bd?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'
+            voucher: 'voucher_20250210_2000.jpg'
         },
         {
             id: 6,
@@ -86,7 +86,7 @@ window.EXPENSES_RECORDS = {
             actualReturnDate: null,
             notes: '回家路费',
             pinned: false,
-            voucher: 'https://images.unsplash.com/photo-1544377193-33dcf4d68fb5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'
+            voucher: 'voucher_20250212_300.png'
         },
         {
             id: 7,
@@ -99,7 +99,7 @@ window.EXPENSES_RECORDS = {
             actualReturnDate: '2025-01-18',
             notes: '教材费用',
             pinned: false,
-            voucher: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'
+            voucher: 'voucher_20250110_500.jpg'
         },
         {
             id: 8,
@@ -112,7 +112,7 @@ window.EXPENSES_RECORDS = {
             actualReturnDate: null,
             notes: '逾期未还',
             pinned: true, // 逾期记录置顶显示
-            voucher: null
+            voucher: null // 无凭证
         },
         {
             id: 9,
@@ -125,7 +125,7 @@ window.EXPENSES_RECORDS = {
             actualReturnDate: null,
             notes: '购买学习设备',
             pinned: false,
-            voucher: 'https://images.unsplash.com/photo-1531297484001-80022131f5a1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'
+            voucher: 'voucher_20250214_800.jpg'
         },
         {
             id: 10,
@@ -138,7 +138,7 @@ window.EXPENSES_RECORDS = {
             actualReturnDate: null,
             notes: '看病买药',
             pinned: false,
-            voucher: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'
+            voucher: 'voucher_20250216_400.png'
         }
     ],
     
@@ -158,4 +158,5 @@ window.EXPENSES_RECORDS = {
     
     // 注意：已移除 summary 对象，统计数据现在完全由借款记录自动计算生成
     // 这样可以确保统计数据始终与实际记录保持一致，无需手动维护
+    // v1.2.0: 凭证文件名现在使用本地加密文件，格式：voucher_YYYYMMDD_amount.ext
 }; 

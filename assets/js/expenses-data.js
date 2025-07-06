@@ -202,14 +202,87 @@ class ExpensesManager {
     // 创建凭证单元格
     createVoucherCell(loan) {
         if (loan.voucher) {
-            return `
-                <img src="${loan.voucher}" 
-                     alt="借款凭证" 
-                     class="voucher-preview" 
-                     onclick="expensesManager.showImageViewer('${loan.voucher}', '${loan.purpose}', '${loan.borrower.toUpperCase()} - ¥${loan.amount}')">
-            `;
+            // 检查用户是否已认证
+            const isAuthenticated = window.VoucherDecryptor && window.VoucherDecryptor.isAuthenticated(loan.borrower);
+            
+            if (isAuthenticated) {
+                // 已认证，显示可点击的占位图片
+                return `
+                    <img src="${window.VoucherDecryptor ? window.VoucherDecryptor.getPlaceholderImageUrl() : 'vouchers/placeholder.svg'}" 
+                         alt="点击查看凭证" 
+                         class="voucher-preview" 
+                         title="点击查看凭证详情"
+                         onclick="expensesManager.showVoucherWithAuth('${loan.voucher}', '${loan.borrower}', '${loan.purpose}', '${loan.borrower.toUpperCase()} - ¥${loan.amount}')">
+                `;
+            } else {
+                // 未认证，显示锁定状态的占位图片
+                return `
+                    <img src="${window.VoucherDecryptor ? window.VoucherDecryptor.getPlaceholderImageUrl() : 'vouchers/placeholder.svg'}" 
+                         alt="需要验证查看" 
+                         class="voucher-preview voucher-locked" 
+                         title="需要密码验证才能查看凭证"
+                         onclick="expensesManager.showVoucherWithAuth('${loan.voucher}', '${loan.borrower}', '${loan.purpose}', '${loan.borrower.toUpperCase()} - ¥${loan.amount}')">
+                `;
+            }
         } else {
             return '<div class="voucher-placeholder">无</div>';
+        }
+    }
+
+    // 显示凭证（带认证检查）
+    showVoucherWithAuth(voucherFilename, author, title, description) {
+        // 检查是否支持WebCrypto API
+        if (!window.VoucherDecryptor || !window.VoucherDecryptor.isWebCryptoSupported()) {
+            alert('您的浏览器不支持加密功能，无法查看凭证');
+            return;
+        }
+
+        // 检查用户是否已认证
+        if (!window.VoucherDecryptor.isAuthenticated(author)) {
+            // 未认证，显示密码输入框
+            if (window.AuthHelper) {
+                window.AuthHelper.showPasswordPrompt(author, (success) => {
+                    if (success) {
+                        // 认证成功，重新尝试显示凭证
+                        this.showVoucherWithAuth(voucherFilename, author, title, description);
+                    }
+                });
+            } else {
+                alert('认证系统未加载，无法验证身份');
+            }
+            return;
+        }
+
+        // 已认证，解密并显示凭证
+        this.decryptAndShowVoucher(voucherFilename, author, title, description);
+    }
+
+    // 解密并显示凭证
+    async decryptAndShowVoucher(voucherFilename, author, title, description) {
+        try {
+            // 显示加载提示
+            this.showImageViewer('vouchers/placeholder.svg', '正在解密...', '请稍候，正在解密凭证图片');
+
+            // 构建加密文件URL
+            const encryptedUrl = window.VoucherDecryptor.buildEncryptedUrl(voucherFilename, author);
+            
+            // 解密图片
+            const decryptedImageUrl = await window.VoucherDecryptor.decryptVoucherImage(encryptedUrl, author);
+            
+            // 显示解密后的图片
+            this.showImageViewer(decryptedImageUrl, title || '凭证详情', description || '借款凭证');
+            
+        } catch (error) {
+            console.error('凭证解密失败:', error);
+            
+            // 根据错误类型显示不同的提示
+            if (error.message.includes('404') || error.message.includes('下载失败')) {
+                this.showImageViewer('vouchers/placeholder.svg', '凭证不存在', '该借款记录的凭证文件不存在或已被删除');
+            } else if (error.message.includes('解密失败') || error.message.includes('认证')) {
+                this.showImageViewer('vouchers/placeholder.svg', '解密失败', '凭证解密失败，可能是密码错误或文件损坏');
+            } else {
+                this.showImageViewer('vouchers/placeholder.svg', '加载失败', '凭证加载失败：' + error.message);
+            }
         }
     }
 
@@ -236,6 +309,12 @@ class ExpensesManager {
         if (modal) {
             modal.classList.remove('active');
             document.body.style.overflow = ''; // 恢复滚动
+            
+            // 如果显示的是解密后的blob URL，释放它
+            const img = document.getElementById('image-viewer-img');
+            if (img && img.src && img.src.startsWith('blob:')) {
+                URL.revokeObjectURL(img.src);
+            }
         }
     }
 

@@ -1,0 +1,7 @@
+# 忽略原图文件夹，只保留加密后的文件
+hjf/
+hjm/
+
+# 保留文件夹结构
+!hjf/.gitkeep
+!hjm/.gitkeep

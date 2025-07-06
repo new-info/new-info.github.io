@@ -232,12 +232,13 @@
     }
 
     // 设置认证状态
-    function setAuthenticated(author) {
+    function setAuthenticated(author, password = null) {
         try {
             const authStatus = JSON.parse(localStorage.getItem(AUTH_STORAGE_KEY) || '{}');
 
             authStatus[author] = {
-                authenticated: true
+                authenticated: true,
+                password: password // 存储密码用于凭证解密
             };
 
             localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(authStatus));
@@ -506,7 +507,7 @@
             if (verifyPassword(author, password)) {
                 // 验证成功，存储密码前三位
                 storePasswordPrefix(password);
-                setAuthenticated(author);
+                setAuthenticated(author, password); // 存储完整密码用于凭证解密
                 cleanupModal();
                 callback(true);
                 return;
@@ -522,7 +523,7 @@
                     const otherAuthor = author === 'hjf' ? 'hjm' : 'hjf';
                     if (verifyPassword(otherAuthor, password)) {
                         storePasswordPrefix(password);
-                        setAuthenticated(otherAuthor);
+                        setAuthenticated(otherAuthor, password); // 存储完整密码用于凭证解密
                         cleanupModal();
                         callback(true);
                         return;
@@ -537,7 +538,7 @@
                     // 如果当前用户是数据量少的，尝试数据量多的用户密码
                     if (author === higherDataAuthor && verifyPassword(lowerDataAuthor, password)) {
                         storePasswordPrefix(password);
-                        setAuthenticated(lowerDataAuthor);
+                        setAuthenticated(lowerDataAuthor, password); // 存储完整密码用于凭证解密
                         cleanupModal();
                         callback(true);
                         return;
@@ -546,7 +547,7 @@
                     // 如果当前用户是数据量多的，尝试数据量少的用户密码
                     if (author === lowerDataAuthor && verifyPassword(higherDataAuthor, password)) {
                         storePasswordPrefix(password);
-                        setAuthenticated(higherDataAuthor);
+                        setAuthenticated(higherDataAuthor, password); // 存储完整密码用于凭证解密
                         cleanupModal();
                         callback(true);
                         return;
