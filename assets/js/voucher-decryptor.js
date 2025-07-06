@@ -300,6 +300,34 @@
     // 页面卸载时清理缓存
     window.addEventListener('beforeunload', clearImageCache);
 
+    /**
+     * 验证密码（复用首页的验证逻辑）
+     * @param {string} author - 作者(hjf/hjm)
+     * @param {string} password - 密码
+     * @returns {boolean} 验证结果
+     */
+    function authenticate(author, password) {
+        if (!window.AuthHelper || !window.AuthHelper.verifyPassword) {
+            console.error('AuthHelper未加载或缺少verifyPassword方法');
+            return false;
+        }
+        
+        // 使用AuthHelper的验证逻辑
+        const isValid = window.AuthHelper.verifyPassword(author, password);
+        
+        if (isValid) {
+            // 验证成功，设置认证状态
+            if (window.AuthHelper.setAuthenticated) {
+                window.AuthHelper.setAuthenticated(author, password);
+            }
+            console.log(`✅ ${author} 密码验证成功`);
+        } else {
+            console.log(`❌ ${author} 密码验证失败`);
+        }
+        
+        return isValid;
+    }
+
     // 导出到全局
     window.VoucherDecryptor = {
         decryptVoucherImage: decryptVoucherImageWithCache,
@@ -309,6 +337,7 @@
         isWebCryptoSupported,
         getPlaceholderImageUrl,
         buildEncryptedUrl,
+        authenticate, // 添加authenticate方法
         
         // 工具方法
         isAuthenticated: (author) => {

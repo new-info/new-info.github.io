@@ -273,11 +273,21 @@
                 <!-- 借款记录表格 -->
                 <div class="expenses-table-section">
                     <h2 class="section-title">借款记录详情</h2>
-                    <div class="table-tabs">
-                        <button class="table-tab active" data-tab="all">全部记录</button>
-                        <button class="table-tab" data-tab="hjf">HJF 借款</button>
-                        <button class="table-tab" data-tab="hjm">HJM 借款</button>
-                        <button class="table-tab" data-tab="pending">待归还</button>
+                    <div class="table-controls">
+                        <div class="table-tabs">
+                            <button class="table-tab active" data-tab="all">全部记录</button>
+                            <button class="table-tab" data-tab="hjf">HJF 借款</button>
+                            <button class="table-tab" data-tab="hjm">HJM 借款</button>
+                            <button class="table-tab" data-tab="pending">待归还</button>
+                            <button class="table-tab" data-tab="repayments">还款记录</button>
+                        </div>
+                        <button id="strikethrough-toggle" class="strikethrough-toggle">
+                            显示删除线
+                        </button>
+                    </div>
+                    <!-- 删除线提示信息 -->
+                    <div id="strikethrough-hint" class="strikethrough-hint" style="display: none;">
+                        <!-- 提示信息将在这里动态生成 -->
                     </div>
                     <div class="table-container">
                         <table class="expenses-table">

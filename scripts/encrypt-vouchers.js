@@ -52,13 +52,57 @@ function ensureDirectoryExists(dirPath) {
 }
 
 /**
+ * 检查文件是否需要重新加密
+ * @param {string} inputPath - 输入文件路径
+ * @param {string} outputPath - 输出文件路径
+ * @returns {boolean} 是否需要重新加密
+ */
+function needsReencryption(inputPath, outputPath) {
+    try {
+        // 检查源文件是否存在
+        if (!fs.existsSync(inputPath)) {
+            console.log(`⚠️  源文件不存在: ${inputPath}`);
+            return false;
+        }
+
+        // 检查目标文件是否存在
+        if (!fs.existsSync(outputPath)) {
+            console.log(`📝 目标文件不存在，需要加密: ${outputPath}`);
+            return true;
+        }
+
+        // 获取文件修改时间
+        const inputStats = fs.statSync(inputPath);
+        const outputStats = fs.statSync(outputPath);
+
+        // 比较修改时间
+        if (inputStats.mtime > outputStats.mtime) {
+            console.log(`📝 源文件已更新，需要重新加密: ${inputPath}`);
+            return true;
+        }
+
+        console.log(`✅ 文件已是最新，跳过加密: ${inputPath}`);
+        return false;
+    } catch (error) {
+        console.error(`❌ 检查文件状态失败: ${error.message}`);
+        return true; // 出错时默认需要加密
+    }
+}
+
+/**
  * 处理单个图片文件的加密
  * @param {string} inputPath - 输入文件路径
  * @param {string} outputPath - 输出文件路径
  * @param {string} key - 加密密钥
+ * @param {boolean} forceReencrypt - 是否强制重新加密
  */
-function encryptImageFile(inputPath, outputPath, key) {
+function encryptImageFile(inputPath, outputPath, key, forceReencrypt = false) {
     try {
+        // 检查是否需要重新加密
+        if (!forceReencrypt && !needsReencryption(inputPath, outputPath)) {
+            return 'skipped';
+        }
+
         // 读取原始图片数据
         const imageData = fs.readFileSync(inputPath);
         console.log(`📁 读取文件: ${inputPath} (${imageData.length} bytes)`);
@@ -71,30 +115,32 @@ function encryptImageFile(inputPath, outputPath, key) {
         fs.writeFileSync(outputPath, encryptedData);
         console.log(`💾 保存加密文件: ${outputPath}`);
         
-        return true;
+        return 'success';
     } catch (error) {
         console.error(`❌ 加密文件失败 ${inputPath}:`, error.message);
-        return false;
+        return 'failed';
     }
 }
 
 /**
  * 处理指定用户的vouchers文件夹
  * @param {string} author - 用户名(hjf/hjm)
+ * @param {boolean} forceReencrypt - 是否强制重新加密
  */
-function processAuthorVouchers(author) {
+function processAuthorVouchers(author, forceReencrypt = false) {
     const sourceDir = path.join(__dirname, '..', 'vouchers', author);
     const encryptedDir = path.join(__dirname, '..', 'assets', 'vouchers', author);
     
     console.log(`\n🔄 处理 ${author.toUpperCase()} 的凭证文件...`);
     console.log(`📂 源目录: ${sourceDir}`);
     console.log(`🔐 输出目录: ${encryptedDir}`);
+    console.log(`🔧 强制重新加密: ${forceReencrypt ? '是' : '否'}`);
     
     // 检查源目录是否存在
     if (!fs.existsSync(sourceDir)) {
         console.log(`⚠️  源目录不存在: ${sourceDir}`);
         console.log(`ℹ️  跳过 ${author} 的处理`);
-        return;
+        return { success: 0, failed: 0, skipped: 0 };
     }
     
     // 确保输出目录存在
@@ -104,7 +150,7 @@ function processAuthorVouchers(author) {
     const encryptKey = ENCRYPT_KEYS[author];
     if (!encryptKey) {
         console.error(`❌ 未找到 ${author} 的加密密钥`);
-        return;
+        return { success: 0, failed: 0, skipped: 0 };
     }
     
     // 读取源目录中的所有文件
@@ -118,11 +164,12 @@ function processAuthorVouchers(author) {
     
     if (imageFiles.length === 0) {
         console.log(`ℹ️  ${author} 目录中没有可处理的图片文件`);
-        return;
+        return { success: 0, failed: 0, skipped: 0 };
     }
     
     let successCount = 0;
     let failCount = 0;
+    let skipCount = 0;
     
     // 处理每个图片文件
     imageFiles.forEach((filename, index) => {
@@ -132,17 +179,22 @@ function processAuthorVouchers(author) {
         
         console.log(`\n[${index + 1}/${imageFiles.length}] 处理: ${filename}`);
         
-        const success = encryptImageFile(inputPath, outputPath, encryptKey);
-        if (success) {
+        const result = encryptImageFile(inputPath, outputPath, encryptKey, forceReencrypt);
+        if (result === 'success') {
             successCount++;
-        } else {
+        } else if (result === 'failed') {
             failCount++;
+        } else if (result === 'skipped') {
+            skipCount++;
         }
     });
     
     console.log(`\n✅ ${author.toUpperCase()} 处理完成:`);
     console.log(`   成功: ${successCount} 个文件`);
     console.log(`   失败: ${failCount} 个文件`);
+    console.log(`   跳过: ${skipCount} 个文件`);
+    
+    return { success: successCount, failed: failCount, skipped: skipCount };
 }
 
 /**
@@ -287,6 +339,7 @@ function main() {
     const args = process.argv.slice(2);
     const setupOnly = args.includes('--setup-only');
     const statusOnly = args.includes('--status');
+    const forceReencrypt = args.includes('--force');
 
     if (statusOnly) {
         showStatus();
@@ -309,15 +362,31 @@ function main() {
         }
         
         // 处理各用户的凭证文件
-        processAuthorVouchers('hjf');
-        processAuthorVouchers('hjm');
+        const hjfResult = processAuthorVouchers('hjf', forceReencrypt);
+        const hjmResult = processAuthorVouchers('hjm', forceReencrypt);
+        
+        // 统计总体结果
+        const totalSuccess = hjfResult.success + hjmResult.success;
+        const totalFailed = hjfResult.failed + hjmResult.failed;
+        const totalSkipped = hjfResult.skipped + hjmResult.skipped;
         
         console.log('\n🎉 凭证文件加密处理完成！');
+        console.log('\n📊 总体统计:');
+        console.log(`   成功: ${totalSuccess} 个文件`);
+        console.log(`   失败: ${totalFailed} 个文件`);
+        console.log(`   跳过: ${totalSkipped} 个文件`);
+        
+        if (totalSkipped > 0) {
+            console.log('\n💡 提示: 跳过的文件表示源文件未更新，无需重新加密');
+            console.log('   如需强制重新加密所有文件，请使用 --force 参数');
+        }
+        
         console.log('\n📖 使用说明：');
         console.log('1. 将凭证图片放入对应的用户文件夹 (vouchers/hjf/, vouchers/hjm/)');
-        console.log('2. 运行此脚本进行加密');
-        console.log('3. 加密后的文件会保存在 vouchers/encrypted/ 文件夹中');
+        console.log('2. 运行此脚本进行加密（支持增量加密）');
+        console.log('3. 加密后的文件会保存在 assets/vouchers/ 文件夹中');
         console.log('4. 前端会自动使用加密后的文件，并在用户验证密码后解密显示');
+        console.log('5. 使用 --force 参数可强制重新加密所有文件');
         
     } catch (error) {
         console.error('❌ 处理过程中出现错误:', error);
@@ -388,9 +457,10 @@ function showStatus() {
     });
     
     console.log('\n💡 快速命令:');
-    console.log('   npm run vouchers:setup   - 初始化文件夹结构');
-    console.log('   npm run vouchers:encrypt - 加密所有图片');
-    console.log('   npm run vouchers:help    - 显示帮助信息');
+    console.log('   npm run vouchers:setup        - 初始化文件夹结构');
+    console.log('   npm run vouchers:encrypt      - 增量加密图片（仅加密新文件或已修改的文件）');
+    console.log('   npm run vouchers:encrypt:force - 强制重新加密所有图片');
+    console.log('   npm run vouchers:help         - 显示帮助信息');
 }
 
 // 如果直接运行此脚本

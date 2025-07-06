@@ -1,5 +1,5 @@
 // 自动生成的文件列表
-// 最后更新时间: 2025-06-30T18:48:00.772Z
+// 最后更新时间: 2025-07-06T14:42:39.323Z
 
 window.FILES_LIST = {
   "html": [
@@ -12,6 +12,7 @@ window.FILES_LIST = {
     "assets/icons/icon-generator.html",
     "assets/template/review.html",
     "index.html",
+    "test-image-viewer.html",
     "viewer.html"
   ],
   "css": [
@@ -22,9 +23,11 @@ window.FILES_LIST = {
     "assets/css/pwa-enhancements.css"
   ],
   "js": [
+    "assets/data/expenses-records.js",
     "assets/js/auth-config.js",
     "assets/js/auth-helper.js",
     "assets/js/back-button.js",
+    "assets/js/expenses-data.js",
     "assets/js/file-monitor.js",
     "assets/js/files-list.js",
     "assets/js/main.js",
@@ -37,6 +40,7 @@ window.FILES_LIST = {
     "assets/js/sw-storage-helper.js",
     "assets/js/sw-updater.js",
     "assets/js/unified-notification-manager.js",
+    "assets/js/voucher-decryptor.js",
     "sw.js"
   ],
   "images": [
@@ -60,7 +64,7 @@ window.FILES_LIST = {
   "other": [
     "manifest.json"
   ],
-  "lastUpdated": "2025-06-30T18:48:00.772Z"
+  "lastUpdated": "2025-07-06T14:42:39.323Z"
 };
 
 // 导出数据供Node.js使用

@@ -20,7 +20,9 @@ class FileScanner {
             'dist',
             '.idea',
             'wasm',
-            'scripts'
+            'scripts',
+            'vouchers',
+            'assets/vouchers'
         ];
 
         // 忽略的文件名和扩展名
@@ -28,6 +30,7 @@ class FileScanner {
             '.gitignore',
             '.gitattributes',
             '.env',
+            '.gitkeep',
             '.DS_Store',
             '.gitlab-ci.yml',
             '.env.local',
@@ -65,7 +68,18 @@ class FileScanner {
 
                 // 忽略特定目录
                 if (entry.isDirectory()) {
-                    if (!this.ignoreDirs.includes(entry.name)) {
+                    // 检查完整路径是否在忽略列表中
+                    const shouldIgnore = this.ignoreDirs.some(ignoreDir => {
+                        if (ignoreDir.includes('/')) {
+                            // 对于路径形式的忽略目录，检查相对路径是否匹配
+                            return relativePath === ignoreDir || relativePath.startsWith(ignoreDir + '/');
+                        } else {
+                            // 对于简单目录名，只检查当前目录名
+                            return entry.name === ignoreDir;
+                        }
+                    });
+
+                    if (!shouldIgnore) {
                         this.scanDirectory(fullPath);
                     }
                     continue;

@@ -3,143 +3,65 @@
 
 window.EXPENSES_RECORDS = {
     // 数据最后更新时间
-    lastUpdated: '2025-01-15T10:30:00.000Z',
+    lastUpdated: '2025-01-20T15:45:00.000Z',
 
     // 数据版本号
-    version: '1.2.0', // 版本升级，使用加密凭证文件
+    version: '1.3.0', // 版本升级，新增归还记录和智能删除线逻辑
 
     // 借款记录列表
     records: [
         {
             id: 1,
-            date: '2025-01-15',
+            date: '-',
             borrower: 'hjf',
-            amount: 1200,
-            purpose: '生活费',
+            amount: 1000,
+            purpose: '智能手表',
             returnDate: '2025-01-25',
             status: 'returned', // returned, pending, overdue
             actualReturnDate: '2025-01-25',
-            notes: '按时归还',
-            pinned: false, // 是否置顶
-            voucher: 'xiazai.jpeg' // 本地凭证文件名
+            notes: '父母借款',
+            pinned: true, // 是否置顶
+            voucher: null // 本地凭证文件名
         },
         {
             id: 2,
-            date: '2025-01-20',
-            borrower: 'hjm',
-            amount: 800,
-            purpose: '学习用品',
-            returnDate: '2025-02-01',
-            status: 'returned',
-            actualReturnDate: '2025-01-30',
-            notes: '提前归还',
-            pinned: false,
-            voucher: 'xiazai.jpeg'
+            date: '2025-01-15',
+            borrower: 'hjf',
+            amount: 1000,
+            purpose: '借款',
+            returnDate: '-',
+            status: 'returned', // returned, pending, overdue
+            actualReturnDate: '2025-09-01',
+            notes: '',
+            pinned: true, // 是否置顶
+            voucher: '2025-07-06 21.58.19.jpg' // 本地凭证文件名
         },
         {
             id: 3,
-            date: '2025-02-01',
+            date: '2025-01-15',
             borrower: 'hjf',
-            amount: 1500,
-            purpose: '生活费',
-            returnDate: '2025-02-15',
-            status: 'pending',
-            actualReturnDate: null,
-            notes: '按月生活费',
-            pinned: true, // 置顶显示
-            voucher: 'xiazai.jpeg'
-        },
-        {
-            id: 4,
-            date: '2025-02-05',
-            borrower: 'hjm',
-            amount: 600,
-            purpose: '餐费',
-            returnDate: '2025-02-20',
-            status: 'pending',
-            actualReturnDate: null,
-            notes: '食堂充值',
-            pinned: false,
-            voucher: null // 无凭证
-        },
-        {
-            id: 5,
-            date: '2025-02-10',
-            borrower: 'hjf',
-            amount: 2000,
-            purpose: '学费补充',
-            returnDate: '2025-02-25',
-            status: 'pending',
-            actualReturnDate: null,
-            notes: '学费不足补充',
-            pinned: true, // 置顶显示
-            voucher: 'xiazai.jpeg'
-        },
-        {
-            id: 6,
-            date: '2025-02-12',
-            borrower: 'hjm',
-            amount: 300,
-            purpose: '交通费',
-            returnDate: '2025-02-28',
-            status: 'pending',
-            actualReturnDate: null,
-            notes: '回家路费',
-            pinned: false,
-            voucher: 'voucher_20250212_300.png'
-        },
-        {
-            id: 7,
-            date: '2025-01-10',
-            borrower: 'hjf',
-            amount: 500,
-            purpose: '书本费',
-            returnDate: '2025-01-20',
-            status: 'returned',
-            actualReturnDate: '2025-01-18',
-            notes: '教材费用',
-            pinned: false,
-            voucher: 'voucher_20250110_500.jpg'
-        },
-        {
-            id: 8,
-            date: '2025-01-28',
-            borrower: 'hjm',
             amount: 1000,
-            purpose: '生活费',
-            returnDate: '2025-02-10',
-            status: 'overdue',
-            actualReturnDate: null,
-            notes: '逾期未还',
-            pinned: true, // 逾期记录置顶显示
-            voucher: null // 无凭证
+            purpose: '借款',
+            returnDate: '-',
+            status: 'returned', // returned, pending, overdue
+            actualReturnDate: '2025-09-01',
+            notes: '',
+            pinned: true, // 是否置顶
+            voucher: '2025-07-06 21.58.19.jpg' // 本地凭证文件名
         },
+    ],
+
+    // 还款记录列表 - 独立管理
+    repayments: [
         {
-            id: 9,
-            date: '2025-02-14',
+            id: 1,
+            date: '2025-01-25',
             borrower: 'hjf',
-            amount: 800,
-            purpose: '电子设备',
-            returnDate: '2025-03-01',
-            status: 'pending',
-            actualReturnDate: null,
-            notes: '购买学习设备',
-            pinned: false,
-            voucher: 'voucher_20250214_800.jpg'
+            amount: 1800,
+            purpose: '智能手表还款',
+            notes: '归还1月份生活费',
+            voucher: null
         },
-        {
-            id: 10,
-            date: '2025-02-16',
-            borrower: 'hjm',
-            amount: 400,
-            purpose: '医疗费',
-            returnDate: '2025-03-05',
-            status: 'pending',
-            actualReturnDate: null,
-            notes: '看病买药',
-            pinned: false,
-            voucher: 'voucher_20250216_400.png'
-        }
     ],
 
     // 借款规则配置

@@ -4,18 +4,20 @@
   "description": "直播内容分析平台 - 基于GitHub Pages的静态网站",
   "main": "index.html",
   "scripts": {
-    "dev": "npm run scan && npm run start",
-    "dev:decrypt": "npm run decrypt && npm run scan && npm run start",
+    "dev": "npm run scan && npm run vouchers:encrypt && npm run start",
+    "dev:decrypt": "npm run decrypt && npm run scan && npm run vouchers:encrypt && npm run start",
     "dev:encrypted": "npm run build && npm run start",
-    "build": "npm run scan && npm run encrypt",
+    "dev:with-vouchers": "npm run vouchers:status && npm run start",
+    "build": "npm run scan && npm run encrypt && npm run vouchers:encrypt",
     "build:dev": "npm run scan",
-    "start": "npx http-server -o -p 8000",
+    "start": "npm run vouchers:encrypt && npx http-server -o -p 8000",
     "scan": "node scripts/scan-notes.js && node scripts/scan-files.js",
     "encrypt": "node scripts/encrypt-html.js encrypt",
     "decrypt": "node scripts/encrypt-html.js decrypt",
     "encrypt:status": "node scripts/encrypt-html.js status",
     "icons": "node scripts/create-icons.js",
     "vouchers:encrypt": "node scripts/encrypt-vouchers.js",
+    "vouchers:encrypt:force": "node scripts/encrypt-vouchers.js --force",
     "vouchers:setup": "node scripts/encrypt-vouchers.js --setup-only",
     "vouchers:status": "node scripts/encrypt-vouchers.js --status",
     "vouchers:help": "echo \"凭证加密系统命令帮助:\\n  npm run vouchers:setup  - 初始化凭证文件夹结构\\n  npm run vouchers:encrypt - 加密所有凭证图片\\n  npm run vouchers:status  - 查看加密状态\\n  npm run vouchers:help    - 显示此帮助信息\\n\\n详细文档请查看: VOUCHER_SYSTEM_GUIDE.md\"",
@@ -33,9 +35,8 @@
   "license": "MIT",
   "dependencies": {
     "canvas": "^3.1.1",
-    "chokidar": "^3.5.3"
-  },
-  "devDependencies": {
+    "chalk": "^4.1.2",
+    "chokidar": "^3.5.3",
     "http-server": "^14.1.1"
   },
   "engines": {
