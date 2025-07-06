@@ -1688,8 +1688,6 @@ body {
     opacity: 0.5;
 }
 
-
-
 /* 加载状态 */
 .loading {
     text-align: center;
@@ -2157,5 +2155,481 @@ body {
         box-shadow: 
             0 4px 20px rgba(0, 0, 0, 0.6),
             0 2px 10px rgba(8, 145, 178, 0.4);
+    }
+}
+
+/* 生活费用页面样式 */
+.expenses-table-section {
+    background: var(--bg-primary);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    box-shadow: var(--shadow);
+    margin-top: 2rem;
+}
+
+.table-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid var(--bg-secondary);
+    padding-bottom: 1rem;
+}
+
+.table-tab {
+    padding: 0.75rem 1.5rem;
+    background: none;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: var(--transition);
+    font-weight: 500;
+    color: var(--text-secondary);
+    position: relative;
+}
+
+.table-tab:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.table-tab.active {
+    background: var(--primary-color);
+    color: white;
+    box-shadow: 0 2px 8px rgba(26, 41, 128, 0.3);
+}
+
+.table-container {
+    overflow-x: auto;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+}
+
+.expenses-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    font-size: 0.9rem;
+}
+
+.expenses-table th,
+.expenses-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.expenses-table th {
+    background: var(--bg-secondary);
+    font-weight: 600;
+    color: var(--text-primary);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.expenses-table tr:hover {
+    background: var(--bg-secondary);
+}
+
+.expenses-table tr:last-child td {
+    border-bottom: none;
+}
+
+.loan-row.returned {
+    background: rgba(40, 167, 69, 0.05);
+}
+
+.loan-row.pending {
+    background: rgba(255, 193, 7, 0.05);
+}
+
+.loan-row.overdue {
+    background: rgba(220, 53, 69, 0.05);
+}
+
+.borrower-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: white;
+    text-transform: uppercase;
+}
+
+.borrower-badge.hjf {
+    background: linear-gradient(135deg, var(--hjf-color), var(--accent-color));
+}
+
+.borrower-badge.hjm {
+    background: linear-gradient(135deg, var(--hjm-color), #ff9f43);
+}
+
+.amount {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.status-badge.returned {
+    background: rgba(40, 167, 69, 0.1);
+    color: var(--reward-green);
+    border: 1px solid rgba(40, 167, 69, 0.3);
+}
+
+.status-badge.pending {
+    background: rgba(255, 193, 7, 0.1);
+    color: #856404;
+    border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.status-badge.overdue {
+    background: rgba(220, 53, 69, 0.1);
+    color: var(--reward-red);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+}
+
+/* 暗色模式下的生活费用页面样式 */
+@media (prefers-color-scheme: dark) {
+    .expenses-table {
+        background: var(--bg-card);
+        color: var(--text-primary);
+    }
+    
+    .loan-row.returned {
+        background: rgba(40, 167, 69, 0.1);
+    }
+    
+    .loan-row.pending {
+        background: rgba(255, 193, 7, 0.1);
+    }
+    
+    .loan-row.overdue {
+        background: rgba(220, 53, 69, 0.1);
+    }
+    
+    .table-tab {
+        color: var(--text-secondary);
+    }
+    
+    .table-tab:hover {
+        color: var(--text-primary);
+    }
+    
+    .table-tab.active {
+        background: var(--accent-color);
+    }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .table-tabs {
+        flex-wrap: wrap;
+        gap: 0.25rem;
+    }
+    
+    .table-tab {
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+    }
+    
+    .expenses-table {
+        font-size: 0.8rem;
+    }
+    
+    .expenses-table th,
+    .expenses-table td {
+        padding: 0.75rem 0.5rem;
+    }
+    
+    .expenses-table-section {
+        padding: 1rem;
+    }
+    
+    .table-container {
+        border-radius: 0;
+        margin: 0 -1rem;
+    }
+    
+    .borrower-badge {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.5rem;
+    }
+    
+    .status-badge {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.5rem;
+    }
+    
+    .amount {
+        font-size: 0.9rem;
+    }
+}
+
+/* 小屏幕下的表格滚动提示 */
+@media (max-width: 768px) {
+    .table-container::after {
+        content: '← 左右滑动查看更多 →';
+        position: absolute;
+        bottom: -30px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 0.7rem;
+        color: var(--text-light);
+        text-align: center;
+    }
+    
+    .table-container {
+        position: relative;
+        margin-bottom: 2rem;
+    }
+}
+
+/* 图片查看器模态框样式 */
+.image-viewer-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.image-viewer-modal.active {
+    display: flex;
+}
+
+.image-viewer-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(5px);
+    cursor: pointer;
+}
+
+.image-viewer-container {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    z-index: 1;
+    animation: slideIn 0.3s ease-out;
+}
+
+.image-viewer-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.image-viewer-close:hover {
+    background: rgba(0, 0, 0, 0.9);
+    transform: scale(1.1);
+}
+
+.image-viewer-image {
+    width: 100%;
+    height: auto;
+    max-height: 60vh;
+    object-fit: contain;
+    display: block;
+}
+
+.image-viewer-info {
+    padding: 20px;
+    background: white;
+    border-top: 1px solid #e0e0e0;
+}
+
+.image-viewer-info h3 {
+    margin: 0 0 10px 0;
+    color: var(--primary-color);
+    font-size: 1.2rem;
+}
+
+.image-viewer-info p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: scale(0.9) translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
+}
+
+/* 置顶标识样式 */
+.pinned-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: #ff6b35;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-right: 0.5rem;
+}
+
+.pinned-indicator::before {
+    content: "📌";
+    font-size: 0.9rem;
+}
+
+/* 置顶行样式 */
+.loan-row.pinned {
+    background: rgba(255, 107, 53, 0.05);
+    border-left: 3px solid #ff6b35;
+}
+
+.loan-row.pinned:hover {
+    background: rgba(255, 107, 53, 0.1);
+}
+
+/* 凭证相关样式 */
+.voucher-preview {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    object-fit: cover;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 2px solid #e0e0e0;
+}
+
+.voucher-preview:hover {
+    transform: scale(1.1);
+    border-color: var(--accent-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.voucher-placeholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    background: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-size: 0.8rem;
+    border: 2px dashed #ddd;
+}
+
+.voucher-cell {
+    text-align: center;
+    padding: 0.5rem;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .image-viewer-container {
+        max-width: 95vw;
+        max-height: 95vh;
+        margin: 2.5vh;
+    }
+    
+    .image-viewer-image {
+        max-height: 50vh;
+    }
+    
+    .image-viewer-info {
+        padding: 15px;
+    }
+    
+    .image-viewer-close {
+        width: 35px;
+        height: 35px;
+        font-size: 20px;
+    }
+    
+    .voucher-preview {
+        width: 35px;
+        height: 35px;
+    }
+    
+    .voucher-placeholder {
+        width: 35px;
+        height: 35px;
+        font-size: 0.7rem;
+    }
+}
+
+/* 暗色主题适配 */
+@media (prefers-color-scheme: dark) {
+    .image-viewer-container {
+        background: var(--bg-card);
+        color: var(--text-primary);
+    }
+    
+    .image-viewer-info {
+        background: var(--bg-card);
+        border-top-color: var(--border-color);
+    }
+    
+    .voucher-placeholder {
+        background: var(--bg-secondary);
+        border-color: var(--border-color);
+        color: var(--text-secondary);
+    }
+    
+    .voucher-preview {
+        border-color: var(--border-color);
+    }
+    
+    .loan-row.pinned {
+        background: rgba(255, 107, 53, 0.1);
+        border-left-color: #ff6b35;
+    }
+    
+    .loan-row.pinned:hover {
+        background: rgba(255, 107, 53, 0.15);
     }
 }
