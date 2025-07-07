@@ -472,13 +472,12 @@
     <script src="assets/data/expenses-records.js"></script>
     <script src="assets/data/task-rewards.js"></script>
     <script src="assets/js/voucher-decryptor.js"></script>
-    <script src="assets/js/expenses-data.js"></script>
-    <script src="assets/js/task-rewards.js"></script>
-    <script src="assets/js/unified-notification-manager.js"></script>
-    <script src="assets/js/score-patches.js"></script>
-    <script src="assets/js/files-list.js"></script>
-    <script src="assets/js/missing-files.js"></script>
-    <script src="assets/js/file-monitor.js"></script>
+<script src="assets/js/expenses-data.js"></script>
+<script src="assets/js/task-rewards.js"></script>
+<script src="assets/js/score-patches.js"></script>
+<script src="assets/js/files-list.js"></script>
+<script src="assets/js/missing-files.js"></script>
+<script src="assets/js/file-monitor.js"></script>
     <!-- Service Worker存储助手 -->
     <script src="assets/js/sw-storage-helper.js"></script>
     <!-- PWA安装提示功能 -->
@@ -582,10 +581,7 @@
 
             const isSupported = 'Notification' in window;
             const permission = isSupported ? Notification.permission : 'default';
-            const isEnabled = window.unifiedNotifications ?
-                              window.unifiedNotifications.getStatus().config.browserNotifications :
-                              false;
-
+            
             // 根据权限状态设置开关
             if (!isSupported) {
                 toggle.disabled = true;
@@ -599,7 +595,7 @@
                 console.log('❌ 浏览器通知权限被拒绝');
             } else {
                 toggle.disabled = false;
-                toggle.checked = isEnabled && permission === 'granted';
+                toggle.checked = permission === 'granted';
                 toggle.parentElement.style.opacity = '1';
             }
         }
@@ -615,17 +611,15 @@
             const notificationsToggle = document.getElementById('sw-notifications-toggle');
             const browserToggle = document.getElementById('browser-notifications-toggle');
 
-            // 等待统一通知管理器初始化
+            // 使用sw-updater通知系统初始化
             const initToggles = () => {
-                if (window.unifiedNotifications && window.unifiedNotifications.initialized) {
-                    const status = window.unifiedNotifications.getStatus();
-
+                if (window.swUpdater) {
                     // 初始化系统通知开关
                     if (notificationsToggle) {
-                        notificationsToggle.checked = status.config.enabled;
+                        notificationsToggle.checked = window.swUpdater.getNotificationStatus();
 
                         notificationsToggle.addEventListener('change', () => {
-                            window.unifiedNotifications.toggleNotifications();
+                            window.swUpdater.toggleNotifications();
                             console.log('🔔 系统通知开关已切换:', notificationsToggle.checked);
                         });
                     }
@@ -634,7 +628,8 @@
                     if (browserToggle) {
                         // 默认启用浏览器通知（如果权限允许）
                         if (Notification.permission === 'granted') {
-                            window.unifiedNotifications.updateConfig({ browserNotifications: true });
+                            // 浏览器通知已授权
+                            console.log('✅ 浏览器通知权限已授权');
                         }
 
                         // 更新开关状态
@@ -645,15 +640,11 @@
                             if (browserToggle.checked) {
                                 // 开启浏览器通知
                                 if (Notification.permission === 'granted') {
-                                    window.unifiedNotifications.updateConfig({ browserNotifications: true });
                                     console.log('✅ 浏览器通知已启用');
                                 } else if (Notification.permission === 'default') {
                                     // 重新请求权限
                                     const granted = await initBrowserNotifications();
-                                    if (granted) {
-                                        window.unifiedNotifications.updateConfig({ browserNotifications: true });
-                                        console.log('✅ 浏览器通知权限已获取并启用');
-                                    } else {
+                                    if (!granted) {
                                         browserToggle.checked = false;
                                         console.log('❌ 浏览器通知权限被拒绝');
                                     }
@@ -663,8 +654,6 @@
                                     console.log('❌ 浏览器通知权限已被拒绝，无法启用');
                                 }
                             } else {
-                                // 关闭浏览器通知
-                                window.unifiedNotifications.updateConfig({ browserNotifications: false });
                                 console.log('❌ 浏览器通知已关闭');
                             }
 

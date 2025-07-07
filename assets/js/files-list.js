@@ -1,5 +1,5 @@
 // 自动生成的文件列表
-// 最后更新时间: 2025-07-07T16:33:04.678Z
+// 最后更新时间: 2025-07-08T00:59:12.959Z
 
 window.FILES_LIST = {
   "html": [
@@ -67,9 +67,10 @@ window.FILES_LIST = {
     "assets/icons/icon-96x96.png"
   ],
   "other": [
+    "assets/js/unified-notification-manager.js.bak",
     "manifest.json"
   ],
-  "lastUpdated": "2025-07-07T16:33:04.678Z"
+  "lastUpdated": "2025-07-08T00:59:12.959Z"
 };
 
 // 导出数据供Node.js使用

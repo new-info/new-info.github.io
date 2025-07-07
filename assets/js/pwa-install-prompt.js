@@ -598,41 +598,50 @@ class PWAInstallManager {
      */
     showInstallSuccessMessage() {
         // 显示成功通知
-        if (window.unifiedNotifications) {
-            window.unifiedNotifications.showNotification({
-                id: 'pwa-install-success',
-                type: 'success',
-                title: '🎉 安装成功',
-                message: '大学生活平台已添加到您的设备',
-                data: { path: '#home' }
-            });
-        } else {
-            // 备用通知方式
-            const successMsg = document.createElement('div');
-            successMsg.style.cssText = `
-                position: fixed;
-                top: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                background: #4caf50;
-                color: white;
-                padding: 16px 24px;
-                border-radius: 8px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-                z-index: 10001;
-                font-weight: 500;
-            `;
-            successMsg.textContent = '🎉 应用已成功安装到您的设备';
-            document.body.appendChild(successMsg);
-
-            setTimeout(() => {
-                successMsg.remove();
-            }, 5000);
-        }
+        this.showSuccessNotification();
 
         // 清除拒绝记录
         localStorage.removeItem('pwa-install-dismissed');
         localStorage.removeItem('ios-install-prompt-shown');
+    }
+
+    /**
+     * 显示安装成功通知
+     */
+    showSuccessNotification() {
+        // 优先使用统一通知系统
+        if (window.swUpdater) {
+            window.swUpdater.showNotification('✅ PWA 安装成功！您可以离线使用此应用了');
+        } else {
+            // 创建自定义通知
+            const notification = document.createElement('div');
+            notification.className = 'pwa-install-notification success';
+            notification.innerHTML = `
+                <div class="pwa-install-notification-icon">✅</div>
+                <div class="pwa-install-notification-content">
+                    <p>PWA 安装成功！您可以离线使用此应用了</p>
+                </div>
+                <div class="pwa-install-notification-close">&times;</div>
+            `;
+
+            // 添加到页面
+            document.body.appendChild(notification);
+
+            // 设置自动关闭
+            setTimeout(() => {
+                notification.classList.add('hide');
+                setTimeout(() => notification.remove(), 300);
+            }, 5000);
+
+            // 添加关闭按钮功能
+            const closeBtn = notification.querySelector('.pwa-install-notification-close');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', () => {
+                    notification.classList.add('hide');
+                    setTimeout(() => notification.remove(), 300);
+                });
+            }
+        }
     }
 
     /**

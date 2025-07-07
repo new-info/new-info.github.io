@@ -5,7 +5,7 @@
 
 class CacheCleaner {
     constructor() {
-        this.appVersion = '1.0.0'; // 当前应用版本，需要与sw.js中的CACHE_NAME版本一致
+        this.appVersion = '1.1.3'; // 当前应用版本，需要与sw.js中的CACHE_NAME版本一致
         this.lastVersionKey = 'app-last-version';
         this.cleanupHistoryKey = 'app-cleanup-history';
         this.initialized = false;
@@ -148,6 +148,17 @@ class CacheCleaner {
             const result = await cleanupPromise;
             console.log('🧹 Service Worker缓存清理结果:', result);
 
+            // 发送通知
+            if (result.deletedCaches.length > 0 || result.deletedResources.length > 0) {
+                // 使用通知管理器或直接显示
+                if (window.swUpdater) {
+                    // 使用sw-updater通知系统
+                    window.swUpdater.showNotification('🧹 缓存已清理完成');
+                } else {
+                    this.showSimpleNotification('缓存已清理完成');
+                }
+            }
+
             return result;
         } catch (error) {
             console.error('🔴 清理Service Worker缓存失败:', error);
@@ -275,14 +286,9 @@ class CacheCleaner {
      */
     notifyCleanupComplete(oldVersion, newVersion) {
         // 检查是否有通知管理器
-        if (window.unifiedNotificationManager) {
-            // 使用统一通知管理器，通过缓存清理通知类型发送
-            window.unifiedNotificationManager.handleCacheCleanedNotification({
-                action: 'CACHE_CLEANED',
-                oldVersion: oldVersion,
-                newVersion: newVersion,
-                timestamp: Date.now()
-            });
+        if (window.swUpdater) {
+            // 使用sw-updater通知系统
+            window.swUpdater.showNotification('🧹 缓存已清理完成');
         } else {
             // 简单的通知
             this.showSimpleNotification(`🚀 应用已从 ${oldVersion} 升级到 ${newVersion}`);

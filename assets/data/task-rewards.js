@@ -194,7 +194,7 @@ window.TASK_REWARDS = {
             status: 'pending',
             completedBy: [], // 完成人员数组
             completedDate: [], // 完成时间数组
-            notes: '实习时间不少于1个月',
+            notes: '找到实习单位且实习时间≥1个月（首次成功入职可领取）',
             requirements: ['找到实习单位', '实习时间≥1个月', '获得实习证明'],
             deadline: '2025-08-31',
             friendlyDeadline: '大三下学期结束前'
@@ -234,7 +234,7 @@ window.TASK_REWARDS = {
             status: 'pending',
             completedBy: [], // 完成人员数组
             completedDate: [], // 完成时间数组
-            notes: '功能完整的博客项目，可正在线使用',
+            notes: '功能完整的博客项目，可在线正常使用',
             requirements: ['开发完整项目', '部署上线', '获得用户反馈'],
             deadline: '',
             friendlyDeadline: '大三上学期结束前'
@@ -247,7 +247,7 @@ window.TASK_REWARDS = {
             id: 17,
             category: 'social',
             name: '社会寒暑假工',
-            description: '参与社会寒暑假工',
+            description: '参与社会寒暑假工招聘',
             reward: 500,
             difficulty: 'easy',
             priority: 'medium',
@@ -256,7 +256,7 @@ window.TASK_REWARDS = {
             status: 'pending',
             completedBy: [], // 完成人员数组
             completedDate: [], // 完成时间数组
-            notes: '参与社会寒暑假工招聘，找到一份可以温饱的工作，挣到人生第一桶金',
+            notes: '找到一份可以温饱的工作，挣到人生第一桶金且工作时间≥1个月（首次成功入职可领取）',
             requirements: ['找到社会寒暑假工', '工作时间≥1个月'],
             deadline: '',
             friendlyDeadline: '大二下学期开始前'

@@ -1,6 +1,9 @@
 // Service Worker for PWA functionality
-const CACHE_NAME = 'live-analysis-platform-v1.0.2';
-const DYNAMIC_CACHE = 'dynamic-resources-v1.0.2';
+const CACHE_NAME = 'live-analysis-platform-v1.1.3';
+const DYNAMIC_CACHE = 'dynamic-resources-v1.1.3';
+
+// Service Worker版本标识，每次重要更新时修改此版本
+const SW_VERSION = '1.1.3';
 
 // 存储用户首选项
 let userPreferences = {
@@ -40,7 +43,7 @@ const CORE_ASSETS = [
     '/assets/css/pwa-enhancements.css',
     '/assets/js/main.js',
     '/assets/js/notes-data.js',
-    '/assets/js/unified-notification-manager.js',
+    '/assets/js/sw-updater.js', // 改为直接使用sw-updater中的通知功能
     '/assets/js/score-patches.js',
     '/assets/js/files-list.js',
     '/assets/js/missing-files.js',
@@ -52,6 +55,18 @@ const CORE_ASSETS = [
 // 安装 Service Worker
 self.addEventListener('install', (event) => {
     console.log('[Service Worker] 安装中...');
+
+    // 通知客户端找到更新
+    self.clients.matchAll().then(clients => {
+        clients.forEach(client => {
+            client.postMessage({
+                action: 'UPDATE_FOUND',
+                version: SW_VERSION,
+                timestamp: Date.now()
+            });
+        });
+    });
+
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then((cache) => {
@@ -59,6 +74,17 @@ self.addEventListener('install', (event) => {
                 return cache.addAll(CORE_ASSETS);
             })
             .then(() => {
+                // 通知客户端更新已就绪
+                self.clients.matchAll().then(clients => {
+                    clients.forEach(client => {
+                        client.postMessage({
+                            action: 'UPDATE_READY',
+                            version: SW_VERSION,
+                            timestamp: Date.now()
+                        });
+                    });
+                });
+
                 return self.skipWaiting();
             })
     );
@@ -78,11 +104,26 @@ self.addEventListener('activate', (event) => {
                 })
             );
         }).then(() => {
+            // 清除客户端storage缓存
+            console.log('[Service Worker] 正在清除storage缓存...');
+            return clearClientStorages();
+        }).then(() => {
             console.log('[Service Worker] 声明控制权');
             return self.clients.claim();
         }).then(() => {
             // 初始化已知笔记路径，避免将现有笔记当作新笔记
             return initializeKnownPaths();
+        }).then(() => {
+            // 通知客户端Service Worker已激活
+            return self.clients.matchAll().then(clients => {
+                clients.forEach(client => {
+                    client.postMessage({
+                        action: 'ACTIVATED',
+                        version: SW_VERSION,
+                        timestamp: Date.now()
+                    });
+                });
+            });
         })
     );
 });
@@ -430,7 +471,32 @@ function notifyClients(message) {
     if (userPreferences.showNotifications) {
         self.clients.matchAll().then(clients => {
             clients.forEach(client => {
-                client.postMessage(message);
+                // 修改消息格式，统一使用sw-updater的通知系统
+                if (message.action === 'NEW_NOTE') {
+                    // 转换为统一通知格式
+                    client.postMessage({
+                        action: 'SHOW_NOTIFICATION',
+                        message: message.isReview
+                            ? `📝 ${message.author} 新评分报告: ${message.title}`
+                            : `📝 ${message.author} 新内容: ${message.title}`,
+                        data: message
+                    });
+                } else if (message.action === 'CACHE_COMPLETE') {
+                    client.postMessage({
+                        action: 'SHOW_NOTIFICATION',
+                        message: '✅ 资源缓存完成，可离线使用',
+                        data: message
+                    });
+                } else if (message.action === 'CACHE_CLEANED') {
+                    client.postMessage({
+                        action: 'SHOW_NOTIFICATION',
+                        message: '🧹 缓存已清理完成',
+                        data: message
+                    });
+                } else {
+                    // 其他消息类型保持原样传递
+                    client.postMessage(message);
+                }
             });
         });
     } else {
@@ -568,12 +634,12 @@ self.addEventListener('message', (event) => {
     } else if (event.data && event.data.action === 'CLEAN_CACHES') {
         // 处理缓存清理请求
         console.log('[Service Worker] 收到缓存清理请求');
-        
+
         // 检查是否可以执行清理（避免频繁清理）
         const currentTime = Date.now();
         if (cacheCleanupControl.isCleaningUp) {
             console.log('[Service Worker] 缓存清理正在进行中，忽略此次请求');
-            
+
             // 如果有回复通道，发送忙碌状态
             if (event.ports && event.ports[0]) {
                 event.ports[0].postMessage({
@@ -584,19 +650,19 @@ self.addEventListener('message', (event) => {
             }
             return;
         }
-        
+
         // 设置清理状态
         cacheCleanupControl.isCleaningUp = true;
-        
+
         // 执行缓存清理
         cleanAllCaches()
             .then((result) => {
                 console.log('[Service Worker] 缓存清理完成:', result);
-                
+
                 // 更新最后清理时间
                 cacheCleanupControl.lastCleanupTime = currentTime;
                 cacheCleanupControl.isCleaningUp = false;
-                
+
                 // 如果有回复通道，发送成功状态
                 if (event.ports && event.ports[0]) {
                     event.ports[0].postMessage({
@@ -606,7 +672,7 @@ self.addEventListener('message', (event) => {
                         timestamp: currentTime
                     });
                 }
-                
+
                 // 通知所有客户端缓存已清理
                 notifyClients({
                     action: 'CACHE_CLEANED',
@@ -616,10 +682,10 @@ self.addEventListener('message', (event) => {
             })
             .catch((error) => {
                 console.error('[Service Worker] 缓存清理失败:', error);
-                
+
                 // 重置清理状态
                 cacheCleanupControl.isCleaningUp = false;
-                
+
                 // 如果有回复通道，发送错误状态
                 if (event.ports && event.ports[0]) {
                     event.ports[0].postMessage({
@@ -717,14 +783,14 @@ self.addEventListener('periodicsync', (event) => {
 // 清理所有缓存
 async function cleanAllCaches() {
     console.log('[Service Worker] 开始清理所有缓存');
-    
+
     try {
         // 获取所有缓存名称
         const cacheNames = await caches.keys();
-        
+
         // 保留当前版本的缓存
         const currentCaches = [CACHE_NAME, DYNAMIC_CACHE];
-        
+
         // 清理旧版本缓存
         const deletedCaches = [];
         const cacheDeletionPromises = cacheNames
@@ -738,25 +804,25 @@ async function cleanAllCaches() {
                     console.error(`[Service Worker] 删除缓存失败 ${name}:`, error);
                 }
             });
-        
+
         // 等待所有缓存删除完成
         await Promise.all(cacheDeletionPromises);
-        
+
         // 清理当前动态缓存中的旧资源
         const dynamicCache = await caches.open(DYNAMIC_CACHE);
         const dynamicKeys = await dynamicCache.keys();
         const deletedResources = [];
-        
+
         // 保留最近7天的资源，删除更旧的资源
         const oneWeekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
-        
+
         for (const request of dynamicKeys) {
             try {
                 const response = await dynamicCache.match(request);
                 if (response) {
                     const headers = response.headers;
                     const date = headers.get('date');
-                    
+
                     if (date) {
                         const timestamp = new Date(date).getTime();
                         if (timestamp < oneWeekAgo) {
@@ -771,7 +837,7 @@ async function cleanAllCaches() {
                 console.error(`[Service Worker] 清理资源失败 ${request.url}:`, error);
             }
         }
-        
+
         return {
             deletedCaches,
             deletedResources,
@@ -780,5 +846,60 @@ async function cleanAllCaches() {
     } catch (error) {
         console.error('[Service Worker] 清理缓存失败:', error);
         throw error;
+    }
+}
+
+/**
+ * 清除客户端storage缓存
+ * 当Service Worker版本更新时，清除可能不兼容的旧数据
+ */
+async function clearClientStorages() {
+    try {
+        const clients = await self.clients.matchAll();
+
+        // 创建一个消息通道用于等待客户端响应
+        const clearPromises = clients.map(client => {
+            return new Promise((resolve) => {
+                const messageChannel = new MessageChannel();
+
+                // 设置消息通道接收回调
+                messageChannel.port1.onmessage = (event) => {
+                    if (event.data && event.data.action === 'STORAGE_CLEARED') {
+                        console.log(`[Service Worker] 客户端 ${client.id} 已清除storage`);
+                        resolve(true);
+                    } else {
+                        resolve(false);
+                    }
+                };
+
+                // 发送清除storage请求
+                client.postMessage({
+                    action: 'CLEAR_STORAGE',
+                    preserveKeys: [
+                        // 保留这些键，不要清除
+                        'swShowNotifications',
+                        'swSilentMode',
+                        'auth-token', // 保留认证信息
+                        'sw-last-active-version' // 保留上次活跃版本号
+                    ],
+                    version: SW_VERSION
+                }, [messageChannel.port2]);
+
+                // 超时处理，防止无限等待
+                setTimeout(() => {
+                    console.log(`[Service Worker] 客户端 ${client.id} 清除storage超时`);
+                    resolve(false);
+                }, 2000);
+            });
+        });
+
+        // 等待所有客户端响应
+        const results = await Promise.all(clearPromises);
+        console.log(`[Service Worker] ${results.filter(Boolean).length}/${clients.length} 个客户端已清除storage`);
+
+        return true;
+    } catch (error) {
+        console.error('[Service Worker] 清除storage失败:', error);
+        return false;
     }
 }
