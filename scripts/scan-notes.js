@@ -41,7 +41,7 @@ class NotesScanner {
             if (h1Match) {
                 return h1Match[1].trim();
             }
-            
+
             // 尝试从文件名生成标题
             const fileName = path.basename(filePath, '.html');
             return fileName.replace(/-/g, ' ').replace(/^\w/, c => c.toUpperCase());
@@ -67,7 +67,7 @@ class NotesScanner {
             }
 
             const encodedContent = match[1].trim();
-            
+
             // 解码base64
             const decodedContent = Buffer.from(encodedContent, 'base64').toString('utf8');
             return decodedContent;
@@ -144,7 +144,7 @@ class NotesScanner {
                 title: this.extractTitleFromHtml(filePath),
                 date: this.getFileDate(filePath),
                 author: author,
-                preview: this.extractPreviewFromHtml(filePath)
+                preview: ''//this.extractPreviewFromHtml(filePath)
             };
 
             // 检查是否有对应的评分报告
@@ -159,10 +159,10 @@ class NotesScanner {
                 let score = 0;
                 try {
                     let reviewContent = fs.readFileSync(reviewPath, 'utf8');
-                    
+
                     // 如果是加密文件，先解密
                     reviewContent = this.decryptHtmlContent(reviewContent);
-                    
+
                     const scoreMatch = reviewContent.match(/<div class="score-value">(\d+)<\/div>/);
                     if (scoreMatch) {
                         score = parseInt(scoreMatch[1]);
@@ -177,7 +177,7 @@ class NotesScanner {
                     date: this.getFileDate(reviewPath),
                     author: author,
                     isReview: true,
-                    preview: this.extractPreviewFromHtml(reviewPath),
+                    preview: '',//this.extractPreviewFromHtml(reviewPath),
                     score: score  // 添加分数字段
                 };
             }
@@ -223,7 +223,7 @@ class NotesScanner {
 
         // 扫描新数据
         const newData = this.scanAllNotes();
-        
+
         // 如果存在现有数据，合并数据
         if (existingData) {
             // 创建映射来识别现有的笔记
@@ -234,16 +234,16 @@ class NotesScanner {
                 });
                 return map;
             };
-            
+
             // 为每个作者处理数据合并
             ['hjf', 'hjm'].forEach(author => {
                 // 创建新数据和现有数据的路径映射
                 const newNotesMap = createPathMap(newData[author]);
                 const existingNotesMap = createPathMap(existingData[author] || []);
-                
+
                 // 创建合并后的笔记列表
                 const mergedNotes = [];
-                
+
                 // 首先添加现有数据中的笔记（如果它们仍然存在）
                 (existingData[author] || []).forEach(existingNote => {
                     const path = existingNote.path;
@@ -252,7 +252,7 @@ class NotesScanner {
                         mergedNotes.push(existingNote);
                     }
                 });
-                
+
                 // 添加新数据中存在但现有数据中不存在的笔记
                 newData[author].forEach(newNote => {
                     const path = newNote.path;
@@ -260,7 +260,7 @@ class NotesScanner {
                         mergedNotes.push(newNote);
                     }
                 });
-                
+
                 // 按日期倒序排序
                 newData[author] = mergedNotes.sort((a, b) => b.date.localeCompare(a.date));
             });

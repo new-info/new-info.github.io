@@ -1,5 +1,5 @@
 // 自动生成的文件列表
-// 最后更新时间: 2025-07-07T06:20:51.033Z
+// 最后更新时间: 2025-07-07T15:14:14.089Z
 
 window.FILES_LIST = {
   "html": [
@@ -9,9 +9,9 @@ window.FILES_LIST = {
     "2025/hjm/2025年6月22日.html",
     "2025/hjm/2025年6月29日-review.html",
     "2025/hjm/2025年6月29日.html",
+    "2025/hjm/2025年7月6日-review.html",
+    "2025/hjm/2025年7月6日.html",
     "assets/icons/icon-generator.html",
-    "assets/template/2025年7月6日-review.html",
-    "assets/template/2025年7月6日.html",
     "assets/template/review.html",
     "index.html",
     "viewer.html"
@@ -68,7 +68,7 @@ window.FILES_LIST = {
   "other": [
     "manifest.json"
   ],
-  "lastUpdated": "2025-07-07T06:20:51.033Z"
+  "lastUpdated": "2025-07-07T15:14:14.089Z"
 };
 
 // 导出数据供Node.js使用

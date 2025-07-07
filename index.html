@@ -43,8 +43,8 @@
             <nav class="nav">
                 <ul class="nav-list">
                     <li><a href="#home" class="nav-link active">首页</a></li>
-                    <li><a href="#hjf" class="nav-link">HJF 视频分析</a></li>
-                    <li><a href="#hjm" class="nav-link">HJM 视频分析</a></li>
+                    <!--<li><a href="#hjf" class="nav-link">HJF 视频分析</a></li>
+                    <li><a href="#hjm" class="nav-link">HJM 视频分析</a></li>-->
                     <li><a href="#expenses" class="nav-link">生活费用</a></li>
                     <li><a href="#task-rewards" class="nav-link">任务奖励</a></li>
                 </ul>
@@ -205,9 +205,9 @@
                     <h2>大学生活费用管理</h2>
                     <p>记录大学生活费用借贷情况，实现透明化管理</p>
                     <div class="reward-rules">
-                        <div class="rule-icon">💰</div>
+                        <div class="rule-icon">🏦</div>
                         <div class="rule-content">
-                            <h3>借款规则与说明（向父母要钱取消资格）</h3>
+                            <h3>借款规则与说明（向父母借款取消资格）</h3>
                             <p>• 生活费每月可借1500元，其它费用需说明正当用途</p>
                             <p>• 所有借款记录透明公开</p>
                         </div>
@@ -232,11 +232,11 @@
                                         <span class="label">借款总额</span>
                                         <span class="value" id="expenses-hjf-total">¥0</span>
                                     </div>
-                                    <div class="mini-stat">
+                                    <div class="mini-stat returned-stat">
                                         <span class="label">已归还</span>
                                         <span class="value" id="expenses-hjf-returned">¥0</span>
                                     </div>
-                                    <div class="mini-stat highlight">
+                                    <div class="mini-stat highlight pending-stat">
                                         <span class="label">未归还</span>
                                         <span class="value" id="expenses-hjf-pending">¥0</span>
                                     </div>
@@ -258,11 +258,11 @@
                                         <span class="label">借款总额</span>
                                         <span class="value" id="expenses-hjm-total">¥0</span>
                                     </div>
-                                    <div class="mini-stat">
+                                    <div class="mini-stat returned-stat">
                                         <span class="label">已归还</span>
                                         <span class="value" id="expenses-hjm-returned">¥0</span>
                                     </div>
-                                    <div class="mini-stat highlight">
+                                    <div class="mini-stat highlight pending-stat">
                                         <span class="label">未归还</span>
                                         <span class="value" id="expenses-hjm-pending">¥0</span>
                                     </div>
@@ -283,9 +283,9 @@
                             <button class="table-tab" data-tab="pending">待归还</button>
                             <button class="table-tab" data-tab="repayments">还款记录</button>
                         </div>
-                        <button id="strikethrough-toggle" class="strikethrough-toggle">
+                      <!--  <button id="strikethrough-toggle" class="strikethrough-toggle">
                             显示删除线
-                        </button>
+                        </button>-->
                     </div>
                     <!-- 删除线提示信息 -->
                     <div id="strikethrough-hint" class="strikethrough-hint" style="display: none;">
@@ -295,12 +295,13 @@
                         <table class="expenses-table">
                             <thead>
                                 <tr>
-                                    <th>日期</th>
+                                    <th>借款日期</th>
                                     <th>借款人</th>
                                     <th>金额</th>
                                     <th>用途</th>
-                                    <th>归还日期</th>
+                                    <th>还款日期</th>
                                     <th>状态</th>
+                                    <th>备注</th>
                                     <th>凭证</th>
                                 </tr>
                             </thead>
@@ -322,13 +323,12 @@
                 <div class="task-rewards-hero">
                     <h2>🎯 大学任务奖励系统</h2>
                     <p>设定目标，完成挑战，获得奖励</p>
-                    <div class="task-rewards-rules">
+                    <div class="task-rewards-rules combined-rules">
                         <span class="rule-icon">💰</span>
                         <span>完成任务获得奖金（截止日期前有效）</span>
-                    </div>
-                    <div class="task-rewards-rules critical-rules">
+                        <div class="rule-break"></div>
                         <span class="rule-icon">🚨</span>
-                        <span>截止日期前必须完成的任务，完不成将中断“生活费用”和“任务奖励”</span>
+                        <span><strong>截止日期前必须完成的任务，完不成将中断"生活费用"和"任务奖励"</strong></span>
                     </div>
                 </div>
 

@@ -743,8 +743,10 @@ class NotesApp {
             <div class="recent-item ${item.patchApplied ? 'patched-item' : ''} ${item.customReward ? (item.isRewardHigher ? 'reward-higher-item' : 'reward-lower-item') : ''}">
                 <div class="recent-date">${this.formatShortDate(item.date)}</div>
                 <div class="recent-content">
-                    <span class="recent-analyst ${item.analyst.toLowerCase()}">${item.analyst}</span>
-                    <a href="viewer.html?page=${encodeURIComponent(item.path)}" class="recent-title">${item.title}</a>
+                    <div class="recent-header">
+                        <span class="recent-analyst ${item.analyst.toLowerCase()}">${item.analyst}</span>
+                        <a href="viewer.html?page=${encodeURIComponent(item.path)}" class="recent-title">${item.title}</a>
+                    </div>
                     <div class="recent-actions">
                         <a href="viewer.html?page=${encodeURIComponent(item.reviewPath)}" class="recent-score ${item.passed ? 'passed' : 'failed'} ${item.patchApplied ? 'patched' : ''}" title="${item.patchApplied ? '已校正分数' : '查看评分报告'}">
                             ${item.score}分

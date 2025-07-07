@@ -56,6 +56,9 @@ class ExpensesManager {
 
         // 确保图片查看器事件监听器被绑定
         this.initImageViewer();
+        
+        // 修复滚动条问题
+        this.fixScrollbarIssue();
     }
 
     // 绑定事件
@@ -310,14 +313,14 @@ class ExpensesManager {
             // 'all' 不需要过滤
         }
 
-        // 排序逻辑：置顶记录优先，然后按日期排序（最新的在前）
+        // 排序逻辑：置顶记录优先，然后按ID排序（ID大的在前）
         filteredLoans.sort((a, b) => {
             // 首先按置顶状态排序
             if (a.pinned && !b.pinned) return -1;
             if (!a.pinned && b.pinned) return 1;
 
-            // 如果置顶状态相同，则按日期排序（最新的在前）
-            return new Date(b.date) - new Date(a.date);
+            // 如果置顶状态相同，则按ID排序（ID大的在前）
+            return b.id - a.id;
         });
 
         return filteredLoans;
@@ -363,16 +366,22 @@ class ExpensesManager {
 
         // 应用删除线效果
         this.applyStrikethroughEffects();
+        
+        // 修复滚动条问题
+        this.fixScrollbarIssue();
     }
 
     // 渲染还款记录表格
     renderRepaymentsTable() {
-        const totalPages = Math.ceil(this.repayments.length / this.pageSize);
+        // 按ID排序还款记录（ID大的在前）
+        const sortedRepayments = [...this.repayments].sort((a, b) => b.id - a.id);
+        
+        const totalPages = Math.ceil(sortedRepayments.length / this.pageSize);
 
         // 计算当前页的数据
         const startIndex = (this.currentPage - 1) * this.pageSize;
         const endIndex = startIndex + this.pageSize;
-        const currentRepayments = this.repayments.slice(startIndex, endIndex);
+        const currentRepayments = sortedRepayments.slice(startIndex, endIndex);
 
         const tbody = document.getElementById('expenses-table-body');
 
@@ -392,10 +401,13 @@ class ExpensesManager {
         }
 
         // 更新分页
-        this.updateExpensesPagination(totalPages, this.repayments.length);
+        this.updateExpensesPagination(totalPages, sortedRepayments.length);
 
         // 初始化图片查看器（如果还没有初始化）
         this.initImageViewer();
+        
+        // 修复滚动条问题
+        this.fixScrollbarIssue();
     }
 
     // 创建借款记录行
@@ -406,6 +418,11 @@ class ExpensesManager {
                           loan.status === 'overdue' ? '逾期' : '待归还';
         const statusIcon = loan.status === 'returned' ? '✅' :
                           loan.status === 'overdue' ? '⚠️' : '⏳';
+
+        // 计算逾期天数
+        const overdueDays = this.calculateOverdueDays(loan);
+        const overdueText = overdueDays > 0 ? ` (逾期${overdueDays}天)` : '';
+        const overdueDataAttr = overdueDays > 0 ? `data-overdue="逾期${overdueDays}天"` : '';
 
         // 置顶标识
         const pinnedIndicator = loan.pinned ? '<span class="pinned-indicator">置顶</span>' : '';
@@ -427,12 +444,13 @@ class ExpensesManager {
                 </td>
                 <td class="amount">¥${loan.amount}</td>
                 <td>${loan.purpose}</td>
-                <td>${loan.actualReturnDate ? this.formatDate(loan.actualReturnDate) : this.formatDate(loan.returnDate)}</td>
+                <td>${this.formatDate(loan.actualReturnDate || loan.returnDate)}</td>
                 <td>
-                    <span class="status-badge ${statusClass}">
-                        ${statusIcon} ${statusText}
+                    <span class="status-badge ${statusClass}" ${overdueDataAttr}>
+                        ${statusIcon} ${statusText}${overdueText}
                     </span>
                 </td>
+                <td class="notes-cell">${loan.notes || '-'}</td>
                 <td class="voucher-cell">${voucherCell}</td>
             </tr>
         `;
@@ -480,6 +498,7 @@ class ExpensesManager {
                         ` : ''}
                     </div>
                 </td>
+                <td class="notes-cell">${repayment.notes || '-'}</td>
                 <td class="voucher-cell">${voucherCell}</td>
             </tr>
         `;
@@ -570,6 +589,34 @@ class ExpensesManager {
         }
 
         return baseStatus;
+    }
+
+    // 计算逾期天数
+    calculateOverdueDays(loan) {
+        // 如果已经归还，不需要计算逾期天数
+        if (loan.status === 'returned' || loan.actualReturnDate) {
+            return 0;
+        }
+
+        // 如果没有还款日期或还款日期无效，不计算逾期天数
+        if (!loan.returnDate || loan.returnDate === '-' || loan.returnDate === 'null' || loan.returnDate === 'undefined') {
+            return 0;
+        }
+
+        const today = new Date();
+        const returnDate = new Date(loan.returnDate);
+        
+        // 检查日期是否有效
+        if (isNaN(returnDate.getTime())) {
+            return 0;
+        }
+        
+        // 计算天数差
+        const timeDiff = today.getTime() - returnDate.getTime();
+        const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+        
+        // 如果超过还款日期，返回逾期天数
+        return daysDiff > 0 ? daysDiff : 0;
     }
 
     // 创建凭证单元格
@@ -942,12 +989,69 @@ class ExpensesManager {
 
     // 格式化日期
     formatDate(dateString) {
+        // 如果日期字符串为空、null、undefined或无效，返回"-"
+        if (!dateString || dateString === '-' || dateString === 'null' || dateString === 'undefined') {
+            return '-';
+        }
+        
         const date = new Date(dateString);
+        
+        // 检查日期是否有效
+        if (isNaN(date.getTime())) {
+            return '-';
+        }
+        
         return date.toLocaleDateString('zh-CN', {
             year: 'numeric',
             month: '2-digit',
             day: '2-digit'
         });
+    }
+
+    // 修复滚动条问题
+    fixScrollbarIssue() {
+        const tableContainer = document.querySelector('.table-container');
+        if (tableContainer) {
+            // 确保滚动条能够到达最左边
+            tableContainer.scrollLeft = 0;
+            
+            // 监听滚动事件，确保滚动边界正确
+            tableContainer.addEventListener('scroll', () => {
+                // 如果滚动到最左边，确保scrollLeft为0
+                if (tableContainer.scrollLeft < 0) {
+                    tableContainer.scrollLeft = 0;
+                }
+                
+                // 如果滚动到最右边，确保不会超出范围
+                const maxScrollLeft = tableContainer.scrollWidth - tableContainer.clientWidth;
+                if (tableContainer.scrollLeft > maxScrollLeft) {
+                    tableContainer.scrollLeft = maxScrollLeft;
+                }
+            });
+            
+            // 添加触摸滚动支持
+            let isScrolling = false;
+            let startX = 0;
+            let scrollLeft = 0;
+            
+            tableContainer.addEventListener('touchstart', (e) => {
+                isScrolling = true;
+                startX = e.touches[0].pageX - tableContainer.offsetLeft;
+                scrollLeft = tableContainer.scrollLeft;
+            });
+            
+            tableContainer.addEventListener('touchmove', (e) => {
+                if (!isScrolling) return;
+                e.preventDefault();
+                const x = e.touches[0].pageX - tableContainer.offsetLeft;
+                const walk = (x - startX) * 2;
+                tableContainer.scrollLeft = scrollLeft - walk;
+            });
+            
+            tableContainer.addEventListener('touchend', () => {
+                isScrolling = false;
+            });
+        }
     }
 
     // 刷新数据
