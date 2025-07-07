@@ -21,7 +21,9 @@ class UnifiedNotificationManager {
             // 通知显示时长
             displayDuration: 6000,
             // 通知节流间隔
-            throttleInterval: 2000
+            throttleInterval: 2000,
+            // 缓存通知特殊节流间隔（更长）
+            cacheNotificationThrottle: 10000 // 10秒
         };
         
         // 通知状态
@@ -30,7 +32,14 @@ class UnifiedNotificationManager {
             lastNotificationTime: 0,
             notificationQueue: new Map(), // 使用Map管理通知队列，支持去重和优先级
             activeNotifications: new Set(), // 当前活跃的通知
-            knownPaths: new Set() // SW已知路径同步
+            knownPaths: new Set(), // SW已知路径同步
+            // 缓存通知控制
+            cacheNotifications: {
+                lastCacheCompleteTime: 0,
+                lastCacheCleanedTime: 0,
+                pendingCacheNotifications: 0, // 等待中的缓存通知数量
+                batchTimeout: null
+            }
         };
         
         // 事件监听器
@@ -198,6 +207,10 @@ class UnifiedNotificationManager {
                 this.handleCacheCompleteNotification(message);
                 break;
                 
+            case 'CACHE_CLEANED':
+                this.handleCacheCleanedNotification(message);
+                break;
+                
             default:
                 console.log(`🤷 未处理的SW消息: ${message.action}`);
         }
@@ -239,10 +252,30 @@ class UnifiedNotificationManager {
     handleCacheCompleteNotification(message) {
         if (!this.shouldShowNotification('cache-complete')) return;
         
-        // 检查节流
+        // 使用特殊的缓存通知节流
         const now = Date.now();
-        if (now - this.state.lastNotificationTime < this.config.throttleInterval) {
+        if (now - this.state.cacheNotifications.lastCacheCompleteTime < this.config.cacheNotificationThrottle) {
             console.log('🚀 缓存完成通知被节流');
+            
+            // 增加待处理通知计数，但不显示
+            this.state.cacheNotifications.pendingCacheNotifications++;
+            return;
+        }
+        
+        // 更新最后通知时间
+        this.state.cacheNotifications.lastCacheCompleteTime = now;
+        
+        // 检查是否有待处理的缓存通知，如果有则合并显示
+        let notificationMessage = '应用已优化，可离线使用';
+        if (this.state.cacheNotifications.pendingCacheNotifications > 0) {
+            notificationMessage = `应用已优化，${this.state.cacheNotifications.pendingCacheNotifications + 1} 项资源已缓存`;
+            // 重置计数
+            this.state.cacheNotifications.pendingCacheNotifications = 0;
+        }
+        
+        // 如果当前有活跃的缓存清理通知，不再显示缓存完成通知
+        if (this.state.activeNotifications.has('cache-cleaned')) {
+            console.log('🚀 已有活跃的缓存清理通知，跳过缓存完成通知');
             return;
         }
         
@@ -250,14 +283,80 @@ class UnifiedNotificationManager {
             id: 'cache-complete',
             type: 'cache-complete',
             title: '🚀 应用优化完成',
-            message: '应用已优化，可离线使用',
+            message: notificationMessage,
             data: message,
             priority: 1,
             timestamp: now
         };
         
+        // 清除任何现有的缓存通知
+        this.removeExistingCacheNotifications();
+        
         this.addToQueue(notificationData);
         this.processNotificationQueue();
+    }
+    
+    /**
+     * 处理缓存清理通知
+     */
+    handleCacheCleanedNotification(message) {
+        if (!this.shouldShowNotification('cache-cleaned')) return;
+        
+        // 使用特殊的缓存通知节流
+        const now = Date.now();
+        if (now - this.state.cacheNotifications.lastCacheCleanedTime < this.config.cacheNotificationThrottle) {
+            console.log('🧹 缓存清理通知被节流');
+            return;
+        }
+        
+        // 检查版本是否真的变化
+        if (message && message.oldVersion && message.newVersion && message.oldVersion === message.newVersion) {
+            console.log('🧹 版本未变化，不显示缓存清理通知');
+            return;
+        }
+        
+        // 更新最后通知时间
+        this.state.cacheNotifications.lastCacheCleanedTime = now;
+        
+        // 准备通知消息
+        let notificationMessage = '应用缓存已清理，性能已优化';
+        
+        // 如果有版本信息，显示版本升级信息
+        if (message && message.oldVersion && message.newVersion && message.oldVersion !== message.newVersion) {
+            notificationMessage = `应用已从 ${message.oldVersion} 升级到 ${message.newVersion}`;
+        }
+        
+        // 缓存清理通知优先级更高，会替换掉缓存完成通知
+        const notificationData = {
+            id: 'cache-cleaned',
+            type: 'cache-cleaned',
+            title: '🧹 缓存已清理',
+            message: notificationMessage,
+            data: message,
+            priority: 2,
+            timestamp: now
+        };
+        
+        // 清除任何现有的缓存通知
+        this.removeExistingCacheNotifications();
+        
+        this.addToQueue(notificationData);
+        this.processNotificationQueue();
+    }
+    
+    /**
+     * 移除现有的缓存相关通知
+     */
+    removeExistingCacheNotifications() {
+        // 从队列中移除
+        this.state.notificationQueue.delete('cache-complete');
+        this.state.notificationQueue.delete('cache-cleaned');
+        
+        // 从DOM中移除
+        const cacheNotifications = document.querySelectorAll('.notification[data-id="cache-complete"], .notification[data-id="cache-cleaned"]');
+        cacheNotifications.forEach(notification => {
+            this.hideNotification(notification);
+        });
     }
     
     /**
@@ -289,6 +388,8 @@ class UnifiedNotificationManager {
             case 'new-note':
                 return this.config.inPageNotifications || this.config.browserNotifications;
             case 'cache-complete':
+                return this.config.inPageNotifications;
+            case 'cache-cleaned':
                 return this.config.inPageNotifications;
             default:
                 return this.config.inPageNotifications;
@@ -503,9 +604,20 @@ class UnifiedNotificationManager {
      * 显示页面内通知
      */
     showInPageNotification(notificationData) {
-        this.removeExistingInPageNotification();
+        // 检查是否是缓存相关通知
+        const isCacheNotification = notificationData.type === 'cache-complete' || notificationData.type === 'cache-cleaned';
         
+        if (isCacheNotification) {
+            // 对于缓存通知，先移除同类型的通知
+            this.removeExistingCacheNotifications();
+        } else {
+            // 对于其他通知，移除可能存在的旧通知
+            this.removeExistingInPageNotification();
+        }
+        
+        // 为通知元素添加ID属性，便于后续查找
         const notification = this.createNotificationElement(notificationData);
+        notification.dataset.id = notificationData.id;
         document.body.appendChild(notification);
         
         // 显示动画
@@ -514,10 +626,14 @@ class UnifiedNotificationManager {
             notification.style.transform = 'translateX(-50%) translateY(0)';
         }, 100);
         
-        // 自动隐藏
+        // 设置自动隐藏（缓存通知显示时间稍短）
+        const displayDuration = isCacheNotification ? 
+            Math.min(this.config.displayDuration, 4000) : // 缓存通知最多显示4秒
+            this.config.displayDuration;
+            
         setTimeout(() => {
             this.hideNotification(notification);
-        }, this.config.displayDuration);
+        }, displayDuration);
         
         console.log(`📱 页面内通知已显示: ${notificationData.message}`);
     }
@@ -598,6 +714,7 @@ class UnifiedNotificationManager {
         const icons = {
             'new-note': '📝',
             'cache-complete': '🚀',
+            'cache-cleaned': '🧹',
             'error': '⚠️',
             'success': '✅'
         };

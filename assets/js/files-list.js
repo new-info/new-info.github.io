@@ -1,5 +1,5 @@
 // 自动生成的文件列表
-// 最后更新时间: 2025-07-07T15:14:14.089Z
+// 最后更新时间: 2025-07-07T16:33:04.678Z
 
 window.FILES_LIST = {
   "html": [
@@ -30,6 +30,7 @@ window.FILES_LIST = {
     "assets/js/auth-config.js",
     "assets/js/auth-helper.js",
     "assets/js/back-button.js",
+    "assets/js/cache-cleaner.js",
     "assets/js/expenses-data.js",
     "assets/js/file-monitor.js",
     "assets/js/files-list.js",
@@ -68,7 +69,7 @@ window.FILES_LIST = {
   "other": [
     "manifest.json"
   ],
-  "lastUpdated": "2025-07-07T15:14:14.089Z"
+  "lastUpdated": "2025-07-07T16:33:04.678Z"
 };
 
 // 导出数据供Node.js使用

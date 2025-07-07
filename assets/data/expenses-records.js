@@ -40,8 +40,8 @@ window.EXPENSES_RECORDS = {
             id: 3,
             date: '-',
             borrower: 'hjm',
-            amount: 0,
-            purpose: '正骨',
+            amount: 9000,
+            purpose: '医疗费',
             returnDate: '-',
             status: 'pending', // returned, pending, overdue
             actualReturnDate: '',

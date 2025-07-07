@@ -23,6 +23,13 @@ let cacheNotificationControl = {
     batchTimeout: null
 };
 
+// 缓存清理控制
+let cacheCleanupControl = {
+    lastCleanupTime: 0,
+    cleanupInterval: 1000 * 60 * 60, // 1小时内最多执行一次完整清理
+    isCleaningUp: false
+};
+
 // 核心资源 - 这些资源始终会被缓存
 const CORE_ASSETS = [
     '/',
@@ -558,6 +565,70 @@ self.addEventListener('message', (event) => {
                 console.log('[Service Worker] 缓存通知被节流');
             }
         });
+    } else if (event.data && event.data.action === 'CLEAN_CACHES') {
+        // 处理缓存清理请求
+        console.log('[Service Worker] 收到缓存清理请求');
+        
+        // 检查是否可以执行清理（避免频繁清理）
+        const currentTime = Date.now();
+        if (cacheCleanupControl.isCleaningUp) {
+            console.log('[Service Worker] 缓存清理正在进行中，忽略此次请求');
+            
+            // 如果有回复通道，发送忙碌状态
+            if (event.ports && event.ports[0]) {
+                event.ports[0].postMessage({
+                    status: 'busy',
+                    message: '缓存清理正在进行中',
+                    timestamp: currentTime
+                });
+            }
+            return;
+        }
+        
+        // 设置清理状态
+        cacheCleanupControl.isCleaningUp = true;
+        
+        // 执行缓存清理
+        cleanAllCaches()
+            .then((result) => {
+                console.log('[Service Worker] 缓存清理完成:', result);
+                
+                // 更新最后清理时间
+                cacheCleanupControl.lastCleanupTime = currentTime;
+                cacheCleanupControl.isCleaningUp = false;
+                
+                // 如果有回复通道，发送成功状态
+                if (event.ports && event.ports[0]) {
+                    event.ports[0].postMessage({
+                        status: 'success',
+                        message: '缓存清理成功',
+                        result: result,
+                        timestamp: currentTime
+                    });
+                }
+                
+                // 通知所有客户端缓存已清理
+                notifyClients({
+                    action: 'CACHE_CLEANED',
+                    result: result,
+                    timestamp: currentTime
+                });
+            })
+            .catch((error) => {
+                console.error('[Service Worker] 缓存清理失败:', error);
+                
+                // 重置清理状态
+                cacheCleanupControl.isCleaningUp = false;
+                
+                // 如果有回复通道，发送错误状态
+                if (event.ports && event.ports[0]) {
+                    event.ports[0].postMessage({
+                        status: 'error',
+                        error: error.message || '缓存清理失败',
+                        timestamp: currentTime
+                    });
+                }
+            });
     }
     // 处理通知设置消息
     else if (event.data && event.data.action === 'SET_NOTIFICATION_PREFERENCE') {
@@ -642,3 +713,72 @@ self.addEventListener('periodicsync', (event) => {
         console.log('[Service Worker] 正在检查笔记更新...');
     }
 });
+
+// 清理所有缓存
+async function cleanAllCaches() {
+    console.log('[Service Worker] 开始清理所有缓存');
+    
+    try {
+        // 获取所有缓存名称
+        const cacheNames = await caches.keys();
+        
+        // 保留当前版本的缓存
+        const currentCaches = [CACHE_NAME, DYNAMIC_CACHE];
+        
+        // 清理旧版本缓存
+        const deletedCaches = [];
+        const cacheDeletionPromises = cacheNames
+            .filter(name => !currentCaches.includes(name))
+            .map(async name => {
+                try {
+                    await caches.delete(name);
+                    deletedCaches.push(name);
+                    console.log(`[Service Worker] 已删除缓存: ${name}`);
+                } catch (error) {
+                    console.error(`[Service Worker] 删除缓存失败 ${name}:`, error);
+                }
+            });
+        
+        // 等待所有缓存删除完成
+        await Promise.all(cacheDeletionPromises);
+        
+        // 清理当前动态缓存中的旧资源
+        const dynamicCache = await caches.open(DYNAMIC_CACHE);
+        const dynamicKeys = await dynamicCache.keys();
+        const deletedResources = [];
+        
+        // 保留最近7天的资源，删除更旧的资源
+        const oneWeekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+        
+        for (const request of dynamicKeys) {
+            try {
+                const response = await dynamicCache.match(request);
+                if (response) {
+                    const headers = response.headers;
+                    const date = headers.get('date');
+                    
+                    if (date) {
+                        const timestamp = new Date(date).getTime();
+                        if (timestamp < oneWeekAgo) {
+                            await dynamicCache.delete(request);
+                            deletedResources.push(request.url);
+                        }
+                    } else {
+                        // 如果没有日期，保留资源
+                    }
+                }
+            } catch (error) {
+                console.error(`[Service Worker] 清理资源失败 ${request.url}:`, error);
+            }
+        }
+        
+        return {
+            deletedCaches,
+            deletedResources,
+            timestamp: Date.now()
+        };
+    } catch (error) {
+        console.error('[Service Worker] 清理缓存失败:', error);
+        throw error;
+    }
+}

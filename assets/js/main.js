@@ -29,7 +29,7 @@ class NotesApp {
             const script = document.createElement('script');
             script.src = '/assets/js/back-button.js';
             document.head.appendChild(script);
-            
+
             // 判断是否是iframe中的页面
             if (window.self === window.top) {
                 // 不在iframe中，加载返回按钮
@@ -223,7 +223,7 @@ class NotesApp {
         if (!this.sectionPagination) {
             this.sectionPagination = {};
         }
-        
+
         if (!this.sectionPagination[section]) {
             this.sectionPagination[section] = {
                 currentPage: 1,
@@ -344,7 +344,7 @@ class NotesApp {
             }
         } else {
             // 复杂分页逻辑：显示首页、当前页附近页码、尾页
-            
+
             // 第1页
             buttons += `
                 <button class="pagination-btn ${currentPage === 1 ? 'active' : ''}" 
@@ -360,7 +360,7 @@ class NotesApp {
 
             // 当前页及其邻近页码
             let start, end;
-            
+
             if (currentPage <= 3) {
                 // 当前页靠近开头
                 start = 2;
@@ -409,11 +409,11 @@ class NotesApp {
         if (!this.sectionPagination || !this.sectionPagination[section]) return;
 
         const totalPages = Math.ceil(this.sectionPagination[section].totalItems / this.sectionPagination[section].pageSize);
-        
+
         if (page < 1 || page > totalPages) return;
 
         this.sectionPagination[section].currentPage = page;
-        
+
         // 重新渲染对应section
         const notes = section === 'hjf' ? this.notes.hjf : this.notes.hjm;
         this.renderSectionWithPagination(`${section}-notes`, notes, section);
@@ -421,9 +421,9 @@ class NotesApp {
         // 滚动到对应section的顶部
         const sectionElement = document.querySelector(`#${section}`);
         if (sectionElement) {
-            sectionElement.scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'start' 
+            sectionElement.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
             });
         }
     }
@@ -700,7 +700,7 @@ class NotesApp {
     updateRecentAnalysis(items) {
         const recentList = document.getElementById('recent-analysis-list');
         const paginationContainer = document.getElementById('recent-pagination');
-        
+
         if (!recentList) return;
 
         // 初始化分页变量
@@ -743,10 +743,8 @@ class NotesApp {
             <div class="recent-item ${item.patchApplied ? 'patched-item' : ''} ${item.customReward ? (item.isRewardHigher ? 'reward-higher-item' : 'reward-lower-item') : ''}">
                 <div class="recent-date">${this.formatShortDate(item.date)}</div>
                 <div class="recent-content">
-                    <div class="recent-header">
-                        <span class="recent-analyst ${item.analyst.toLowerCase()}">${item.analyst}</span>
-                        <a href="viewer.html?page=${encodeURIComponent(item.path)}" class="recent-title">${item.title}</a>
-                    </div>
+                    <span class="recent-analyst ${item.analyst.toLowerCase()}">${item.analyst}</span>
+                    <a href="viewer.html?page=${encodeURIComponent(item.path)}" class="recent-title">${item.title}</a>
                     <div class="recent-actions">
                         <a href="viewer.html?page=${encodeURIComponent(item.reviewPath)}" class="recent-score ${item.passed ? 'passed' : 'failed'} ${item.patchApplied ? 'patched' : ''}" title="${item.patchApplied ? '已校正分数' : '查看评分报告'}">
                             ${item.score}分
@@ -849,7 +847,7 @@ class NotesApp {
             }
         } else {
             // 复杂分页逻辑：显示首页、当前页附近页码、尾页
-            
+
             // 第1页
             buttons += `
                 <button class="pagination-btn ${currentPage === 1 ? 'active' : ''}" 
@@ -865,7 +863,7 @@ class NotesApp {
 
             // 当前页及其邻近页码
             let start, end;
-            
+
             if (currentPage <= 3) {
                 // 当前页靠近开头
                 start = 2;
@@ -914,11 +912,11 @@ class NotesApp {
         if (!this.recentPagination) return;
 
         const totalPages = Math.ceil(this.recentPagination.totalItems / this.recentPagination.pageSize);
-        
+
         if (page < 1 || page > totalPages) return;
 
         this.recentPagination.currentPage = page;
-        
+
         // 重新获取数据并更新显示
         const allItems = this.getAllAnalysisItems();
         this.updateRecentAnalysis(allItems);
@@ -926,9 +924,9 @@ class NotesApp {
         // 滚动到最近分析区域
         const recentAnalysisElement = document.querySelector('.recent-analysis');
         if (recentAnalysisElement) {
-            recentAnalysisElement.scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'start' 
+            recentAnalysisElement.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
             });
         }
     }

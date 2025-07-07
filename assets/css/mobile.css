@@ -240,73 +240,6 @@
         align-items: stretch;
         padding: 12px;
         gap: 8px;
-        position: relative;
-    }
-    
-    .recent-item:active {
-        background: var(--bg-card);
-    }
-    
-    .recent-content {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-    }
-    
-    .recent-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 12px;
-    }
-    
-    .recent-title {
-        flex: 1;
-        font-size: 15px;
-        line-height: 1.2;
-        padding: 8px 12px;
-        margin: 0;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 6px;
-        text-decoration: underline;
-        text-decoration-color: var(--accent-color);
-        text-decoration-thickness: 1px;
-        text-underline-offset: 1px;
-    }
-    
-    .recent-title:active {
-        text-decoration-thickness: 2px;
-        background: rgba(255, 255, 255, 0.15);
-        border-color: var(--accent-color);
-    }
-    
-    .recent-title::after {
-        content: '→';
-        margin-left: 0.3rem;
-        color: var(--accent-color);
-        opacity: 0.6;
-        font-weight: bold;
-        font-size: 12px;
-    }
-    
-    .recent-title:active::after {
-        opacity: 1;
-        transform: translateX(2px);
-    }
-    
-    .recent-score::after {
-        content: '→';
-        margin-left: 0.2rem;
-        color: currentColor;
-        opacity: 0.6;
-        font-weight: bold;
-        font-size: 10px;
-    }
-    
-    .recent-score:active::after {
-        opacity: 1;
-        transform: translateX(1px);
     }
     
     .recent-date {
@@ -314,10 +247,15 @@
         margin-bottom: 4px;
     }
     
-    .recent-header {
+    .recent-content {
         flex-direction: column;
-        align-items: flex-start;
         gap: 8px;
+    }
+    
+    .recent-title {
+        font-size: 14px;
+        line-height: 1.3;
+        font-weight: 500;
     }
     
     .recent-actions {
@@ -327,22 +265,10 @@
         align-items: center;
     }
     
-    .recent-analyst {
-        /* 保持基本样式，移除交互效果 */
-    }
-    
     .recent-score {
         padding: 4px 8px;
         font-size: 12px;
         border-radius: 4px;
-        text-decoration: underline;
-        text-decoration-color: currentColor;
-        text-decoration-thickness: 1px;
-        text-underline-offset: 1px;
-    }
-    
-    .recent-score:active {
-        text-decoration-thickness: 2px;
     }
     
     .reward-icon {
@@ -441,41 +367,6 @@
         padding: 0.625rem 1.125rem;
         font-size: 0.95rem;
     }
-    
-    /* 中等屏幕的最近分析项目优化 */
-    .recent-content {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-    }
-    
-    .recent-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 16px;
-    }
-    
-    .recent-title {
-        flex: 1;
-        font-size: 16px;
-        line-height: 1.2;
-        padding: 8px 12px;
-        margin: 0;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 6px;
-        text-decoration: underline;
-        text-decoration-color: var(--accent-color);
-        text-decoration-thickness: 1px;
-        text-underline-offset: 1px;
-    }
-    
-    .recent-title:active {
-        text-decoration-thickness: 2px;
-        background: rgba(255, 255, 255, 0.15);
-        border-color: var(--accent-color);
-    }
 }
 
 /* 超小屏幕适配 */
@@ -504,65 +395,6 @@
         
         /* 简化阴影 */
         box-shadow: 0 2px 8px rgba(26, 41, 128, 0.2);
-    }
-    
-    /* 超小屏幕的最近分析项目优化 */
-    .recent-item {
-        padding: 16px;
-        gap: 12px;
-    }
-    
-    .recent-content {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-    
-    .recent-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 8px;
-    }
-    
-    .recent-title {
-        flex: 1;
-        font-size: 13px;
-        line-height: 1.2;
-        padding: 6px 10px;
-        margin: 0;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 4px;
-        text-decoration: underline;
-        text-decoration-color: var(--accent-color);
-        text-decoration-thickness: 1px;
-        text-underline-offset: 1px;
-    }
-    
-    .recent-title:active {
-        text-decoration-thickness: 2px;
-        background: rgba(255, 255, 255, 0.15);
-        border-color: var(--accent-color);
-    }
-    
-    .recent-title::after {
-        margin-left: 0.2rem;
-        font-size: 10px;
-    }
-    
-    .recent-date {
-        font-size: 11px;
-        margin-bottom: 8px;
-    }
-    
-    .recent-actions {
-        gap: 6px;
-    }
-    
-    .recent-score {
-        padding: 6px 10px;
-        font-size: 11px;
     }
     
     .container {

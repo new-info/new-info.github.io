@@ -47,32 +47,32 @@ body {
 /* 头部样式 - 优化版 */
 .header {
     /* 合并渐变背景和纹理到一个background-image属性中 */
-    background-image: 
+    background-image:
         radial-gradient(circle at 20% 50%, rgba(255,255,255,0.05) 0%, transparent 50%),
         radial-gradient(circle at 80% 50%, rgba(255,255,255,0.03) 0%, transparent 50%),
         linear-gradient(
-            135deg, 
+            135deg,
             var(--primary-color) 0%,
             #2a3f96 25%,
             var(--accent-color) 50%,
             #4cd0d0 75%,
             var(--secondary-color) 100%
         );
-    
+
     color: white;
     padding: 0.75rem 0;
     position: sticky;
     top: 0;
     z-index: 1000;
-    
+
     /* 增强阴影效果 */
-    box-shadow: 
+    box-shadow:
         0 4px 20px rgba(26, 41, 128, 0.3),
         0 2px 10px rgba(38, 208, 206, 0.2);
-    
+
     /* 添加边框增强层次感 */
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    
+
     /* 性能优化 */
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -90,7 +90,7 @@ body {
     align-items: center;
     margin-bottom: 0.75rem;
     position: relative;
-    
+
     /* 添加内边距适配 */
     padding: 0.5rem 0;
 }
@@ -99,13 +99,13 @@ body {
     font-size: 1.5rem;
     font-weight: 700;
     margin: 0;
-    
+
     /* 添加文字阴影增强可读性 */
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    
+
     /* Logo动画效果 */
     transition: var(--transition);
-    
+
     /* 默认左对齐，PWA模式下会被覆盖 */
     text-align: left;
     flex: 1;
@@ -126,13 +126,13 @@ body {
     gap: 4px;
     border-radius: 6px;
     transition: var(--transition);
-    
+
     /* 增强触摸目标 */
     min-width: 44px;
     min-height: 44px;
     align-items: center;
     justify-content: center;
-    
+
     /* 默认在右边，PWA模式下会调整order */
     margin-left: auto;
 }
@@ -167,14 +167,14 @@ body {
     opacity: 0.9;
     font-weight: 500;
     position: relative;
-    
+
     /* 添加微妙的背景 */
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(10px);
-    
+
     /* 文字阴影 */
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-    
+
     /* 触摸目标优化 */
     min-height: 44px;
     display: flex;
@@ -209,7 +209,7 @@ body {
 .nav-link.active {
     opacity: 1;
     background: rgba(255, 255, 255, 0.2);
-    box-shadow: 
+    box-shadow:
         0 2px 8px rgba(0, 0, 0, 0.2),
         inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
@@ -231,34 +231,19 @@ body {
 .hero {
     text-align: center;
     padding: 3rem 0;
-    background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+    background: var(--bg-primary);
     border-radius: var(--border-radius);
     box-shadow: var(--shadow);
     margin-bottom: 3rem;
-    position: relative;
-    overflow: hidden;
-}
-
-.hero::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(79, 70, 229, 0.02) 0%, transparent 50%, rgba(124, 58, 237, 0.02) 100%);
-    pointer-events: none;
 }
 
 .hero h2 {
     font-size: 2.5rem;
     margin-bottom: 1rem;
-    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    position: relative;
-    z-index: 1;
 }
 
 .hero p {
@@ -274,18 +259,10 @@ body {
     align-items: center;
     gap: 1rem;
     margin-top: 2rem;
-    padding: 1.25rem 2.5rem;
-    background: linear-gradient(135deg, rgba(79, 70, 229, 0.08), rgba(124, 58, 237, 0.04));
-    border-radius: 16px;
-    border: 1px solid rgba(79, 70, 229, 0.2);
-    box-shadow: 0 4px 16px rgba(79, 70, 229, 0.08);
-    transition: all 0.3s ease;
-}
-
-.reward-rules:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(79, 70, 229, 0.12);
-    border-color: rgba(79, 70, 229, 0.3);
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.1), rgba(40, 167, 69, 0.05));
+    border-radius: 50px;
+    border: 2px solid var(--reward-green);
 }
 
 .rule-icon {
@@ -481,36 +458,8 @@ body {
 .mini-stat {
     text-align: center;
     padding: 0.75rem;
-    background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+    background: var(--bg-secondary);
     border-radius: 8px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.mini-stat::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    pointer-events: none;
-}
-
-.mini-stat:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-    border-color: var(--accent-color);
-}
-
-.mini-stat:hover::before {
-    opacity: 1;
 }
 
 .mini-stat .label {
@@ -533,45 +482,6 @@ body {
 
 .mini-stat.highlight .value {
     color: var(--reward-green);
-}
-
-/* 生活费用借贷统计样式 - 与主题色协调 */
-#expenses-hjf-returned,
-#expenses-hjm-returned {
-    color: #10b981 !important; /* 与主题协调的绿色，更接近主题色系 */
-    font-weight: 700;
-    text-shadow: 0 1px 2px rgba(16, 185, 129, 0.1);
-}
-
-#expenses-hjf-pending,
-#expenses-hjm-pending {
-    color: #ef4444 !important; /* 与主题协调的红色，更接近主题色系 */
-    font-weight: 700;
-    text-shadow: 0 1px 2px rgba(239, 68, 68, 0.1);
-}
-
-/* 生活费用借贷统计mini-stat特殊背景 - 与主题色协调 */
-.mini-stat:has(#expenses-hjf-returned),
-.mini-stat:has(#expenses-hjm-returned) {
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.06) 0%, rgba(16, 185, 129, 0.02) 100%);
-    border-color: rgba(16, 185, 129, 0.15);
-}
-
-.mini-stat:has(#expenses-hjf-pending),
-.mini-stat:has(#expenses-hjm-pending) {
-    background: linear-gradient(135deg, rgba(239, 68, 68, 0.06) 0%, rgba(239, 68, 68, 0.02) 100%);
-    border-color: rgba(239, 68, 68, 0.15);
-}
-
-/* 兼容不支持:has()的浏览器 */
-.mini-stat.returned-stat {
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.06) 0%, rgba(16, 185, 129, 0.02) 100%);
-    border-color: rgba(16, 185, 129, 0.15);
-}
-
-.mini-stat.pending-stat {
-    background: linear-gradient(135deg, rgba(239, 68, 68, 0.06) 0%, rgba(239, 68, 68, 0.02) 100%);
-    border-color: rgba(239, 68, 68, 0.15);
 }
 
 /* 最近分析样式 */
@@ -737,13 +647,6 @@ body {
     align-items: center;
     gap: 1rem;
     flex-wrap: wrap;
-}
-
-.recent-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    flex: 1;
 }
 
 .recent-analyst {
@@ -1661,13 +1564,13 @@ body {
     align-items: center;
     gap: 2rem;
     padding: 1rem 2rem;
-    
+
     /* 现代化卡片背景 */
     background: var(--bg-card);
     border-radius: 12px;
     box-shadow: var(--shadow);
     border: 1px solid var(--border-color);
-    
+
     /* 渐变边框效果 */
     position: relative;
     overflow: hidden;
@@ -1695,7 +1598,7 @@ body {
     border-radius: 8px;
     transition: var(--transition);
     position: relative;
-    
+
     /* 微妙的悬停背景 */
     background: transparent;
 }
@@ -1710,7 +1613,7 @@ body {
     color: var(--text-primary);
     font-weight: 500;
     white-space: nowrap;
-    
+
     /* 添加图标前缀 */
     position: relative;
     padding-left: 1.5rem;
@@ -1759,9 +1662,9 @@ body {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     border: 2px solid transparent;
-    
+
     /* 立体效果 */
-    box-shadow: 
+    box-shadow:
         inset 0 2px 4px rgba(0, 0, 0, 0.1),
         0 1px 2px rgba(0, 0, 0, 0.05);
 }
@@ -1769,7 +1672,7 @@ body {
 .toggle-setting input[type="checkbox"]:checked {
     background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
     border-color: rgba(255, 255, 255, 0.1);
-    box-shadow: 
+    box-shadow:
         inset 0 2px 4px rgba(0, 0, 0, 0.1),
         0 2px 8px rgba(38, 208, 206, 0.3);
 }
@@ -1784,12 +1687,12 @@ body {
     left: 1px;
     background: linear-gradient(135deg, #ffffff, #f8fafc);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    
+
     /* 立体效果 */
-    box-shadow: 
+    box-shadow:
         0 2px 4px rgba(0, 0, 0, 0.15),
         0 1px 2px rgba(0, 0, 0, 0.1);
-    
+
     /* 微妙的边框 */
     border: 1px solid rgba(0, 0, 0, 0.05);
 }
@@ -1797,14 +1700,14 @@ body {
 .toggle-setting input[type="checkbox"]:checked::before {
     left: 23px;
     background: linear-gradient(135deg, #ffffff, #f1f5f9);
-    box-shadow: 
+    box-shadow:
         0 2px 6px rgba(0, 0, 0, 0.2),
         0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .toggle-setting:hover input[type="checkbox"]::before {
     transform: scale(1.05);
-    box-shadow: 
+    box-shadow:
         0 3px 6px rgba(0, 0, 0, 0.15),
         0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -1869,18 +1772,8 @@ body {
 
 /* 响应式设计 */
 @media (max-width: 768px) {
-    .hero {
-        padding: 2rem 0;
-        margin-bottom: 2rem;
-    }
-    
     .hero h2 {
         font-size: 2rem;
-    }
-    
-    .reward-rules {
-        padding: 1rem 2rem;
-        margin-top: 1.5rem;
     }
 
     .stats {
@@ -1936,61 +1829,33 @@ body {
         grid-template-columns: 1fr;
     }
 
-    .analyst-showcase {
-        margin-bottom: 2rem;
-    }
-    
-    .showcase-title {
-        font-size: 1.5rem;
-        margin-bottom: 1.5rem;
-    }
-    
     .analyst-cards {
         grid-template-columns: 1fr;
-        gap: 1.5rem;
     }
 
     .analyst-card {
         flex-direction: column;
         text-align: center;
-        padding: 1.5rem;
-        gap: 1.5rem;
-    }
-    
-    .avatar-circle {
-        width: 70px;
-        height: 70px;
-        font-size: 1.3rem;
-    }
-    
-    .analyst-info h3 {
-        font-size: 1.2rem;
-        margin-bottom: 0.75rem;
     }
 
     .analyst-stats-grid {
         grid-template-columns: 1fr 1fr;
-        gap: 0.75rem;
-    }
-    
-    .mini-stat {
-        padding: 0.625rem;
-    }
-    
-    .mini-stat .label {
-        font-size: 0.75rem;
-        margin-bottom: 0.2rem;
-    }
-    
-    .mini-stat .value {
-        font-size: 1rem;
     }
 
     .recent-item {
+        position: relative;
         flex-direction: column;
         align-items: flex-start;
         gap: 0.75rem;
         padding: 1rem 0.75rem;
+    }
+
+    .recent-title {
+        padding-right: 12px;
+        position: absolute;
+        text-align: right;
+        right: 0;
+        top: 45px;
     }
 
     .recent-date {
@@ -2003,13 +1868,6 @@ body {
         flex-direction: column;
         align-items: flex-start;
         gap: 0.75rem;
-    }
-    
-    .recent-header {
-        width: 100%;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
     }
 
     .recent-title {
@@ -2037,7 +1895,7 @@ body {
         margin-top: 1rem;
         gap: 0.25rem;
     }
-    
+
     .pagination-info {
         width: 100%;
         text-align: center;
@@ -2045,18 +1903,18 @@ body {
         margin-bottom: 0.5rem;
         font-size: 0.8rem;
     }
-    
+
     .pagination-controls {
         gap: 0.2rem;
     }
-    
+
     .pagination-btn {
         padding: 0.4rem 0.6rem;
         font-size: 0.8rem;
         min-width: 36px;
         min-height: 36px;
     }
-    
+
     .pagination-btn.prev,
     .pagination-btn.next {
         padding: 0.4rem 0.8rem;
@@ -2067,39 +1925,39 @@ body {
         gap: 1.5rem;
         padding: 0.75rem 1rem;
         margin-top: 1rem;
-        
+
         /* 保持一行显示，但适配小屏幕 */
         flex-wrap: nowrap;
         justify-content: center;
         align-items: center;
     }
-    
+
     .toggle-setting {
         padding: 0.4rem 0.6rem;
         gap: 0.6rem;
     }
-    
+
     .toggle-label {
         font-size: 0.85rem;
         padding-left: 1.2rem;
     }
-    
+
     .toggle-label::before {
         font-size: 12px;
     }
-    
+
     .toggle-setting input[type="checkbox"] {
         width: 40px;
         height: 22px;
     }
-    
+
     .toggle-setting input[type="checkbox"]::before {
         width: 16px;
         height: 16px;
         top: 1px;
         left: 1px;
     }
-    
+
     .toggle-setting input[type="checkbox"]:checked::before {
         left: 21px;
     }
@@ -2109,13 +1967,13 @@ body {
 @media (min-width: 1400px) {
     .header {
         /* 大屏幕合并渐变和复杂纹理 */
-        background-image: 
+        background-image:
             radial-gradient(circle at 15% 30%, rgba(255,255,255,0.08) 0%, transparent 40%),
             radial-gradient(circle at 85% 70%, rgba(255,255,255,0.06) 0%, transparent 40%),
             radial-gradient(circle at 50% 50%, rgba(255,255,255,0.03) 0%, transparent 60%),
             linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.02) 50%, transparent 60%),
             linear-gradient(
-                135deg, 
+                135deg,
                 var(--primary-color) 0%,
                 #1e2974 15%,
                 #2a3f96 30%,
@@ -2124,15 +1982,15 @@ body {
                 #4cd0d0 85%,
                 var(--secondary-color) 100%
             );
-        
+
         padding: 1rem 0;
-        
+
         /* 确保其他关键属性不被遗漏 */
         color: white;
         position: sticky;
         top: 0;
         z-index: 1000;
-        box-shadow: 
+        box-shadow:
             0 4px 20px rgba(26, 41, 128, 0.3),
             0 2px 10px rgba(38, 208, 206, 0.2);
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
@@ -2140,24 +1998,24 @@ body {
         -webkit-backdrop-filter: blur(20px);
         will-change: transform;
     }
-    
+
     .container {
         max-width: 1400px;
         padding: 0 40px;
     }
-    
+
     .nav-wrapper {
         padding: 0.75rem 0;
     }
-    
+
     .logo {
         font-size: 1.75rem;
     }
-    
+
     .nav-list {
         gap: 2.25rem;
     }
-    
+
     .nav-link {
         padding: 0.875rem 1.5rem;
         font-size: 1.05rem;
@@ -2174,12 +2032,12 @@ body {
         --bg-secondary: #151820;
         --bg-card: #1f2937;
         --border-color: #374151;
-        
+
         /* 暗色模式header专用变量 */
         --header-dark-primary: #0f1628;
         --header-dark-secondary: #1a2b4c;
         --header-dark-accent: #2d4a82;
-        
+
         /* 重新定义主要颜色以确保一致性 */
         --primary-color: #1e3a8a;
         --secondary-color: #0891b2;
@@ -2189,29 +2047,29 @@ body {
     body {
         background: var(--bg-secondary);
     }
-    
+
     /* 暗色模式下保持正常的header渐变，但调整颜色 */
     .header {
         /* 合并暗色模式的渐变和纹理 */
-        background-image: 
+        background-image:
             radial-gradient(circle at 20% 50%, rgba(255,255,255,0.04) 0%, transparent 50%),
             radial-gradient(circle at 80% 50%, rgba(255,255,255,0.02) 0%, transparent 50%),
             linear-gradient(
-                135deg, 
+                135deg,
                 var(--primary-color) 0%,
                 #1e40af 25%,
                 var(--accent-color) 50%,
                 #0284c7 75%,
                 var(--secondary-color) 100%
             );
-        
+
         /* 暗色模式下的阴影 */
-        box-shadow: 
+        box-shadow:
             0 4px 20px rgba(0, 0, 0, 0.5),
             0 2px 10px rgba(8, 145, 178, 0.3);
-        
+
         border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        
+
         /* 保持其他属性 */
         color: white;
         padding: 0.75rem 0;
@@ -2222,22 +2080,22 @@ body {
         -webkit-backdrop-filter: blur(20px);
         will-change: transform;
     }
-    
+
     .nav-link {
         background: rgba(255, 255, 255, 0.03);
         color: white;
         opacity: 0.9;
     }
-    
+
     .nav-link:hover {
         background: rgba(255, 255, 255, 0.1);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         opacity: 1;
     }
-    
+
     .nav-link.active {
         background: rgba(255, 255, 255, 0.15);
-        box-shadow: 
+        box-shadow:
             0 2px 8px rgba(0, 0, 0, 0.3),
             inset 0 1px 0 rgba(255, 255, 255, 0.1);
         opacity: 1;
@@ -2246,76 +2104,76 @@ body {
     .rewards-table th {
         background: #1f2937;
     }
-    
+
     /* 暗色模式下的footer设置样式 */
     .footer-settings {
         background: var(--bg-card);
         border-color: var(--border-color);
     }
-    
+
     .footer-settings::before {
         background: linear-gradient(90deg, var(--accent-color), var(--secondary-color));
     }
-    
+
     .toggle-setting:hover {
         background: rgba(59, 130, 246, 0.1);
     }
-    
+
     .toggle-label {
         color: var(--text-primary);
     }
-    
+
     .toggle-setting input[type="checkbox"] {
         background: linear-gradient(135deg, #374151, #4b5563);
-        box-shadow: 
+        box-shadow:
             inset 0 2px 4px rgba(0, 0, 0, 0.3),
             0 1px 2px rgba(0, 0, 0, 0.2);
     }
-    
+
     .toggle-setting input[type="checkbox"]:checked {
         background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
-        box-shadow: 
+        box-shadow:
             inset 0 2px 4px rgba(0, 0, 0, 0.2),
             0 2px 8px rgba(8, 145, 178, 0.4);
     }
-    
+
     .toggle-setting input[type="checkbox"]::before {
         background: linear-gradient(135deg, #f8fafc, #e2e8f0);
         border-color: rgba(0, 0, 0, 0.1);
-        box-shadow: 
+        box-shadow:
             0 2px 4px rgba(0, 0, 0, 0.3),
             0 1px 2px rgba(0, 0, 0, 0.2);
     }
-    
+
     .toggle-setting input[type="checkbox"]:checked::before {
         background: linear-gradient(135deg, #ffffff, #f1f5f9);
-        box-shadow: 
+        box-shadow:
             0 2px 6px rgba(0, 0, 0, 0.4),
             0 1px 3px rgba(0, 0, 0, 0.2);
     }
-    
+
     /* 暗色模式下的分页样式 */
     .pagination-btn {
         background: var(--bg-card);
         border-color: var(--border-color);
         color: var(--text-primary);
     }
-    
+
     .pagination-btn:hover {
         background: var(--bg-secondary);
         border-color: var(--accent-color);
     }
-    
+
     .pagination-btn.active {
         background: var(--accent-color);
         color: white;
         border-color: var(--accent-color);
     }
-    
+
     .pagination-info {
         color: var(--text-secondary);
     }
-    
+
     .pagination-ellipsis {
         color: var(--text-secondary);
     }
@@ -2325,13 +2183,13 @@ body {
 @media (min-width: 1400px) and (prefers-color-scheme: dark) {
     .header {
         /* 大屏幕暗色模式合并渐变和纹理 */
-        background-image: 
+        background-image:
             radial-gradient(circle at 15% 30%, rgba(255,255,255,0.06) 0%, transparent 40%),
             radial-gradient(circle at 85% 70%, rgba(255,255,255,0.04) 0%, transparent 40%),
             radial-gradient(circle at 50% 50%, rgba(255,255,255,0.02) 0%, transparent 60%),
             linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.015) 50%, transparent 60%),
             linear-gradient(
-                135deg, 
+                135deg,
                 var(--primary-color) 0%,
                 #1e40af 15%,
                 #1d4ed8 30%,
@@ -2340,9 +2198,9 @@ body {
                 #0891b2 85%,
                 var(--secondary-color) 100%
             );
-        
+
         /* 暗色模式大屏幕阴影 */
-        box-shadow: 
+        box-shadow:
             0 4px 20px rgba(0, 0, 0, 0.6),
             0 2px 10px rgba(8, 145, 178, 0.4);
     }
@@ -2355,7 +2213,6 @@ body {
     padding: 2rem;
     box-shadow: var(--shadow);
     margin-top: 2rem;
-    overflow: hidden; /* 确保内容不会溢出 */
 }
 
 .table-controls {
@@ -2401,37 +2258,13 @@ body {
     overflow-x: auto;
     border-radius: var(--border-radius);
     box-shadow: var(--shadow);
-    margin: 0;
-    padding: 0 1rem;
-    scrollbar-width: thin;
-    scrollbar-color: var(--accent-color) transparent;
-}
-
-/* 桌面端滚动条样式 */
-.table-container::-webkit-scrollbar {
-    height: 10px;
-}
-
-.table-container::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.table-container::-webkit-scrollbar-thumb {
-    background: var(--accent-color);
-    border-radius: 5px;
-}
-
-.table-container::-webkit-scrollbar-thumb:hover {
-    background: var(--primary-color);
 }
 
 .expenses-table {
     width: 100%;
-    min-width: 850px;
     border-collapse: collapse;
     background: white;
     font-size: 0.9rem;
-    margin: 0;
 }
 
 .expenses-table th,
@@ -2519,23 +2352,6 @@ body {
 .status-badge.overdue {
     background: rgba(220, 53, 69, 0.1);
     color: var(--reward-red);
-    border: 1px solid rgba(220, 53, 69, 0.3);
-}
-
-/* 逾期天数样式 */
-.status-badge.overdue {
-    position: relative;
-}
-
-.status-badge.overdue::after {
-    content: attr(data-overdue);
-    background: rgba(220, 53, 69, 0.2);
-    color: var(--reward-red);
-    padding: 2px 6px;
-    border-radius: 10px;
-    font-size: 0.75em;
-    margin-left: 4px;
-    font-weight: 600;
     border: 1px solid rgba(220, 53, 69, 0.3);
 }
 
@@ -2638,27 +2454,27 @@ body {
         background: var(--bg-card);
         color: var(--text-primary);
     }
-    
+
     .loan-row.returned {
         background: rgba(40, 167, 69, 0.1);
     }
-    
+
     .loan-row.pending {
         background: rgba(255, 193, 7, 0.1);
     }
-    
+
     .loan-row.overdue {
         background: rgba(220, 53, 69, 0.1);
     }
-    
+
     .table-tab {
         color: var(--text-secondary);
     }
-    
+
     .table-tab:hover {
         color: var(--text-primary);
     }
-    
+
     .table-tab.active {
         background: var(--accent-color);
     }
@@ -2691,255 +2507,72 @@ body {
         align-items: stretch;
         gap: 1rem;
     }
-    
+
     .table-tabs {
         flex-wrap: wrap;
         gap: 0.25rem;
         justify-content: center;
     }
-    
+
     .table-tab {
         padding: 0.5rem 1rem;
         font-size: 0.8rem;
     }
-    
+
     .strikethrough-toggle {
         align-self: center;
         width: fit-content;
     }
-    
+
     .expenses-table {
-        font-size: 0.75rem;
-        min-width: 850px; /* 确保表格有最小宽度，强制横向滚动 */
+        font-size: 0.8rem;
     }
-    
+
     .expenses-table th,
     .expenses-table td {
-        padding: 0.5rem 0.25rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        padding: 0.75rem 0.5rem;
     }
-    
-    /* 优化日期显示 */
-    .expenses-table td:nth-child(1) > span:not(.pinned-indicator) {
-        flex: 1;
-        min-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        font-size: 0.75rem;
-    }
-    
-    /* 确保第一列有足够空间显示置顶标识 */
-    .expenses-table td:nth-child(1) {
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
-        flex-wrap: wrap;
-        min-height: 2.5rem;
-    }
-    
-    /* 移动端列宽优化 */
-    .expenses-table th:nth-child(1), /* 借款日期 */
-    .expenses-table td:nth-child(1) {
-        min-width: 120px;
-        max-width: 120px;
-    }
-    
-    .expenses-table th:nth-child(2), /* 借款人 */
-    .expenses-table td:nth-child(2) {
-        min-width: 70px;
-        max-width: 70px;
-    }
-    
-    .expenses-table th:nth-child(3), /* 金额 */
-    .expenses-table td:nth-child(3) {
-        min-width: 70px;
-        max-width: 70px;
-    }
-    
-    .expenses-table th:nth-child(4), /* 用途 */
-    .expenses-table td:nth-child(4) {
-        min-width: 90px;
-        max-width: 90px;
-    }
-    
-    .expenses-table th:nth-child(5), /* 还款日期 */
-    .expenses-table td:nth-child(5) {
-        min-width: 75px;
-        max-width: 75px;
-    }
-    
-    .expenses-table th:nth-child(6), /* 状态 */
-    .expenses-table td:nth-child(6) {
-        min-width: 85px;
-        max-width: 85px;
-    }
-    
-    .expenses-table th:nth-child(7), /* 备注 */
-    .expenses-table td:nth-child(7) {
-        min-width: 75px;
-        max-width: 75px;
-    }
-    
-    .expenses-table th:nth-child(8), /* 凭证 */
-    .expenses-table td:nth-child(8) {
-        min-width: 50px;
-        max-width: 50px;
-    }
-    
+
     .expenses-table-section {
         padding: 1rem;
-        overflow: hidden; /* 确保内容不会溢出 */
     }
-    
+
     .table-container {
         border-radius: 0;
-        margin: 0;
-        padding: 0 1rem;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch; /* iOS平滑滚动 */
-        scrollbar-width: thin;
-        scrollbar-color: var(--accent-color) transparent;
+        margin: 0 -1rem;
     }
-    
-    /* 自定义滚动条样式 */
-    .table-container::-webkit-scrollbar {
-        height: 8px;
-    }
-    
-    .table-container::-webkit-scrollbar-track {
-        background: transparent;
-    }
-    
-    .table-container::-webkit-scrollbar-thumb {
-        background: var(--accent-color);
-        border-radius: 4px;
-    }
-    
-    .table-container::-webkit-scrollbar-thumb:hover {
-        background: var(--primary-color);
-    }
-    
+
     .borrower-badge {
-        font-size: 0.65rem;
-        padding: 0.15rem 0.4rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 100%;
+        font-size: 0.7rem;
+        padding: 0.2rem 0.5rem;
     }
-    
+
     .status-badge {
-        font-size: 0.65rem;
-        padding: 0.15rem 0.4rem;
+        font-size: 0.7rem;
+        padding: 0.2rem 0.5rem;
     }
-    
+
     .amount {
-        font-size: 0.8rem;
-    }
-    
-    /* 移动端优化备注显示 */
-    .notes-cell {
-        max-width: 80px;
-        font-size: 0.7rem;
-        padding: 0.25rem;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-    
-    /* 移动端优化凭证显示 */
-    .voucher-preview {
-        width: 30px;
-        height: 30px;
-    }
-    
-    .voucher-placeholder {
-        width: 30px;
-        height: 30px;
-        font-size: 0.6rem;
-    }
-    
-    /* 移动端优化状态徽章 */
-    .status-badge.overdue::after {
-        font-size: 0.6em;
-        padding: 1px 4px;
-        margin-left: 2px;
-    }
-    
-    /* 移动端优化置顶标识 */
-    .pinned-indicator {
-        font-size: 0.7rem;
-        margin-right: 0.25rem;
-        max-width: calc(100% - 0.5rem);
-        gap: 0.15rem;
-        flex-shrink: 0;
-    }
-    
-    .pinned-indicator::before {
-        font-size: 0.8rem;
+        font-size: 0.9rem;
     }
 }
 
 /* 小屏幕下的表格滚动提示 */
 @media (max-width: 768px) {
-    .table-container {
-        position: relative;
-        margin: 0;
-        padding: 0 1rem;
-        margin-bottom: 2rem;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: thin;
-        scrollbar-color: var(--accent-color) transparent;
-    }
-    
-    .table-container::-webkit-scrollbar {
-        height: 6px;
-    }
-    
-    .table-container::-webkit-scrollbar-track {
-        background: transparent;
-    }
-    
-    .table-container::-webkit-scrollbar-thumb {
-        background: var(--accent-color);
-        border-radius: 3px;
-    }
-    
-    .table-container::-webkit-scrollbar-thumb:hover {
-        background: var(--primary-color);
-    }
-    
     .table-container::after {
         content: '← 左右滑动查看更多 →';
         position: absolute;
-        bottom: -25px;
+        bottom: -30px;
         left: 50%;
         transform: translateX(-50%);
-        font-size: 0.75rem;
-        color: var(--accent-color);
+        font-size: 0.7rem;
+        color: var(--text-light);
         text-align: center;
-        background: rgba(255, 255, 255, 0.9);
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        font-weight: 500;
-        z-index: 10;
-        animation: pulse-scroll-hint 2s ease-in-out infinite;
     }
-    
-    @keyframes pulse-scroll-hint {
-        0%, 100% {
-            opacity: 0.8;
-            transform: translateX(-50%) scale(1);
-        }
-        50% {
-            opacity: 1;
-            transform: translateX(-50%) scale(1.05);
-        }
+
+    .table-container {
+        position: relative;
+        margin-bottom: 2rem;
     }
 }
 
@@ -3064,16 +2697,11 @@ body {
     font-size: 0.8rem;
     font-weight: 600;
     margin-right: 0.5rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
 }
 
 .pinned-indicator::before {
     content: "📌";
     font-size: 0.9rem;
-    flex-shrink: 0;
 }
 
 /* 置顶行样式 */
@@ -3287,15 +2915,6 @@ body {
     border: 2px dashed #ddd;
 }
 
-.notes-cell {
-    max-width: 200px;
-    word-wrap: break-word;
-    color: var(--text-secondary);
-    font-size: 0.85rem;
-    line-height: 1.4;
-    padding: 0.5rem;
-}
-
 .voucher-cell {
     text-align: center;
     padding: 0.5rem;
@@ -3308,275 +2927,61 @@ body {
         max-height: 95vh;
         margin: 2.5vh;
     }
-    
+
     .image-viewer-image {
         max-height: 50vh;
     }
-    
+
     .image-viewer-info {
         padding: 15px;
     }
-    
+
     .image-viewer-close {
         width: 35px;
         height: 35px;
         font-size: 20px;
     }
-    
+
     .voucher-preview {
         width: 35px;
         height: 35px;
     }
-    
+
     .voucher-placeholder {
         width: 35px;
         height: 35px;
         font-size: 0.7rem;
-    }
-
-    .notes-cell {
-        max-width: 120px;
-        font-size: 0.8rem;
-        padding: 0.25rem;
     }
 
     /* 移动端还款状态样式 */
     .repayment-status-container {
-        gap: 4px;
-        flex-wrap: wrap;
+        gap: 6px;
     }
 
     .repayment-progress {
-        max-width: 80px;
-        gap: 4px;
+        max-width: 100px;
+        gap: 6px;
     }
 
     .progress-bar {
-        height: 4px;
+        height: 5px;
     }
 
     .progress-text {
-        font-size: 9px;
-        min-width: 20px;
+        font-size: 10px;
+        min-width: 25px;
     }
 
     .repayment-type-badge {
-        padding: 2px 4px;
-        font-size: 9px;
-        border-radius: 8px;
+        padding: 3px 6px;
+        font-size: 10px;
+        border-radius: 10px;
     }
 
     .repayment-target-badge {
-        padding: 2px 4px;
-        font-size: 9px;
-        border-radius: 8px;
-        max-width: 120px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-}
-
-/* 超小屏幕优化（手机竖屏） */
-@media (max-width: 480px) {
-    /* 分析员展示区域超小屏幕优化 */
-    .analyst-showcase {
-        margin-bottom: 1.5rem;
-    }
-    
-    .showcase-title {
-        font-size: 1.3rem;
-        margin-bottom: 1rem;
-    }
-    
-    .analyst-cards {
-        gap: 1rem;
-    }
-    
-    .analyst-card {
-        padding: 1rem;
-        gap: 1rem;
-    }
-    
-    .avatar-circle {
-        width: 60px;
-        height: 60px;
-        font-size: 1.1rem;
-    }
-    
-    .analyst-info h3 {
-        font-size: 1.1rem;
-        margin-bottom: 0.5rem;
-    }
-    
-    .analyst-stats-grid {
-        gap: 0.5rem;
-    }
-    
-    .mini-stat {
-        padding: 0.5rem;
-    }
-    
-    .mini-stat .label {
-        font-size: 0.7rem;
-        margin-bottom: 0.15rem;
-    }
-    
-    .mini-stat .value {
-        font-size: 0.9rem;
-    }
-    
-    .table-container {
-        margin: 0;
-        padding: 0 0.5rem;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: thin;
-        scrollbar-color: var(--accent-color) transparent;
-    }
-    
-    .table-container::-webkit-scrollbar {
-        height: 4px;
-    }
-    
-    .table-container::-webkit-scrollbar-track {
-        background: transparent;
-    }
-    
-    .table-container::-webkit-scrollbar-thumb {
-        background: var(--accent-color);
-        border-radius: 2px;
-    }
-    
-    .table-container::-webkit-scrollbar-thumb:hover {
-        background: var(--primary-color);
-    }
-    
-    .expenses-table {
-        font-size: 0.7rem;
-        min-width: 750px;
-    }
-    
-    .expenses-table th,
-    .expenses-table td {
-        padding: 0.4rem 0.2rem;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    
-    /* 优化日期显示 */
-    .expenses-table td:nth-child(1) > span:not(.pinned-indicator) {
-        flex: 1;
-        min-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        font-size: 0.7rem;
-    }
-    
-    /* 确保第一列有足够空间显示置顶标识 */
-    .expenses-table td:nth-child(1) {
-        display: flex;
-        align-items: center;
-        gap: 0.2rem;
-        flex-wrap: wrap;
-        min-height: 2.2rem;
-    }
-    
-    /* 进一步缩小列宽 */
-    .expenses-table th:nth-child(1), /* 借款日期 */
-    .expenses-table td:nth-child(1) {
-        min-width: 105px;
-        max-width: 105px;
-    }
-    
-    .expenses-table th:nth-child(2), /* 借款人 */
-    .expenses-table td:nth-child(2) {
-        min-width: 60px;
-        max-width: 60px;
-    }
-    
-    .expenses-table th:nth-child(3), /* 金额 */
-    .expenses-table td:nth-child(3) {
-        min-width: 60px;
-        max-width: 60px;
-    }
-    
-    .expenses-table th:nth-child(4), /* 用途 */
-    .expenses-table td:nth-child(4) {
-        min-width: 80px;
-        max-width: 80px;
-    }
-    
-    .expenses-table th:nth-child(5), /* 还款日期 */
-    .expenses-table td:nth-child(5) {
-        min-width: 70px;
-        max-width: 70px;
-    }
-    
-    .expenses-table th:nth-child(6), /* 状态 */
-    .expenses-table td:nth-child(6) {
-        min-width: 80px;
-        max-width: 80px;
-    }
-    
-    .expenses-table th:nth-child(7), /* 备注 */
-    .expenses-table td:nth-child(7) {
-        min-width: 70px;
-        max-width: 70px;
-    }
-    
-    .expenses-table th:nth-child(8), /* 凭证 */
-    .expenses-table td:nth-child(8) {
-        min-width: 40px;
-        max-width: 40px;
-    }
-    
-    .borrower-badge {
-        font-size: 0.65rem;
-        padding: 0.15rem 0.35rem;
-    }
-    
-    .status-badge {
-        font-size: 0.6rem;
-        padding: 0.1rem 0.3rem;
-    }
-    
-    .amount {
-        font-size: 0.75rem;
-    }
-    
-    .notes-cell {
-        max-width: 70px;
-        font-size: 0.65rem;
-    }
-    
-    .voucher-preview {
-        width: 25px;
-        height: 25px;
-    }
-    
-    .voucher-placeholder {
-        width: 25px;
-        height: 25px;
-        font-size: 0.5rem;
-    }
-    
-    .table-container::after {
-        font-size: 0.7rem;
-        padding: 0.4rem 0.8rem;
-    }
-    
-    /* 超小屏幕置顶标识优化 */
-    .pinned-indicator {
-        font-size: 0.65rem;
-        margin-right: 0.2rem;
-        max-width: calc(100% - 0.4rem);
-        gap: 0.1rem;
-    }
-    
-    .pinned-indicator::before {
-        font-size: 0.75rem;
+        padding: 3px 6px;
+        font-size: 10px;
+        border-radius: 10px;
     }
 }
 
@@ -3586,47 +2991,27 @@ body {
         background: var(--bg-card);
         color: var(--text-primary);
     }
-    
+
     .image-viewer-info {
         background: var(--bg-card);
         border-top-color: var(--border-color);
     }
-    
+
     .voucher-placeholder {
         background: var(--bg-secondary);
         border-color: var(--border-color);
         color: var(--text-secondary);
     }
-    
+
     .voucher-preview {
         border-color: var(--border-color);
     }
 
-    .notes-cell {
-        color: var(--text-secondary);
-    }
-    
-    /* 暗色主题下的滚动提示 */
-    .table-container::after {
-        background: rgba(30, 30, 30, 0.9);
-        color: var(--accent-color);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    }
-    
-    /* 暗色主题下的滚动条样式 */
-    .table-container::-webkit-scrollbar-thumb {
-        background: var(--accent-color);
-    }
-    
-    .table-container::-webkit-scrollbar-thumb:hover {
-        background: var(--primary-color);
-    }
-    
     .loan-row.pinned {
         background: rgba(255, 107, 53, 0.1);
         border-left-color: #ff6b35;
     }
-    
+
     .loan-row.pinned:hover {
         background: rgba(255, 107, 53, 0.15);
     }
