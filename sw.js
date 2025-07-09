@@ -1,9 +1,9 @@
 // Service Worker for PWA functionality
-const CACHE_NAME = 'live-analysis-platform-v1.1.3';
-const DYNAMIC_CACHE = 'dynamic-resources-v1.1.3';
+const CACHE_NAME = '1.0.0';//live-analysis-platform-v
+const DYNAMIC_CACHE = '1.0.0';//dynamic-resources-v
 
 // Service Worker版本标识，每次重要更新时修改此版本
-const SW_VERSION = '1.1.3';
+const SW_VERSION = '1.0.0';
 
 // 存储用户首选项
 let userPreferences = {

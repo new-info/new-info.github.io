@@ -5,7 +5,7 @@
 
 class CacheCleaner {
     constructor() {
-        this.appVersion = '1.1.3'; // 当前应用版本，需要与sw.js中的CACHE_NAME版本一致
+        this.appVersion = '1.0.0'; // 当前应用版本，需要与sw.js中的CACHE_NAME版本一致
         this.lastVersionKey = 'app-last-version';
         this.cleanupHistoryKey = 'app-cleanup-history';
         this.initialized = false;

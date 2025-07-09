@@ -34,11 +34,11 @@ class SWStorageHelper {
             case 'REQUEST_KNOWN_PATHS':
                 this.handleKnownPathsRequest(event);
                 break;
-            
+
             case 'SAVE_KNOWN_PATHS':
                 this.handleSaveKnownPaths(data);
                 break;
-            
+
             default:
                 // 忽略其他消息
                 break;
@@ -51,16 +51,16 @@ class SWStorageHelper {
     handleKnownPathsRequest(event) {
         try {
             const storedData = this.getKnownPaths();
-            
+
             // 通过MessageChannel响应
             if (event.ports && event.ports[0]) {
                 event.ports[0].postMessage(storedData);
             }
-            
+
             console.log(`📦 向Service Worker提供 ${storedData?.knownPaths?.length || 0} 个已知路径`);
         } catch (error) {
             console.error('📦 处理已知路径请求失败:', error);
-            
+
             // 发送错误响应
             if (event.ports && event.ports[0]) {
                 event.ports[0].postMessage(null);
@@ -74,7 +74,7 @@ class SWStorageHelper {
     handleSaveKnownPaths(data) {
         try {
             const { knownPaths, timestamp } = data;
-            
+
             if (Array.isArray(knownPaths)) {
                 this.saveKnownPaths(knownPaths, timestamp);
                 console.log(`📦 保存 ${knownPaths.length} 个已知路径到本地存储`);
@@ -105,14 +105,14 @@ class SWStorageHelper {
             const data = {
                 knownPaths: knownPaths,
                 timestamp: timestamp,
-                version: '1.0'
+                version: '1.0.0'
             };
-            
+
             localStorage.setItem(this.storageKey, JSON.stringify(data));
-            
+
             // 也保存到sessionStorage作为备份
             sessionStorage.setItem(this.storageKey + '-session', JSON.stringify(data));
-            
+
         } catch (error) {
             console.error('📦 保存已知路径失败:', error);
         }
@@ -157,7 +157,7 @@ class SWStorageHelper {
 
                 // 保存到本地存储
                 this.saveKnownPaths(knownPaths);
-                
+
                 console.log(`📦 初始化保存 ${knownPaths.length} 个已知路径`);
             }
         } catch (error) {
@@ -170,7 +170,7 @@ class SWStorageHelper {
      */
     getStorageStats() {
         const stored = this.getKnownPaths();
-        
+
         return {
             pathCount: stored?.knownPaths?.length || 0,
             lastUpdate: stored?.timestamp || 0,
@@ -185,12 +185,12 @@ let swStorageHelper;
 // 初始化
 document.addEventListener('DOMContentLoaded', () => {
     swStorageHelper = new SWStorageHelper();
-    
+
     // 暴露给全局作用域
     window.swStorageHelper = swStorageHelper;
-    
+
     // 延迟初始化已知路径，确保notes数据已加载
     setTimeout(() => {
         swStorageHelper.initializeKnownPaths();
     }, 1000);
-}); 
+});

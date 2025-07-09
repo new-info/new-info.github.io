@@ -21,7 +21,7 @@ class NotesScanner {
     // 从HTML文件中提取标题
     extractTitleFromHtml(filePath) {
         try {
-            let content = fs.readFileSync(filePath, 'utf8');
+            /*let content = fs.readFileSync(filePath, 'utf8');
 
             // 如果是加密文件，先解密
             content = this.decryptHtmlContent(content);
@@ -40,7 +40,7 @@ class NotesScanner {
             const h1Match = content.match(/<h1[^>]*>([^<]+)<\/h1>/i);
             if (h1Match) {
                 return h1Match[1].trim();
-            }
+            }*/
 
             // 尝试从文件名生成标题
             const fileName = path.basename(filePath, '.html');

@@ -6,7 +6,7 @@ window.EXPENSES_RECORDS = {
     lastUpdated: '2025-01-20T15:45:00.000Z',
 
     // 数据版本号
-    version: '1.3.0', // 版本升级，新增归还记录和智能删除线逻辑
+    version: '1.0.0', // 版本升级，新增归还记录和智能删除线逻辑
 
     // 借款记录列表
     records: [
