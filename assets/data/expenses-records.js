@@ -16,7 +16,7 @@ window.EXPENSES_RECORDS = {
             borrower: 'hjf',
             amount: 1000,
             purpose: '智能手表',
-            returnDate: '2025-09-01',
+            returnDate: '2025-09-25',
             status: 'pending', // returned, pending, overdue
             actualReturnDate: '',
             notes: '借款人为父母',
@@ -29,7 +29,7 @@ window.EXPENSES_RECORDS = {
             borrower: 'hjf',
             amount: 1000,
             purpose: '借款',
-            returnDate: '2025-09-01',
+            returnDate: '2025-09-25',
             status: 'pending', // returned, pending, overdue
             actualReturnDate: '',
             notes: '',

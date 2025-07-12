@@ -254,8 +254,8 @@ window.TASK_REWARDS = {
             locked: false,
             icon: '🌍',
             status: 'pending',
-            completedBy: [], // 完成人员数组
-            completedDate: [], // 完成时间数组
+            completedBy: ['hjf'], // 完成人员数组
+            completedDate: ['进行中...'], // 完成时间数组
             notes: '找到一份可以温饱的工作，挣到人生第一桶金且工作时间≥1个月（首次成功入职可领取）',
             requirements: ['找到社会寒暑假工', '工作时间≥1个月'],
             deadline: '',
