@@ -100,21 +100,71 @@ class ExpensesManager {
         const hjfLoans = this.loans.filter(loan => loan.borrower === 'hjf');
         const hjmLoans = this.loans.filter(loan => loan.borrower === 'hjm');
 
+        // 检查用户认证状态
+        const hjfAuthenticated = window.AuthHelper && window.AuthHelper.isAuthenticated('hjf');
+        const hjmAuthenticated = window.AuthHelper && window.AuthHelper.isAuthenticated('hjm');
+
         // 计算HJF统计 - 完全基于借款记录数据自动计算
         const hjfStats = this.calculateStats(hjfLoans);
         const hjfAmounts = this.calculateBorrowerAmounts('hjf');
         document.getElementById('expenses-hjf-count').textContent = hjfStats.count;
-        document.getElementById('expenses-hjf-total').textContent = `¥${hjfStats.total}`;
-        document.getElementById('expenses-hjf-returned').textContent = `¥${hjfAmounts.returnedAmount}`;
-        document.getElementById('expenses-hjf-pending').textContent = `¥${hjfAmounts.pendingAmount}`;
+        
+        // HJF金额统计 - 添加点击事件
+        const hjfTotalElement = document.getElementById('expenses-hjf-total');
+        const hjfReturnedElement = document.getElementById('expenses-hjf-returned');
+        const hjfPendingElement = document.getElementById('expenses-hjf-pending');
+        
+        hjfTotalElement.textContent = hjfAuthenticated ? `¥${hjfStats.total}` : '***';
+        hjfReturnedElement.textContent = hjfAuthenticated ? `¥${hjfAmounts.returnedAmount}` : '***';
+        hjfPendingElement.textContent = hjfAuthenticated ? `¥${hjfAmounts.pendingAmount}` : '***';
+        
+        // 为未认证的金额添加点击事件
+        if (!hjfAuthenticated) {
+            hjfTotalElement.className = 'value amount-hidden';
+            hjfReturnedElement.className = 'value amount-hidden';
+            hjfPendingElement.className = 'value amount-hidden';
+            hjfTotalElement.onclick = () => this.showAmountAuth('hjf');
+            hjfReturnedElement.onclick = () => this.showAmountAuth('hjf');
+            hjfPendingElement.onclick = () => this.showAmountAuth('hjf');
+        } else {
+            hjfTotalElement.className = 'value';
+            hjfReturnedElement.className = 'value';
+            hjfPendingElement.className = 'value';
+            hjfTotalElement.onclick = null;
+            hjfReturnedElement.onclick = null;
+            hjfPendingElement.onclick = null;
+        }
 
         // 计算HJM统计 - 完全基于借款记录数据自动计算
         const hjmStats = this.calculateStats(hjmLoans);
         const hjmAmounts = this.calculateBorrowerAmounts('hjm');
         document.getElementById('expenses-hjm-count').textContent = hjmStats.count;
-        document.getElementById('expenses-hjm-total').textContent = `¥${hjmStats.total}`;
-        document.getElementById('expenses-hjm-returned').textContent = `¥${hjmAmounts.returnedAmount}`;
-        document.getElementById('expenses-hjm-pending').textContent = `¥${hjmAmounts.pendingAmount}`;
+        
+        // HJM金额统计 - 添加点击事件
+        const hjmTotalElement = document.getElementById('expenses-hjm-total');
+        const hjmReturnedElement = document.getElementById('expenses-hjm-returned');
+        const hjmPendingElement = document.getElementById('expenses-hjm-pending');
+        
+        hjmTotalElement.textContent = hjmAuthenticated ? `¥${hjmStats.total}` : '***';
+        hjmReturnedElement.textContent = hjmAuthenticated ? `¥${hjmAmounts.returnedAmount}` : '***';
+        hjmPendingElement.textContent = hjmAuthenticated ? `¥${hjmAmounts.pendingAmount}` : '***';
+        
+        // 为未认证的金额添加点击事件
+        if (!hjmAuthenticated) {
+            hjmTotalElement.className = 'value amount-hidden';
+            hjmReturnedElement.className = 'value amount-hidden';
+            hjmPendingElement.className = 'value amount-hidden';
+            hjmTotalElement.onclick = () => this.showAmountAuth('hjm');
+            hjmReturnedElement.onclick = () => this.showAmountAuth('hjm');
+            hjmPendingElement.onclick = () => this.showAmountAuth('hjm');
+        } else {
+            hjmTotalElement.className = 'value';
+            hjmReturnedElement.className = 'value';
+            hjmPendingElement.className = 'value';
+            hjmTotalElement.onclick = null;
+            hjmReturnedElement.onclick = null;
+            hjmPendingElement.onclick = null;
+        }
 
         // 更新智能删除线提示信息
         this.updateStrikethroughHint();
@@ -125,6 +175,10 @@ class ExpensesManager {
         const hjfAmounts = this.calculateBorrowerAmounts('hjf');
         const hjmAmounts = this.calculateBorrowerAmounts('hjm');
         
+        // 检查用户认证状态
+        const hjfAuthenticated = window.AuthHelper && window.AuthHelper.isAuthenticated('hjf');
+        const hjmAuthenticated = window.AuthHelper && window.AuthHelper.isAuthenticated('hjm');
+        
         const hintContainer = document.getElementById('strikethrough-hint');
         if (hintContainer) {
             // 计算按时间顺序的删除线覆盖情况
@@ -134,8 +188,8 @@ class ExpensesManager {
             hintContainer.innerHTML = `
                 <div class="strikethrough-hint-content">
                     <h4>智能删除线说明</h4>
-                    <p><strong>HJF:</strong> 归还 ¥${hjfAmounts.returnedAmount} / 总借款 ¥${hjfAmounts.totalLoanAmount}</p>
-                    <p><strong>HJM:</strong> 归还 ¥${hjmAmounts.returnedAmount} / 总借款 ¥${hjmAmounts.totalLoanAmount}</p>
+                    <p><strong>HJF:</strong> 归还 ${hjfAuthenticated ? `¥${hjfAmounts.returnedAmount}` : '***'} / 总借款 ${hjfAuthenticated ? `¥${hjfAmounts.totalLoanAmount}` : '***'}</p>
+                    <p><strong>HJM:</strong> 归还 ${hjmAuthenticated ? `¥${hjmAmounts.returnedAmount}` : '***'} / 总借款 ${hjmAuthenticated ? `¥${hjmAmounts.totalLoanAmount}` : '***'}</p>
                     <p class="hint-note">💰 按借款时间顺序，从最早的借款开始累加，还款金额覆盖的借款显示删除线</p>
                     <p class="hint-note">📊 HJF覆盖: ${hjfCoverage.coveredCount}/${hjfCoverage.totalCount} 条借款</p>
                     <p class="hint-note">📊 HJM覆盖: ${hjmCoverage.coveredCount}/${hjmCoverage.totalCount} 条借款</p>
@@ -436,13 +490,18 @@ class ExpensesManager {
         // 添加记录ID属性，用于删除线效果
         const recordIdAttr = `data-record-id="${loan.id}"`;
 
+        // 检查用户是否已认证，决定是否显示金额
+        const isAuthenticated = window.AuthHelper && window.AuthHelper.isAuthenticated(loan.borrower);
+        const amountDisplay = isAuthenticated ? `¥${loan.amount}` : '***';
+        const amountClickHandler = isAuthenticated ? '' : `onclick="expensesManager.showAmountAuth('${loan.borrower}')"`;
+
         return `
             <tr class="loan-row ${statusClass}${pinnedClass}" ${recordIdAttr}>
                 <td>${pinnedIndicator}${this.formatDate(loan.date)}</td>
                 <td>
                     <span class="borrower-badge ${loan.borrower}">${loan.borrower.toUpperCase()}</span>
                 </td>
-                <td class="amount">¥${loan.amount}</td>
+                <td class="amount ${!isAuthenticated ? 'amount-hidden' : ''}" ${amountClickHandler}>${amountDisplay}</td>
                 <td>${loan.purpose}</td>
                 <td>${this.formatDate(loan.actualReturnDate || loan.returnDate)}</td>
                 <td>
@@ -464,13 +523,18 @@ class ExpensesManager {
         // 计算还款状态和进度
         const repaymentStatus = this.calculateRepaymentStatus(repayment);
         
+        // 检查用户是否已认证，决定是否显示金额
+        const isAuthenticated = window.AuthHelper && window.AuthHelper.isAuthenticated(repayment.borrower);
+        const amountDisplay = isAuthenticated ? `¥${repayment.amount}` : '***';
+        const amountClickHandler = isAuthenticated ? '' : `onclick="expensesManager.showAmountAuth('${repayment.borrower}')"`;
+        
         return `
             <tr class="repayment-row">
                 <td>${this.formatDate(repayment.date)}</td>
                 <td>
                     <span class="borrower-badge ${repayment.borrower}">${repayment.borrower.toUpperCase()}</span>
                 </td>
-                <td class="amount">¥${repayment.amount}</td>
+                <td class="amount ${!isAuthenticated ? 'amount-hidden' : ''}" ${amountClickHandler}>${amountDisplay}</td>
                 <td>${repayment.purpose}</td>
                 <td>-</td>
                 <td>
@@ -493,7 +557,7 @@ class ExpensesManager {
                         ` : ''}
                         ${repaymentStatus.targetInfo ? `
                             <span class="repayment-target-badge">
-                                🎯 指定还款 ${repaymentStatus.targetInfo.count} 笔借款 (¥${repaymentStatus.targetInfo.amount})
+                                🎯 指定还款 ${repaymentStatus.targetInfo.count} 笔借款 (¥${isAuthenticated ? repaymentStatus.targetInfo.amount : '***'})
                             </span>
                         ` : ''}
                     </div>
@@ -730,6 +794,25 @@ class ExpensesManager {
             if (success) {
                 // 认证成功，显示凭证
                 this.decryptAndShowVoucher(voucherFilename, author, title, purpose);
+            }
+            // 认证失败或取消，不需要额外处理
+        });
+    }
+
+    // 显示金额认证对话框
+    showAmountAuth(author) {
+        // 检查是否已认证
+        if (window.AuthHelper && window.AuthHelper.isAuthenticated(author)) {
+            // 已认证，刷新页面显示金额
+            this.refreshData();
+            return;
+        }
+
+        // 使用AuthHelper的密码输入弹窗
+        window.AuthHelper.showPasswordPrompt(author, (success) => {
+            if (success) {
+                // 认证成功，刷新页面显示金额
+                this.refreshData();
             }
             // 认证失败或取消，不需要额外处理
         });

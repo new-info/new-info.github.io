@@ -2327,6 +2327,44 @@ body {
     font-size: 1rem;
 }
 
+/* 隐藏金额样式 */
+.amount-hidden {
+    color: #999 !important;
+    font-weight: 500 !important;
+    letter-spacing: 2px;
+    user-select: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.amount-hidden:hover {
+    color: #666 !important;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+    padding: 2px 4px;
+}
+
+.amount-hidden::before {
+    content: "🔒";
+    margin-right: 4px;
+    font-size: 0.8em;
+    opacity: 0.7;
+}
+
+/* 统计卡片中的隐藏金额样式 */
+.mini-stat .value.amount-hidden {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.mini-stat .value.amount-hidden:hover {
+    background: rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
 .status-badge {
     display: inline-flex;
     align-items: center;
@@ -2554,6 +2592,11 @@ body {
 
     .amount {
         font-size: 0.9rem;
+    }
+    
+    .amount-hidden {
+        font-size: 0.85rem;
+        letter-spacing: 1px;
     }
 }
 
@@ -3080,5 +3123,19 @@ body {
 
     .repayment-target-badge:hover {
         box-shadow: 0 4px 12px rgba(23, 162, 184, 0.5);
+    }
+    
+    .amount-hidden {
+        color: #666 !important;
+    }
+    
+    .amount-hidden:hover {
+        color: #999 !important;
+        background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .mini-stat .value.amount-hidden:hover {
+        background: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
     }
 }
