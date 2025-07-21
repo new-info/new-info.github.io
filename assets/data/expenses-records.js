@@ -51,7 +51,7 @@ window.EXPENSES_RECORDS = {
         },
         {
             id: 4,
-            date: '-',
+            date: '2025-07-21',
             borrower: 'hjm',
             amount: 68000,
             purpose: '学费',
