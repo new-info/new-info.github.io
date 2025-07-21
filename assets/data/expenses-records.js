@@ -49,6 +49,19 @@ window.EXPENSES_RECORDS = {
             pinned: false, // 是否置顶
             voucher: null // 本地凭证文件名
         },
+        {
+            id: 4,
+            date: '-',
+            borrower: 'hjm',
+            amount: 68000,
+            purpose: '学费',
+            returnDate: '-',
+            status: 'pending', // returned, pending, overdue
+            actualReturnDate: '',
+            notes: '',
+            pinned: false, // 是否置顶
+            voucher: '2025-07-21_23.24.07.jpg' // 本地凭证文件名
+        },
     ],
 
     // 还款记录列表 - 独立管理
