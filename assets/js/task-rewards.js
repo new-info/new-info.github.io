@@ -22,7 +22,8 @@ class TaskRewardsManager {
             ...(window.TASK_REWARDS.competitionTasks || []),
             ...(window.TASK_REWARDS.internshipTasks || []),
             ...(window.TASK_REWARDS.projectTasks || []),
-            ...(window.TASK_REWARDS.socialTasks || [])
+            ...(window.TASK_REWARDS.socialTasks || []),
+            ...(window.TASK_REWARDS.visaTasks || [])
         ];
         return allTasks;
     }
@@ -32,7 +33,7 @@ class TaskRewardsManager {
         if (category === 'all') {
             return this.tasks;
         }
-        
+
         const categoryTasksMap = {
             'basic': window.TASK_REWARDS.basicTasks || [],
             'academic': window.TASK_REWARDS.academicTasks || [],
@@ -40,9 +41,10 @@ class TaskRewardsManager {
             'competition': window.TASK_REWARDS.competitionTasks || [],
             'internship': window.TASK_REWARDS.internshipTasks || [],
             'project': window.TASK_REWARDS.projectTasks || [],
-            'social': window.TASK_REWARDS.socialTasks || []
+            'social': window.TASK_REWARDS.socialTasks || [],
+            'visa': window.TASK_REWARDS.visaTasks || []
         };
-        
+
         return categoryTasksMap[category] || [];
     }
 
@@ -380,7 +382,7 @@ class TaskRewardsManager {
         let deadlineText;
         let deadlineClass = '';
         let deadlineIcon = '⏰';
-        
+
         if (task.friendlyDeadline) {
             deadlineText = task.friendlyDeadline;
             deadlineClass = 'friendly';

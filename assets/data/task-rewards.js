@@ -51,6 +51,12 @@ window.TASK_REWARDS = {
             name: '社会实践',
             icon: '🤝',
             description: '志愿服务和社会实践'
+        },
+        {
+            id: 'visa',
+            name: '出国签证',
+            icon: '✈️',
+            description: '签证办理和出入境手续'
         }
     ],
 
@@ -263,6 +269,113 @@ window.TASK_REWARDS = {
         },
     ],
 
+    visaTasks:[
+        {
+            id: 23,
+            category: 'visa',
+            name: '欧美互惠生',
+            description: '通过文化交流换取食宿+津贴，工作>=6个月（申请成功报销往返机票）',
+            reward: 10000,
+            difficulty: 'medium',
+            priority: 'low',
+            locked: true,
+            lockReason: '需首先完成必须完成的任务，过英语六级',
+            icon: '👨‍👩‍👧',
+            status: 'pending',
+            completedBy: [],
+            completedDate: [],
+            notes: '入住欧美家庭，协助照顾儿童/简单家务，每周工作25-35小时。包食宿+每月津贴（约800美元）+报销语言课程费',
+            requirements: [
+                '年龄18-26岁',
+                '基础英语/当地语言',
+                '无犯罪记录',
+                '喜欢儿童（需提供照看经验证明）'
+            ],
+            deadline: '',
+            friendlyDeadline: '大四毕业之前'
+        },
+        // 澳大利亚工作假期签证 (WHV)
+        {
+            id: 22,
+            category: 'visa',
+            name: '澳洲WHV签证',
+            description: '申请澳大利亚工作假期签证，工作>=6个月（申请成功报销往返机票）',
+            reward: 10000,
+            difficulty: 'medium',
+            priority: 'low',
+            locked: true,
+            lockReason: '需首先完成必须完成的任务，过英语六级',
+            icon: '🇦🇺',
+            status: 'pending',
+            completedBy: [],
+            completedDate: [],
+            notes: '18-30岁申请，需提供英语成绩（雅思4.5+）、高等教育学历证明、资金证明（≥5000澳元），每年对中国开放5000个名额，需抢签',
+            requirements: [
+                '年龄18-30周岁',
+                '雅思总分4.5或同等英语成绩',
+                '完成至少2年高等教育',
+                '资金证明≥5000澳元',
+                '通过健康体检',
+                '无犯罪记录证明'
+            ],
+            deadline: '',
+            friendlyDeadline: '大四毕业之前'
+        },
+        // 新加坡工作假期计划 (WHP)
+        {
+            id: 18,
+            category: 'visa',
+            name: '新加坡WHP签证',
+            description: '申请新加坡工作假期准证，工作>=3个月（申请成功报销往返机票）',
+            reward: 5000,
+            difficulty: 'medium',
+            priority: 'low',
+            locked: true,
+            lockReason: '需完成必须完成的任务，过英语六级',
+            icon: '🇸🇬',
+            status: 'pending',
+            completedBy: [],
+            completedDate: [],
+            notes: '18-25岁在校大学生或毕业未满1年可申请，需大学在读证明/毕业证，英语工作能力证明，资金≥3000新币。有效期6个月，不可续签',
+            requirements: [
+                '年龄18-25周岁',
+                '全日制大学在读或毕业未满1年',
+                '英语工作能力证明',
+                '资金证明≥3000新币',
+                '购买医疗保险',
+                '提供详细行程计划'
+            ],
+            deadline: '',
+            friendlyDeadline: '大四毕业之前'
+        },
+        // 新西兰工作假期签证 (WHV)
+        {
+            id: 21,
+            category: 'visa',
+            name: '新西兰WHV签证',
+            description: '申请新西兰工作假期签证，工作>=6个月（申请成功报销往返机票）',
+            reward: 10000,
+            difficulty: 'medium',
+            priority: 'low',
+            locked: true,
+            lockReason: '需完成必须完成的任务，过英语六级',
+            icon: '🇳🇿',
+            status: 'pending',
+            completedBy: [],
+            completedDate: [],
+            notes: '18-30岁申请，需高中以上学历，雅思5.5分，资金证明≥4200纽币。每年1000个名额，可在线申请，签证有效期1年',
+            requirements: [
+                '年龄18-30周岁',
+                '高中及以上学历',
+                '雅思总分5.5或同等英语成绩',
+                '资金证明≥4200纽币',
+                '往返机票或购票资金',
+                '无重大犯罪记录'
+            ],
+            deadline: '',
+            friendlyDeadline: '大四毕业之前'
+        },
+    ],
     // 奖励规则
     rules: {
        /* // 难度等级对应的基础奖励倍数
