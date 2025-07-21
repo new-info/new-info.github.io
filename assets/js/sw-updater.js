@@ -16,8 +16,9 @@ class ServiceWorkerUpdater {
         this.notificationQueue = new Set(); // 通知队列，避免重复
         // 添加静音模式（开发时使用）
         this.silentMode = localStorage.getItem('swSilentMode') === 'true';
-        // 检测开发环境
-        this.isDevelopment = window.location.hostname === 'localhost' ||
+        // 检测开发环境 - 从配置获取
+        this.isDevelopment = window.APP_CONFIG?.development?.isDev || 
+                            window.location.hostname === 'localhost' ||
                             window.location.hostname === '127.0.0.1' ||
                             window.location.hostname.includes('localhost');
     }

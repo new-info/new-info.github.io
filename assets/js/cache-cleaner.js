@@ -5,7 +5,8 @@
 
 class CacheCleaner {
     constructor() {
-        this.appVersion = '1.0.0'; // 当前应用版本，需要与sw.js中的CACHE_NAME版本一致
+        // 从集中配置获取版本信息
+        this.appVersion = window.VersionManager ? window.VersionManager.getCurrentVersion() : '1.0.0';
         this.lastVersionKey = 'app-last-version';
         this.cleanupHistoryKey = 'app-cleanup-history';
         this.initialized = false;
@@ -60,21 +61,8 @@ class CacheCleaner {
      * @returns {boolean} 如果newVersion比oldVersion新则返回true
      */
     isVersionNewer(newVersion, oldVersion) {
-        if (!newVersion || !oldVersion) return true;
-
-        const newParts = newVersion.split('.').map(Number);
-        const oldParts = oldVersion.split('.').map(Number);
-
-        // 比较主版本
-        if (newParts[0] > oldParts[0]) return true;
-        if (newParts[0] < oldParts[0]) return false;
-
-        // 比较次版本
-        if (newParts[1] > oldParts[1]) return true;
-        if (newParts[1] < oldParts[1]) return false;
-
-        // 比较修订版本
-        return newParts[2] > oldParts[2];
+        // 使用VersionManager的版本比较方法
+        return window.VersionManager ? window.VersionManager.isVersionNewer(newVersion, oldVersion) : true;
     }
 
     /**

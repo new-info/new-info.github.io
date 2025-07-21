@@ -1,5 +1,5 @@
 // 自动生成的文件列表
-// 最后更新时间: 2025-07-21T15:24:37.709Z
+// 最后更新时间: 2025-07-21T15:37:32.966Z
 
 window.FILES_LIST = {
   "html": [
@@ -35,6 +35,7 @@ window.FILES_LIST = {
   "js": [
     "assets/data/expenses-records.js",
     "assets/data/task-rewards.js",
+    "assets/js/app-config.js",
     "assets/js/auth-config.js",
     "assets/js/auth-helper.js",
     "assets/js/back-button.js",
@@ -53,6 +54,7 @@ window.FILES_LIST = {
     "assets/js/sw-updater.js",
     "assets/js/task-rewards.js",
     "assets/js/unified-notification-manager.js",
+    "assets/js/version-updater.js",
     "assets/js/voucher-decryptor.js",
     "sw.js"
   ],
@@ -78,7 +80,7 @@ window.FILES_LIST = {
     "assets/js/unified-notification-manager.js.bak",
     "manifest.json"
   ],
-  "lastUpdated": "2025-07-21T15:24:37.709Z"
+  "lastUpdated": "2025-07-21T15:37:32.966Z"
 };
 
 // 导出数据供Node.js使用

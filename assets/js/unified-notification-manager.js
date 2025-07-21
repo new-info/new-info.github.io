@@ -6,7 +6,7 @@ class UnifiedNotificationManager {
     constructor() {
         this.initialized = false;
         
-        // 通知配置 - 统一管理所有通知相关配置
+        // 通知配置 - 从集中配置获取，支持本地覆盖
         this.config = {
             // 通知开关
             enabled: localStorage.getItem('unifiedNotifications') !== 'false',
@@ -18,12 +18,12 @@ class UnifiedNotificationManager {
             serviceWorkerNotifications: localStorage.getItem('swNotifications') !== 'false',
             // 静音模式（开发时使用）
             silentMode: localStorage.getItem('notificationSilentMode') === 'true',
-            // 通知显示时长
-            displayDuration: 6000,
-            // 通知节流间隔
-            throttleInterval: 2000,
-            // 缓存通知特殊节流间隔（更长）
-            cacheNotificationThrottle: 10000 // 10秒
+            // 通知显示时长 - 从配置获取
+            displayDuration: window.APP_CONFIG?.notifications?.displayDuration || 6000,
+            // 通知节流间隔 - 从配置获取
+            throttleInterval: window.APP_CONFIG?.notifications?.throttleInterval || 2000,
+            // 缓存通知特殊节流间隔（更长）- 从配置获取
+            cacheNotificationThrottle: window.APP_CONFIG?.notifications?.cacheThrottle || 10000
         };
         
         // 通知状态

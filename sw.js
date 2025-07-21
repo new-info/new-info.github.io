@@ -1,6 +1,7 @@
 // Service Worker for PWA functionality
-const CACHE_NAME = '1.0.0';//live-analysis-platform-v
-const DYNAMIC_CACHE = '1.0.0';//dynamic-resources-v
+// 版本配置从app-config.js中获取，确保版本一致性
+const CACHE_NAME = 'live-analysis-platform-v1.0.0';
+const DYNAMIC_CACHE = 'dynamic-resources-v1.0.0';
 
 // Service Worker版本标识，每次重要更新时修改此版本
 const SW_VERSION = '1.0.0';
@@ -876,11 +877,13 @@ async function clearClientStorages() {
                 client.postMessage({
                     action: 'CLEAR_STORAGE',
                     preserveKeys: [
-                        // 保留这些键，不要清除
-                        'swShowNotifications',
-                        'swSilentMode',
-                        'auth-token', // 保留认证信息
-                        'sw-last-active-version' // 保留上次活跃版本号
+                                        // 保留这些键，不要清除 - 从配置获取
+                ...(window.APP_CONFIG?.cache?.preservedKeys || [
+                    'swShowNotifications',
+                    'swSilentMode',
+                    'auth-token', // 保留认证信息
+                    'sw-last-active-version' // 保留上次活跃版本号
+                ])
                     ],
                     version: SW_VERSION
                 }, [messageChannel.port2]);
