@@ -1,5 +1,5 @@
 // 自动生成的分析数据文件
-// 最后更新时间: 2025-07-21T15:37:32.935Z
+// 最后更新时间: 2025-07-28T04:31:30.712Z
 
 window.NOTES_DATA = {
   "hjf": [
@@ -53,6 +53,22 @@ window.NOTES_DATA = {
     }
   ],
   "hjm": [
+    {
+      "path": "2025/hjm/2025年7月27日.html",
+      "title": "2025年7月27日",
+      "date": "2025-07-28",
+      "author": "hjm",
+      "preview": "",
+      "reviewReport": {
+        "path": "2025/hjm/2025年7月27日-review.html",
+        "title": "2025年7月27日 review",
+        "date": "2025-07-28",
+        "author": "hjm",
+        "isReview": true,
+        "preview": "",
+        "score": 79
+      }
+    },
     {
       "path": "2025/hjm/2025年7月20日.html",
       "title": "2025年7月20日",
@@ -134,7 +150,7 @@ window.NOTES_DATA = {
       }
     }
   ],
-  "lastUpdated": "2025-07-21T15:37:32.935Z"
+  "lastUpdated": "2025-07-28T04:31:30.712Z"
 };
 
 // 导出数据供Node.js使用
