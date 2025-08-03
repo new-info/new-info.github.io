@@ -77,7 +77,7 @@ npm run build
 
 ---
 
-### 3. 评分报告生成规则 📝
+### 3. 评分报告生成规则 ⚙️
 > 满分100分， 按照review的分析模版分析2025年7月27日.html文件内容，并生成html报告
 - 分析模板文件位于：assets/template/review.html
 
@@ -110,3 +110,26 @@ git commit -m "feat: hjf评分更新"  # 或 "feat: hjm评分更新"
 git push origin feat/hjf          # 或 feat/hjm
 ```
 c. 在 GitLab 网页端提交合并请求，将分支合并到 main 分支（没有权限可以发给我合并链接审核合并）。
+
+---
+## 五、借款记录详情数据更新 📝
+文件`assets/data/expenses-records.js`records数组里面手动新增一条记录
+```js
+records: [
+    // 复制以下内容进行修改
+    {
+        id: 5, // 自增id,根据已有id手动新增
+        date: '2025-09-01', // 借款日期
+        borrower: 'hjf', // 借款人hjf,hjm
+        amount: 1500, // 借款金额
+        purpose: '生活费', // 借款目的
+        returnDate: '-', // 归还日期
+        status: 'pending', // 归还状态 returned（已归还）, pending（待归还）, overdue（逾期）
+        actualReturnDate: '', // 实际归还日期
+        notes: '', // 备注
+        pinned: false, // 是否置顶（true 为置顶）
+        voucher: null // 本地凭证文件名, vouchers/hjf下新增的文件名
+    },
+    // 复制结束
+]
+```
